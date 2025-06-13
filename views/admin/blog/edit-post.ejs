@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+    <header class="admin-header">
+        <div class="container">
+            <h1>Панель Адміністратора</h1>
+<nav>
+    <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
+    <a href="/admin/products" class="<%= typeof pageName !== 'undefined' && pageName === 'products' ? 'active' : '' %>">Товари</a>
+    <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
+    <a href="/admin/blog/html-guide" class="<%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">HTML Інструкція</a> 
+    <a href="/admin/logout">Вийти</a>
+</nav>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <h1><%= pageTitle %></h1>
+
+            <div class="admin-form-container">
+                 <form action="/admin/blog/<%= post._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <%- include('_form-fields', { post: post, errors: (typeof errors !== 'undefined' ? errors : null), formData: (typeof formData !== 'undefined' ? formData : post) }) %>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Оновити Статтю</button>
+                        <a href="/admin/blog" class="btn btn-secondary">Скасувати</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

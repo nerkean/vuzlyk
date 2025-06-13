@@ -1,0 +1,52 @@
+.error-404-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px);
+    padding: 40px 15px;
+    background-color: #f8f9fa;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.error-container {
+    max-width: 600px;
+    width: 100%;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.error-code {
+    font-size: clamp(6rem, 20vw, 12rem);
+    font-weight: 700;
+    color: #e0e0e0;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+
+.error-heading {
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    font-size: 1rem;
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .error-404-page {
+        min-height: calc(100vh - 120px);
+        padding: 20px 15px;
+    }
+
+    .error-container {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <%
+        const defaultTitle = 'Каталог Вишивки Ручної Роботи - Вузлик до вузлика';
+        const defaultDescription = 'Перегляньте каталог унікальної вишивки ручної роботи від майстерні Вузлик до вузлика. Замовляйте ексклюзивні вишиванки, рушники, картини.';
+        const pageTitle = (typeof locals.pageTitle !== 'undefined' && locals.pageTitle) ? locals.pageTitle + ' - Вузлик до вузлика' : defaultTitle;
+        const metaDescription = (typeof locals.metaDescription !== 'undefined' && locals.metaDescription) ? locals.metaDescription : defaultDescription;
+        const pageHeading = (typeof locals.pageHeading !== 'undefined' && locals.pageHeading) ? locals.pageHeading : (typeof locals.pageTitle !== 'undefined' ? locals.pageTitle : 'Каталог'); // Для H1
+        const baseUrl = process.env.BASE_URL || 'https://vuzlyk.com'; 
+        const pageUrlPath = typeof locals.originalUrl !== 'undefined' ? locals.originalUrl : '/catalog';
+        const canonicalUrl = new URL(pageUrlPath, baseUrl).href;
+        
+        // OG Image - використовуємо основне зображення першого товару, якщо є, або дефолтне
+        let ogProductImageUrl = null;
+        if (typeof locals.products !== 'undefined' && locals.products.length > 0 && locals.products[0].images && locals.products[0].images.length > 0) {
+            const firstProductImageSet = locals.products[0].images[0];
+            if (firstProductImageSet.large && firstProductImageSet.large.url) {
+                ogProductImageUrl = firstProductImageSet.large.url;
+            } else if (firstProductImageSet.medium && firstProductImageSet.medium.url) {
+                ogProductImageUrl = firstProductImageSet.medium.url;
+            }
+        }
+        const ogImageUrl = ogProductImageUrl ? new URL(ogProductImageUrl, baseUrl).href : new URL('/images/og-image.jpg', baseUrl).href;
+
+        const currentPage = typeof locals.currentPage === 'number' && locals.currentPage > 0 ? locals.currentPage : 1; 
+        const limit = typeof locals.limit === 'number' && locals.limit > 0 ? locals.limit : 12; 
+    %>
+
+    <title><%= pageTitle %></title>
+    <meta name="description" content="<%= metaDescription %>">
+
+    <% if (locals.isProduction) { %>
+        <meta name="robots" content="index, follow"> 
+    <% } else { %>
+        <meta name="robots" content="noindex, nofollow"> 
+    <% } %>
+
+<meta name="csrf-token" content="<%= csrfToken %>">
+
+    <% if (locals.isProduction && locals.gaMeasurementId) { %>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'AW-17036727455'); 
+          gtag('config', '<%= locals.gaMeasurementId %>');
+          console.log('GA4 Initialized with ID:', '<%= locals.gaMeasurementId %>');
+        </script>
+    <% } %>
+
+    <link rel="canonical" href="<%= canonicalUrl %>" />
+    <meta property="og:title" content="<%= pageTitle %>">
+    <meta property="og:description" content="<%= metaDescription %>">
+    <meta property="og:image" content="<%= ogImageUrl %>">
+    <meta property="og:url" content="<%= canonicalUrl %>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Вузлик до вузлика">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= pageTitle %>">
+    <meta name="twitter:description" content="<%= metaDescription %>">
+    <meta name="twitter:image" content="<%= ogImageUrl %>">
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin> <%# Додано для Cloudinary %>
+
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <%# Preload для першого зображення товару, якщо воно є %>
+    <% if (typeof locals.products !== 'undefined' && locals.products.length > 0 && locals.products[0].images && locals.products[0].images.length > 0) { %>
+        <% const firstProductImageSet = locals.products[0].images[0]; %>
+        <% if (firstProductImageSet.medium && firstProductImageSet.medium.url) { %>
+            <link rel="preload" href="<%= firstProductImageSet.medium.url %>" as="image">
+        <% } else if (firstProductImageSet.thumb && firstProductImageSet.thumb.url) { %>
+            <link rel="preload" href="<%= firstProductImageSet.thumb.url %>" as="image">
+        <% } %>
+    <% } %>
+
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="preload" href="/css/catalog-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/catalog-page.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+<script type="application/ld+json">
+<%
+  const currentCanonicalUrl = typeof locals.canonicalUrl === 'string' ? locals.canonicalUrl : ((typeof locals.baseUrl === 'string' ? locals.baseUrl : 'https://vuzlyk.com') + '/catalog');
+  const currentPageTitle = typeof locals.pageTitle === 'string' ? locals.pageTitle : 'Каталог товарів - Вузлик до вузлика';
+  const currentMetaDescription = typeof locals.metaDescription === 'string' ? locals.metaDescription : 'Перегляньте наш каталог вишивки ручної роботи.';
+  const currentBaseUrl = typeof locals.baseUrl === 'string' ? locals.baseUrl : 'https://vuzlyk.com';
+  const currentPageHeading = typeof locals.pageHeading === 'string' ? locals.pageHeading : 'Каталог товарів';
+  
+  const currentProducts = Array.isArray(locals.products) ? locals.products : [];
+  const currentCurrentPage = typeof locals.currentPage === 'number' ? locals.currentPage : 1;
+  const currentLimit = typeof locals.limit === 'number' ? locals.limit : 12;
+  const currentProductCount = typeof locals.count === 'number' ? locals.count : currentProducts.length;
+  const currentExchangeRates = typeof locals.exchangeRates === 'object' && locals.exchangeRates !== null ? locals.exchangeRates : { "UAH": 1 };
+  const currentSelectedCurrency = typeof locals.selectedCurrency === 'string' ? locals.selectedCurrency : 'UAH';
+
+  const graph = [
+    {
+      "@type": "CollectionPage",
+      "@id": currentCanonicalUrl,
+      "url": currentCanonicalUrl,
+      "name": currentPageTitle,
+      "description": currentMetaDescription,
+      "inLanguage": "uk",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": currentBaseUrl + "/#website",
+        "url": currentBaseUrl + "/",
+        "name": "Вузлик до вузлика"
+      },
+      "breadcrumb": {
+        "@id": currentCanonicalUrl + "#breadcrumb"
+      },
+      "mainEntity": { "@id": currentCanonicalUrl + "#itemlist" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": currentCanonicalUrl + "#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Головна",
+          "item": currentBaseUrl + "/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": currentPageHeading, // Используем currentPageHeading, а не pageTitle для хлебных крошек, если они отличаются
+          "item": currentCanonicalUrl
+        }
+      ]
+    }
+  ];
+
+  if (currentProducts.length > 0) {
+    const itemList = {
+      "@type": "ItemList",
+      "@id": currentCanonicalUrl + "#itemlist",
+      "name": "Список товарів: " + currentPageHeading,
+      "numberOfItems": currentProductCount,
+      "itemListElement": currentProducts.map((product, index) => {
+        const productUrl = `${currentBaseUrl}/product/${product.slug || product._id}`;
+        const itemProduct = {
+          "@type": "Product",
+          "@id": productUrl,
+          "url": productUrl,
+          "name": product.name || "Назва товару", // Добавлена заглушка
+          "sku": product.sku || `VUZLYK-${product._id}`,
+          "brand": {
+            "@type": "Organization",
+            "name": "Вузлик до вузлика",
+            "url": currentBaseUrl
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": productUrl,
+            "price": (parseFloat(product.price || 0) * (currentExchangeRates[currentSelectedCurrency] || 1)).toFixed(2),
+            "priceCurrency": currentSelectedCurrency,
+            "availability": (product.status === 'В наявності' ? "https://schema.org/InStock" : "https://schema.org/PreOrder"),
+            "itemCondition": "https://schema.org/NewCondition"
+          }
+        };
+
+        if (product.images && product.images.length > 0 && product.images[0]) {
+          const img = product.images[0];
+          let imageUrlPath = img.medium?.url || img.thumb?.url;
+          if (imageUrlPath && typeof imageUrlPath === 'string') {
+            try { itemProduct.image = new URL(imageUrlPath, currentBaseUrl).href; } catch (e) { /* Ошибка создания URL, image останется неопределенным */ }
+          }
+        }
+
+        let cleanDescription = "";
+        const sourceDescription = product.summary || product.description || "";
+        if (typeof sourceDescription === 'string') {
+            cleanDescription = sourceDescription.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().substring(0, 160);
+        }
+        if (cleanDescription) itemProduct.description = cleanDescription;
+        
+        if (product.category && typeof product.category === 'string') itemProduct.category = product.category;
+        if (product.materials && Array.isArray(product.materials) && product.materials.length > 0) itemProduct.material = product.materials.join(', ');
+        if (product.colors && Array.isArray(product.colors) && product.colors.length > 0) itemProduct.color = product.colors.join(', ');
+
+        if (product.ratingCount && product.ratingCount > 0 && product.ratingSum !== undefined) {
+          itemProduct.aggregateRating = {
+            "@type": "AggregateRating",
+            "ratingValue": (product.ratingSum / product.ratingCount).toFixed(1),
+            "reviewCount": product.ratingCount
+          };
+        }
+        return {
+          "@type": "ListItem",
+          "position": (currentCurrentPage - 1) * currentLimit + index + 1,
+          "item": itemProduct
+        };
+      })
+    };
+    graph.push(itemList);
+  }
+%>
+<%- JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 0) %>
+</script>
+
+
+    <main class="catalog-page-main">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title"><%= pageHeading %></h1>
+            </div>
+
+            <div class="catalog-layout">
+
+                <button type="button" class="btn btn-secondary mobile-filter-toggle" id="mobile-filter-toggle" aria-expanded="false" aria-controls="filter-sidebar">
+                    <svg class="icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" style="width: 1em; height: 1em; vertical-align: -0.125em; margin-right: 0.5em;">
+                            <path d="M3.9 54.9C10.5 40.9 24.5 32 40 32H472c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9V448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6V320.9L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z"/>
+                        </svg>
+                        Фільтри та Сортування
+                </button>
+
+                <aside class="catalog-sidebar" data-aos="fade-right" data-aos-once="true" id="filter-sidebar">
+                    <h2 class="sidebar-title">Фільтри</h2>
+                    <form id="filter-form">
+                        <div class="filter-block">
+                            <h3 class="filter-title">Ціна (<%= locals.currencySymbols[locals.selectedCurrency] || 'грн' %>)</h3>
+                            <div class="filter-price">
+                                <div class="price-input-group">
+                                    <label for="price-from">Від:</label>
+                                    <input type="number" id="price-from" name="price_from" placeholder="0" min="0" aria-label="Ціна від" value="<%= locals.query && locals.query.price_from ? locals.query.price_from : '' %>">
+                                </div>
+                                <div class="price-input-group">
+                                    <label for="price-to">До:</label>
+                                    <input type="number" id="price-to" name="price_to" placeholder="10000" min="0" aria-label="Ціна до" value="<%= locals.query && locals.query.price_to ? locals.query.price_to : '' %>">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-block">
+                            <h3 class="filter-title">Наявність</h3>
+                            <div class="filter-status">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="status-available" name="status" value="available"
+                                        <%= (locals.query && locals.query.status && (Array.isArray(locals.query.status) ? locals.query.status.includes('available') : locals.query.status === 'available')) ? 'checked' : '' %>>
+                                    <label for="status-available">В наявності</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="status-order" name="status" value="pid_zamovlennya" 
+                                        <%= (locals.query && locals.query.status && (Array.isArray(locals.query.status) ? locals.query.status.includes('pid_zamovlennya') : locals.query.status === 'pid_zamovlennya')) ? 'checked' : '' %>>
+                                    <label for="status-order">Під замовлення</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-block">
+                            <h3 class="filter-title">Теги</h3>
+                            <div class="filter-tags">
+                                <% const allTags = ["дитячі", "пейзажі", "весільні", "контурна вишивка", "архітектурна вишивка", "квіти, букети", "карти", "тварини", "сімейні", "літери", "свята"]; %>
+                                <% allTags.forEach((tag, index) => { %>
+                                    <% const tagId = `tag-index-${index}`; %>
+                                    <div class="filter-option">
+                                        <input type="checkbox"
+                                               id="<%= tagId %>"
+                                               name="tags"
+                                               value="<%= tag %>"
+                                               <%= (typeof locals.query !== 'undefined' && locals.query.tags && (Array.isArray(locals.query.tags) ? locals.query.tags.includes(tag) : locals.query.tags === tag)) ? 'checked' : '' %>>
+                                        <label for="<%= tagId %>"><%= tag.charAt(0).toUpperCase() + tag.slice(1) %></label>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary clear-filters-btn">Скинути всі фільтри</button>
+                    </form>
+                </aside>
+
+                <div class="catalog-content">
+                    <div id="active-filters-container" class="active-filters" aria-label="Активні фільтри">
+                    </div>
+
+                    <div class="sorting-controls">
+                        <label for="sort-by">Сортувати:</label>
+                        <select name="sort" id="sort-by" aria-label="Сортування товарів">
+                           <option value="default" <%= (!locals.query || !locals.query.sort || locals.query.sort === 'default') ? 'selected' : '' %>>За замовчуванням (новіші)</option>
+                           <option value="price_asc" <%= (locals.query && locals.query.sort === 'price_asc') ? 'selected' : '' %>>За ціною (від дешевших)</option>
+                           <option value="price_desc" <%= (locals.query && locals.query.sort === 'price_desc') ? 'selected' : '' %>>За ціною (від дорожчих)</option>
+                           <option value="newest" <%= (locals.query && locals.query.sort === 'newest') ? 'selected' : '' %>>За новизною</option>
+                        </select>
+                        <span class="product-count" aria-live="polite">Знайдено: <span id="product-count-value"><%= typeof locals.count !== 'undefined' ? locals.count : (locals.products ? locals.products.length : 0) %></span></span>
+                    </div>
+
+                    <h2 class="visually-hidden">Товари в каталозі</h2>
+
+                    <div class="product-grid"
+     id="product-grid-container"
+     data-currency="<%= locals.selectedCurrency || 'UAH' %>"
+     data-rates='<%- JSON.stringify(locals.exchangeRates || {}) %>'
+     data-symbols='<%- JSON.stringify(locals.currencySymbols || {}) %>'>
+
+    <% if (typeof locals.products !== 'undefined' && locals.products.length > 0) { %>
+        <% locals.products.forEach((product, index) => { %>
+            <% 
+                let staticImgSrc = '/images/placeholder.svg';
+                if (product.images && product.images.length > 0) {
+                    const imgSet = product.images[0];
+                    if (imgSet.medium && typeof imgSet.medium === 'object' && imgSet.medium.url) {
+                        staticImgSrc = imgSet.medium.url;
+                    } else if (imgSet.thumb && typeof imgSet.thumb === 'object' && imgSet.thumb.url) {
+                        staticImgSrc = imgSet.thumb.url;
+                    } else if (typeof imgSet.medium === 'string' && imgSet.medium.trim() !== '') {
+                        staticImgSrc = imgSet.medium;
+                    } else if (typeof imgSet.thumb === 'string' && imgSet.thumb.trim() !== '') {
+                        staticImgSrc = imgSet.thumb;
+                    }
+                }
+                const livePhotoUrl = product.livePhotoUrl || '';
+                const livePhotoType = livePhotoUrl.endsWith('.gif') ? 'gif' : (livePhotoUrl.endsWith('.mp4') || livePhotoUrl.endsWith('.webm') ? 'video' : 'unknown');
+            %>
+            <article class="product-card" 
+                     data-aos="fade-up" 
+                     data-aos-delay="<%= index * 50 %>" 
+                     data-aos-once="true"
+                     data-static-image-url="<%= staticImgSrc %>"
+                     <% if (livePhotoUrl) { %>
+                        data-live-photo-url="<%= livePhotoUrl %>"
+                        data-live-photo-type="<%= livePhotoType %>"
+                     <% } %>>
+                <div class="product-image-wrapper">
+                    <a href="/product/<%= product._id %>" aria-label="Переглянути деталі товару <%= product.name %>">
+                        <img class="product-card-image static-image" 
+                             src="<%= staticImgSrc %>"
+                             alt="<%= product.name %>"
+                             width="300" height="400" <%# Або ваші розміри %>
+                             <%= (index === 0 && currentPage === 1) ? 'fetchpriority="high"' : 'loading="lazy"' %>
+                             onerror="this.onerror=null; this.src='/images/placeholder.svg';">
+                        
+                        <% if (livePhotoUrl) { %>
+                            <div class="live-photo-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #fff;"> <%# Додав фон для плавності %>
+                                <% if (livePhotoType === 'gif') { %>
+                                    <img class="product-card-image live-image-gif" 
+                                         src="" <%# src буде встановлено через JS %>
+                                         alt="Анімація <%= product.name %>"
+                                         style="width: 100%; height: 100%; object-fit: cover;">
+                                <% } else if (livePhotoType === 'video') { %>
+                                    <video class="product-card-image live-image-video" 
+                                           playsinline autoplay muted loop
+                                           style="width: 100%; height: 100%; object-fit: cover;">
+                                        <%# src для source буде встановлено через JS %>
+                                        <source src="" type="<%= livePhotoUrl.endsWith('.mp4') ? 'video/mp4' : 'video/webm' %>">
+                                        Ваш браузер не підтримує відео.
+                                    </video>
+                                <% } %>
+                            </div>
+                        <% } %>
+                        <div class="product-overlay"><span class="view-details-btn">Детальніше</span></div>
+                    </a>
+                </div>
+                <div class="product-info">
+                    <a href="/product/<%= product._id %>"><h3><%= product.name %></h3></a>
+                    <p class="price">
+                        <%= locals.formatPrice(product, locals.selectedCurrency, locals.exchangeRates, locals.currencySymbols) %>
+                        <% if (!product.isPriceNegotiable && product.maxPrice && product.maxPrice > product.price) { %>
+                            - <%= locals.formatPrice({ price: product.maxPrice }, locals.selectedCurrency, locals.exchangeRates, locals.currencySymbols) %>
+                        <% } %>
+                    </p>
+                    <button class="btn btn-tertiary add-to-cart-button" data-product-id="<%= product._id %>" aria-label="Додати <%= product.name %> в кошик">
+                        <svg class="icon icon-cart-plus" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor">
+                            <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20l44 0 0 44c0 11 9 20 20 20s20-9 20-20l0-44 44 0c11 0 20-9 20-20s-9-20-20-20l-44 0 0-44c0-11-9-20-20-20s-20 9-20 20l0 44-44 0c-11 0-20 9-20 20z"/>
+                        </svg>
+                        В кошик
+                    </button>
+                </div>
+            </article>
+                            <% }); %>
+                        <% } %>
+                        <p id="no-products-message"
+                           style="grid-column: 1 / -1; text-align: center; padding: 20px;"
+                           class="no-products-info <%= (typeof locals.products === 'undefined' || locals.products.length === 0) ? '' : 'is-hidden' %>">
+                           На жаль, товари за вашим запитом не знайдено. Спробуйте змінити фільтри.
+                        </p>
+                    </div>
+
+                    <div id="loading-indicator" style="display: none; text-align: center; padding: 20px; grid-column: 1 / -1;" aria-live="polite">
+                        Завантаження товарів...
+                    </div>
+
+                    <nav class="pagination" aria-label="Навігація по сторінках каталогу" id="pagination-container">
+                        <ul></ul>
+                    </nav>
+
+                </div> <%# end catalog-content %>
+            </div> <%# end catalog-layout %>
+        </div> <%# end container %>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/js/main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <script src="/js/catalog.js" defer></script>
+    <script defer>
+      document.addEventListener('DOMContentLoaded', function() {
+          if (typeof AOS !== 'undefined') {
+              AOS.init({ once: true, duration: 600, easing: 'ease-out-cubic', offset: 50 });
+          }
+      });
+    </script>
+</body>
+</html>

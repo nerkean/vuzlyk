@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Помилка сервера (500)' %> - Вузлик до вузлика</title>
+    <meta name="description" content="На жаль, на сервері сталася внутрішня помилка. Ми працюємо над її усуненням.">
+    <meta name="robots" content="noindex">
+
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+
+    <link rel="stylesheet" href="/css/common.css">
+
+    <link rel="preload" href="/css/500.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/500.css"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <main class="error-500-page">
+        <div class="container error-container">
+            <div class="error-code">500</div>
+            <h1 class="error-heading">Помилка сервера</h1>
+
+            <div class="error-message">
+                <% if (typeof message !== 'undefined' && message) { %>
+                    <p><%= message %></p>
+                <% } else { %>
+                    <p>На жаль, на сервері сталася непередбачена помилка.</p>
+                    <p>Ми вже працюємо над її усуненням. Спробуйте оновити сторінку пізніше або повернутися на головну.</p>
+                <% } %>
+            </div>
+            <a href="/" class="btn btn-primary error-home-link">Повернутися на Головну</a>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+</body>
+</html>

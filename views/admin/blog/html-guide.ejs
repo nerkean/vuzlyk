@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .guide-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #fff;
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius-main);
+            box-shadow: var(--box-shadow-light);
+        }
+        .guide-container h1 {
+            font-size: 1.8em;
+            color: var(--color-accent-dark);
+            border-bottom: 2px solid var(--color-accent-light);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+        .guide-container h2 {
+            font-size: 1.5em;
+            color: var(--color-text);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--color-border);
+            padding-bottom: 8px;
+        }
+        .guide-container h3 {
+            font-size: 1.25em;
+            color: var(--color-text-light);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .guide-container p, .guide-container li {
+            font-size: 1em;
+            line-height: 1.7;
+            color: var(--color-text-light);
+            margin-bottom: 10px;
+        }
+        .guide-container strong {
+            color: var(--color-text);
+        }
+        .guide-container code, .guide-container pre {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 5px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95em;
+        }
+        .guide-container pre {
+            padding: 15px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+        .guide-container .example-output {
+            border: 1px dashed var(--color-accent-light);
+            padding: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            background-color: #fffaf5;
+        }
+        .guide-container .example-output p, .guide-container .example-output li {
+            margin-bottom: 5px;
+        }
+        .guide-container .example-output p:last-child, .guide-container .example-output li:last-child {
+            margin-bottom: 0;
+        }
+        .guide-container ul, .guide-container ol {
+            padding-left: 25px;
+            margin-bottom: 15px;
+        }
+        .guide-container hr {
+            margin: 25px 0;
+            border: 0;
+            border-top: 1px solid var(--color-border);
+        }
+        .important-note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffeeba;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .important-note strong {
+            color: #856404;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <header class="admin-header">
+        <div class="container">
+            <h1>Панель Адміністратора</h1>
+            <nav>
+                <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
+                <a href="/admin/products" class="<%= typeof pageName !== 'undefined' && pageName === 'products' ? 'active' : '' %>">Товари</a>
+                <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
+                <a href="/admin/blog/html-guide" class="active">HTML Інструкція</a>
+                <a href="/admin/logout">Вийти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <div class="guide-container">
+                <h1>Інструкція з використання HTML-тегів для статей блогу</h1>
+
+                <p>Ця невеличка інструкція допоможе тобі форматувати текст статей у блозі, щоб вони виглядали гарно та читабельно. HTML-теги – це спеціальні команди, які вказують браузеру, як відображати текст.</p>
+
+                <p><strong>Основні принципи:</strong></p>
+                <ul>
+                    <li>Більшість тегів є парними: є тег, що відкривається (наприклад, <code>&lt;p&gt;</code>) і тег, що закривається (наприклад, <code>&lt;/p&gt;</code>). Текст, який потрібно відформатувати, розміщується між ними.</li>
+                    <li>Текстовий редактор в адмін-панелі (поле "Повний текст статті") дозволяє вводити ці теги.</li>
+                </ul>
+
+                <h2>Основні теги для тексту:</h2>
+
+                <h3>1. Абзаци: <code>&lt;p&gt;</code></h3>
+                <p>Кожен новий абзац тексту має починатися з тега <code>&lt;p&gt;</code> і закінчуватися тегом <code>&lt;/p&gt;</code>. Це найважливіший тег для основного тексту.</p>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;p&gt;Це перший абзац вашої статті. Тут ви можете розповісти щось цікаве про історію вишивки або поділитися своїми думками.&lt;/p&gt;
+&lt;p&gt;А це вже другий абзац. Не забувайте розділяти думки на абзаци для кращої читабельності.&lt;/p&gt;</code></pre>
+                <p><strong>Як це виглядає:</strong></p>
+                <div class="example-output">
+                    <p>Це перший абзац вашої статті. Тут ви можете розповісти щось цікаве про історію вишивки або поділитися своїми думками.</p>
+                    <p>А це вже другий абзац. Не забувайте розділяти думки на абзаци для кращої читабельності.</p>
+                </div>
+                <div class="important-note">
+                    <p><strong>Важливо для буквиці!</strong> Щоб перша літера статті була великою (буквиця), найперший текст у статті має починатися саме з тега <code>&lt;p&gt;</code>.</p>
+                </div>
+
+                <h3>2. Заголовки: <code>&lt;h2&gt;</code>, <code>&lt;h3&gt;</code>, <code>&lt;h4&gt;</code></h3>
+                <p>Для структурування тексту та виділення підтем використовуються заголовки. Не використовуйте <code>&lt;h1&gt;</code> всередині статті, оскільки він вже використовується для головного заголовка сторінки.</p>
+                <ul>
+                    <li><code>&lt;h2&gt;Назва розділу&lt;/h2&gt;</code> - для основних розділів статті.</li>
+                    <li><code>&lt;h3&gt;Підрозділ&lt;/h3&gt;</code> - для підрозділів всередині <code>&lt;h2&gt;</code>.</li>
+                    <li><code>&lt;h4&gt;Менший підрозділ&lt;/h4&gt;</code> - якщо потрібен ще менший рівень.</li>
+                </ul>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;h2&gt;Історія української вишиванки&lt;/h2&gt;
+&lt;p&gt;Текст про історію...&lt;/p&gt;
+&lt;h3&gt;Символіка орнаментів&lt;/h3&gt;
+&lt;p&gt;Текст про символи...&lt;/p&gt;
+&lt;h4&gt;Червоний колір в вишивці&lt;/h4&gt;
+&lt;p&gt;Детальніше про червоний колір...&lt;/p&gt;</code></pre>
+
+                <h3>3. Виділення тексту:</h3>
+                <ul>
+                    <li><strong>Жирний текст:</strong> <code>&lt;strong&gt;Важливий текст&lt;/strong&gt;</code> або <code>&lt;b&gt;Текст жирним&lt;/b&gt;</code>
+                        <div class="example-output"><strong>Важливий текст</strong></div>
+                    </li>
+                    <li><em>Курсив (похилий текст):</em> <code>&lt;em&gt;Текст курсивом&lt;/em&gt;</code> або <code>&lt;i&gt;Текст курсивом&lt;/i&gt;</code>
+                        <div class="example-output"><em>Текст курсивом</em></div>
+                    </li>
+                </ul>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;p&gt;Це &lt;strong&gt;дуже важлива&lt;/strong&gt; думка, а це слово написано &lt;em&gt;курсивом&lt;/em&gt;.&lt;/p&gt;</code></pre>
+
+                <h3>4. Списки:</h3>
+                <h4>Нумеровані списки: <code>&lt;ol&gt;</code> та <code>&lt;li&gt;</code></h4>
+                <p>Для створення списку, де важливий порядок пунктів.</p>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;ol&gt;
+    &lt;li&gt;Перший крок&lt;/li&gt;
+    &lt;li&gt;Другий крок&lt;/li&gt;
+    &lt;li&gt;Третій крок&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+                <p><strong>Як це виглядає:</strong></p>
+                <div class="example-output">
+                    <ol>
+                        <li>Перший крок</li>
+                        <li>Другий крок</li>
+                        <li>Третій крок</li>
+                    </ol>
+                </div>
+
+                <h4>Марковані списки: <code>&lt;ul&gt;</code> та <code>&lt;li&gt;</code></h4>
+                <p>Для створення списку, де порядок не важливий.</p>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;ul&gt;
+    &lt;li&gt;Льон&lt;/li&gt;
+    &lt;li&gt;Бавовняні нитки&lt;/li&gt;
+    &lt;li&gt;Голка та ножиці&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                <p><strong>Як це виглядає:</strong></p>
+                <div class="example-output">
+                    <ul>
+                        <li>Льон</li>
+                        <li>Бавовняні нитки</li>
+                        <li>Голка та ножиці</li>
+                    </ul>
+                </div>
+
+                <h3>5. Посилання: <code>&lt;a&gt;</code></h3>
+                <p>Для створення посилань на інші сторінки сайту або зовнішні ресурси.</p>
+                <p><strong>Атрибути:</strong></p>
+                <ul>
+                    <li><code>href="URL-адреса"</code> - вказує, куди веде посилання.</li>
+                    <li><code>target="_blank"</code> - (необов'язково) відкриває посилання в новій вкладці браузера. Рекомендується для зовнішніх посилань.</li>
+                    <li><code>rel="noopener noreferrer"</code> - (необов'язково, але рекомендується для <code>target="_blank"</code>) для безпеки.</li>
+                </ul>
+                <p><strong>Приклад посилання на іншу сторінку вашого сайту:</strong></p>
+                <pre><code>&lt;p&gt;Дізнайтеся більше про наші &lt;a href="/catalog"&gt;вишиванки в каталозі&lt;/a&gt;.&lt;/p&gt;</code></pre>
+                <p><strong>Приклад посилання на зовнішній сайт (відкриється в новій вкладці):</strong></p>
+                <pre><code>&lt;p&gt;Цікава стаття про &lt;a href="https://інший-сайт.com/стаття" target="_blank" rel="noopener noreferrer"&gt;історію вишивки&lt;/a&gt;.&lt;/p&gt;</code></pre>
+
+                <h3>6. Цитати: <code>&lt;blockquote&gt;</code></h3>
+                <p>Для виділення цитат або важливих висловлювань.</p>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;blockquote&gt;
+    &lt;p&gt;"Вишивка – це молитва без слів."&lt;/p&gt;
+&lt;/blockquote&gt;</code></pre>
+                <p><strong>Як це виглядає (стилі можуть відрізнятися):</strong></p>
+                <div class="example-output">
+                    <blockquote>
+                        <p>"Вишивка – це молитва без слів."</p>
+                    </blockquote>
+                </div>
+
+                <h3>7. Горизонтальна лінія: <code>&lt;hr&gt;</code></h3>
+                <p>Для візуального розділення секцій тексту.</p>
+                <p><strong>Приклад:</strong></p>
+                <pre><code>&lt;p&gt;Текст першої частини.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Текст другої частини.&lt;/p&gt;</code></pre>
+                 <div class="example-output">
+                    <p>Текст першої частини.</p>
+                    <hr style="margin: 10px 0;">
+                    <p>Текст другої частини.</p>
+                </div>
+
+
+                <h2>Як це все поєднувати:</h2>
+                <p>Ви можете комбінувати ці теги. Наприклад, всередині абзацу <code>&lt;p&gt;</code> може бути <strong>жирний текст</strong> <code>&lt;strong&gt;</code> або <em>курсив</em> <code>&lt;em&gt;</code>, а також посилання <code>&lt;a&gt;</code>.</p>
+                <p><strong>Приклад складнішого форматування:</strong></p>
+                <pre><code>&lt;h2&gt;Техніки вишивки хрестиком&lt;/h2&gt;
+&lt;p&gt;Вишивка хрестиком – одна з найпопулярніших технік. Вона дозволяє створювати як прості, так і &lt;strong&gt;дуже складні&lt;/strong&gt; візерунки. Існує кілька основних видів хрестика:&lt;/p&gt;
+&lt;ul&gt;
+    &lt;li&gt;Простий хрестик&lt;/li&gt;
+    &lt;li&gt;Напівхрестик&lt;/li&gt;
+    &lt;li&gt;Подвійний хрестик (болгарський)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Детальніше про кожну техніку можна прочитати в &lt;a href="/blog/tekhniky-vyshyvky" title="Стаття про техніки вишивки"&gt;нашій спеціальній статті&lt;/a&gt;.&lt;/p&gt;</code></pre>
+
+                <h2>Поради:</h2>
+                <ul>
+                    <li>Після збереження статті завжди переглядайте її на сайті, щоб переконатися, що все відображається правильно.</li>
+                    <li>Спробуйте різні теги на чернетці статті.</li>
+                    <li>Не перевантажуйте текст занадто великою кількістю різних форматувань. Головне – читабельність.</li>
+                </ul>
+                <p>Сподіваюся, ця інструкція буде корисною.</p>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

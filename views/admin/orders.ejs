@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель - Замовлення</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .order-item-image {
+            width: 50px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--color-border-light);
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+         .orders-table td[data-label="Товари"] ul {
+            padding-left: 0;
+        }
+        .orders-table td[data-label="Товари"] li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+         .orders-table td[data-label="Товари"] li a {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <header class="admin-header">
+        <div class="container">
+            <h1>Панель Адміністратора</h1>
+            <nav>
+                <a href="/admin/orders" class="active">Замовлення</a>
+                <a href="/admin/products">Товари</a>
+                <a href="/admin/blog">Блог</a>
+                <a href="/admin/blog/html-guide">HTML Інструкція</a>
+                <a href="/admin/logout">Вийти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <h2>Список Запитів на Замовлення</h2>
+
+            <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+                <div class="table-responsive-wrapper">
+                    <table class="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Ім'я</th>
+                                <th>Телефон</th>
+                                <th>Email</th>
+                                <th>Статус</th>
+                                <th>Товари</th>
+                                <th>Коментар</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% orders.forEach(order => { %>
+                                <tr data-order-id="<%= order._id %>">
+                                    <td data-label="Дата"><%= new Date(order.receivedAt).toLocaleString('uk-UA', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
+                                    <td data-label="Ім'я"><%= order.contactInfo.name %></td>
+                                    <td data-label="Телефон"><a href="tel:<%= order.contactInfo.phone %>"><%= order.contactInfo.phone %></a></td>
+                                    <td data-label="Email"><a href="mailto:<%= order.contactInfo.email %>"><%= order.contactInfo.email %></a></td>
+                                    <td data-label="Статус">
+                                        <select class="order-status-select" data-order-id="<%= order._id %>">
+                                            <option value="Новий" <%= order.status === 'Новий' ? 'selected' : '' %>>Новий</option>
+                                            <option value="В обробці" <%= order.status === 'В обробці' ? 'selected' : '' %>>В обробці</option>
+                                            <option value="Узгоджено" <%= order.status === 'Узгоджено' ? 'selected' : '' %>>Узгоджено</option>
+                                            <option value="Виконано" <%= order.status === 'Виконано' ? 'selected' : '' %>>Виконано</option>
+                                            <option value="Скасовано" <%= order.status === 'Скасовано' ? 'selected' : '' %>>Скасовано</option>
+                                        </select>
+                                    </td>
+                                    <td data-label="Товари">
+                                        <ul>
+                                            <% order.items.forEach(item => { %>
+                                                <li>
+                                                    <% if (item.imageUrl) { %>
+                                                        <img src="<%= item.imageUrl %>" alt="<%= item.name %>" class="order-item-image">
+                                                    <% } %>
+                                                   <a href="/product/<%= item.productId %>" target="_blank" title="Перейти до товару"><%= item.name %></a>
+                                                   (x<%= item.quantity %>)
+                                                </li>
+                                            <% }); %>
+                                        </ul>
+                                        <% if (order.customDescription && order.customDescription !== 'Не вказано') { %>
+                                            <p class="custom-description"><em>Кастом: <%= order.customDescription %></em></p>
+                                        <% } %>
+                                    </td>
+                                    <td data-label="Коментар"><%= order.comments && order.comments.trim() ? order.comments : '-' %></td>
+                                    <td data-label="Дії">
+                                        <button class="btn-delete-order" data-order-id="<%= order._id %>" title="Видалити">🗑️</button>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <p>Нових запитів на замовлення немає.</p>
+            <% } %>
+        </div>
+    </main>
+
+    <div id="confirmationModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <p id="confirmationMessage">Ви впевнені?</p>
+            <button id="confirmActionBtn" class="btn btn-danger">Так, видалити</button>
+            <button id="cancelActionBtn" class="btn btn-secondary">Скасувати</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ordersTable = document.querySelector('.orders-table');
+            const modal = document.getElementById('confirmationModal');
+            
+            if (!modal) return; 
+            
+            const closeButton = modal.querySelector('.close-button');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            const cancelBtn = document.getElementById('cancelActionBtn');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            let actionToConfirm = null; 
+
+            if (!ordersTable) return; 
+
+            const showModal = (message, onConfirm) => {
+                if (!confirmationMessage) return;
+                confirmationMessage.textContent = message;
+                actionToConfirm = onConfirm; 
+                modal.style.display = 'block';
+            };
+
+            const closeModal = () => {
+                modal.style.display = 'none';
+                actionToConfirm = null; 
+            };
+
+            if(confirmBtn) confirmBtn.addEventListener('click', () => {
+                if (typeof actionToConfirm === 'function') {
+                    actionToConfirm(); 
+                }
+                closeModal();
+            });
+
+            if(cancelBtn) cancelBtn.addEventListener('click', closeModal);
+            if(closeButton) closeButton.addEventListener('click', closeModal);
+            
+            window.addEventListener('click', (event) => { 
+                if (event.target == modal) {
+                    closeModal();
+                }
+            });
+
+            ordersTable.addEventListener('change', async (event) => {
+                if (event.target.classList.contains('order-status-select')) {
+                    const select = event.target;
+                    const orderId = select.dataset.orderId;
+                    const newStatus = select.value;
+
+                    console.log(`Зміна статусу для ${orderId} на ${newStatus}`);
+                    try {
+                        const response = await fetch(`/admin/orders/${orderId}/update-status`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ newStatus })
+                        });
+                        const result = await response.json();
+                        if (!response.ok) { 
+                           throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                        }
+                        if (result.success) {
+                            console.log('Статус оновлено!');
+                            select.style.borderColor = 'green'; 
+                            setTimeout(() => { select.style.borderColor = ''; }, 1500);
+                        } else {
+                           throw new Error(result.message || 'Невідома помилка оновлення статусу');
+                        }
+                    } catch (err) {
+                        console.error('Помилка при оновленні статусу:', err);
+                        alert(`Помилка оновлення статусу: ${err.message}`);
+                    }
+                }
+            });
+
+            ordersTable.addEventListener('click', (event) => {
+                const deleteButton = event.target.closest('.btn-delete-order');
+                if (deleteButton) {
+                    const orderId = deleteButton.dataset.orderId;
+                    const orderRow = deleteButton.closest('tr'); 
+
+                    showModal(`Ви впевнені, що хочете видалити замовлення ${orderId}?`, async () => {
+                        console.log(`Видалення замовлення ${orderId}`);
+                        try {
+                            const response = await fetch(`/admin/orders/${orderId}`, {
+                                method: 'DELETE'
+                            });
+                            const result = await response.json();
+                             if (!response.ok) { 
+                                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                             }
+                            if (result.success) {
+                                console.log('Замовлення видалено!');
+                                if(orderRow) orderRow.remove(); 
+                            } else {
+                                throw new Error(result.message || 'Невідома помилка видалення');
+                            }
+                        } catch (err) {
+                            console.error('Помилка при видаленні:', err);
+                            alert(`Помилка видалення: ${err.message}`);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

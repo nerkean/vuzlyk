@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід в Адмін-панель</title>
+    <link rel="stylesheet" href="/css/common.css"> <link rel="stylesheet" href="/css/admin.css"> </head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Вхід в Панель Адміністратора</h1>
+            <% if (typeof error !== 'undefined' && error) { %>
+                <p class="error-message">Неправильний логін або пароль.</p>
+            <% } %>
+            <form action="/admin/login" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="form-group">
+                    <label for="username">Логін:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary login-button">Увійти</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

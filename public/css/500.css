@@ -1,0 +1,70 @@
+.error-500-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px); 
+    padding: 40px 15px;
+    background-color: var(--color-light-bg); 
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.error-container {
+    max-width: 600px;
+    width: 100%;
+    padding: 35px 30px; 
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-main);
+    box-shadow: var(--box-shadow-medium); 
+    border: 1px solid var(--color-border);
+}
+
+.error-code {
+    font-size: clamp(5rem, 18vw, 9rem); 
+    font-weight: 700;
+    color: var(--color-danger);
+    line-height: 1;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.error-heading {
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
+    font-weight: 600;
+    color: var(--color-text);
+    margin-top: 0; 
+    margin-bottom: 15px;
+}
+
+.error-message {
+    font-size: 1rem;
+    color: var(--color-text-light);
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+.error-message p { 
+    margin-bottom: 0.5em;
+}
+.error-message p:last-child {
+    margin-bottom: 0;
+}
+
+.error-home-link {
+     margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .error-500-page {
+        min-height: calc(100vh - 120px);
+        padding: 20px 15px;
+    }
+    .error-container {
+        padding: 25px 20px;
+    }
+    .error-code {
+         font-size: clamp(4rem, 16vw, 7rem);
+    }
+     .error-heading {
+        font-size: clamp(1.6rem, 4.5vw, 2rem);
+    }
+}

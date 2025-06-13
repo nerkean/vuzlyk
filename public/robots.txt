@@ -1,0 +1,30 @@
+<<<<<<< HEAD
+User-agent: *
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /profile/
+Disallow: /login
+Disallow: /register
+Disallow: /auth/google
+Disallow: /auth/google/callback
+Disallow: /order/place
+Disallow: /order/request-sent
+Allow: /
+Allow: /catalog
+Allow: /about
+Allow: /product/
+=======
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /order/
+Disallow: /auth/
+Disallow: /verify-email
+Disallow: /resend-verification
+Disallow: /product/*/review
+Disallow: /api/
+Allow: /
+>>>>>>> 56a1076 (2.0)
+Sitemap: https://vuzlyk.com/sitemap.xml

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мій профіль - Вузлик</title>
+    <meta name="description" content="Керування вашим профілем та історія замовлень у майстерні Вузлик.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <% if (locals.isProduction && locals.gaMeasurementId) { %>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'AW-17036727455');
+          gtag('config', '<%= locals.gaMeasurementId %>');
+          console.log('GA4 Initialized with ID:', '<%= gaMeasurementId %>');
+        </script>
+    <% } else { %>
+        <% } %>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="preload" href="/css/profile.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/profile.css"></noscript>
+    <link rel="preload" href="/css/auth.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/auth.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <main class="profile-section section-padding">
+        <div class="container">
+            <h1 class="section-title">Мій Профіль</h1>
+
+            <% if (typeof query !== 'undefined' && query.success) { %>
+                <div class="alert alert-success" role="alert">
+                    <%= query.success %>
+                </div>
+            <% } %>
+            <% if (typeof query !== 'undefined' && query.error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <%= query.error %>
+                </div>
+            <% } %>
+
+            <section class="profile-edit-section">
+                <h2>Редагувати дані</h2>
+                <div class="profile-forms-grid">
+
+                    <form action="/profile/update?_method=PUT" method="POST" class="profile-form">
+                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="hidden" name="_method" value="PUT">
+                        <h3>Змінити ім'я</h3>
+                        <div class="form-group">
+                            <label for="name">Ім'я</label>
+                            <input type="text" id="name" name="name" class="form-control" value="<%= user.name || '' %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email_display">Email (не можна змінити)</label>
+                            <input type="email" id="email_display" class="form-control" value="<%= user.email %>" disabled readonly>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Зберегти Ім'я</button>
+                    </form>
+
+                    <form action="/profile/change-password" method="POST" class="profile-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <h3>Змінити пароль</h3>
+                        <% if (user.googleId) { %>
+                            <p class="form-text text-muted">Ви увійшли через Google. Зміна пароля недоступна.</p>
+                        <% } else { %>
+                            <div class="form-group">
+                                <label for="currentPassword">Поточний пароль <span class="required">*</span></label>
+                                <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPassword">Новий пароль <span class="required">*</span></label>
+                                <input type="password" id="newPassword" name="newPassword" class="form-control" required minlength="5" aria-describedby="passwordHelp">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmNewPassword">Підтвердіть новий пароль <span class="required">*</span></label>
+                                <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Змінити Пароль</button>
+                        <% } %>
+                    </form>
+                </div>
+            </section>
+
+            <hr>
+
+            <section class="order-history">
+                <h2>Історія Замовлень</h2>
+                <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+                    <div class="order-list">
+                        <% orders.forEach(order => { %>
+                            <div class="order-history-item">
+                                <div class="order-summary">
+                                    <div><strong>Номер:</strong> #<%= order._id.toString().slice(-6) %></div>
+                                    <div><strong>Дата:</strong> <time datetime="<%= order.createdAt.toISOString().split('T')[0] %>"><%= new Date(order.createdAt).toLocaleDateString('uk-UA') %></time></div>
+                                    <div><strong>Сума:</strong> <%= formatPrice(order.totalAmount, selectedCurrency, exchangeRates, currencySymbols) %></div>
+                                    <div><strong>Статус:</strong> <span class="status-badge status-<%= order.status.toLowerCase().replace(' ', '-') %>"><%= order.status %></span></div>
+                                </div>
+                                <% if (order.items && order.items.length > 0) { %>
+                                    <div class="order-items-preview">
+                                        <strong>Товари:</strong>
+                                        <ul>
+                                            <% order.items.forEach(item => { %>
+                                                <li>
+                                                    <span><%= item.name %> (x<%= item.quantity %>)</span>
+                                                    <% if (order.status === 'Виконано') { %>
+                                                        <% if (typeof reviewedProductIds !== 'undefined' && reviewedProductIds.has(item.productId)) { %>
+                                                            <span class="already-reviewed-text">Відгук залишено</span>
+                                                        <% } else { %>
+                                                            <a href="/product/<%= item.productId %>#reviewsList" class="btn btn-secondary btn-sm review-link">Залишити відгук</a>
+                                                        <% } %>
+                                                    <% } %>
+                                                </li>
+                                            <% }); %>
+                                        </ul>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p>У вас ще немає замовлень.</p>
+                <% } %>
+            </section>
+
+            <hr>
+
+            <section class="profile-actions">
+                <a href="/logout" class="btn btn-outline-danger">Вийти з акаунту</a>
+            </section>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/js/main.js" defer></script>
+    <script src="/js/password-validation.js" defer></script> 
+</body>
+</html>

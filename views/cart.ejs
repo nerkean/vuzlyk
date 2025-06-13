@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ваш кошик - Вузлик до вузлика</title>
+    <meta name="description" content="Перегляд та керування товарами у вашому кошику в майстерні Вузлик до вузлика.">
+    <meta name="robots" content="noindex">
+
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" href="/css/common.css"> <link rel="preload" href="/css/cart-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/cart-page.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+
+</head>
+<body>
+    <%- include('partials/header') %> <main class="cart-page-main">
+        <div class="container">
+            <h1 class="page-title">Ваш кошик</h1>
+
+            <% if (cartItems && cartItems.length > 0) { %>
+                <div class="cart-content">
+                    <div class="cart-items-list">
+                        <div class="cart-header">
+                            <div class="header-product">Товар</div>
+                            <div class="header-price">Ціна</div>
+                            <div class="header-quantity">Кількість</div>
+                            <div class="header-total">Сума</div>
+                            <div class="header-remove"></div>
+                        </div>
+
+                        <% cartItems.forEach(item => { %>
+                            <div class="cart-item" data-product-id="<%= item.productId %>">
+                                <div class="cart-item-image">
+                                    <a href="/product/<%= item.productId %>">
+                                        <img src="<%= item.image %>"
+                                             alt="<%= item.name %>"
+                                             width="100"
+                                             height="120"
+                                             loading="lazy"
+                                             onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                                    </a>
+                                </div>
+                                <div class="cart-item-details">
+                                    <h2 class="item-name">
+                                        <a href="/product/<%= item.productId %>"><%= item.name %></a>
+                                    </h2>
+                                    <% if (item.attributes) { %> <p class="item-attributes"><%= item.attributes %></p> <% } %>
+                                    <% if (item.productId === process.env.CUSTOM_PRODUCT_ID) { %> <p class="item-attributes">Індивідуальне замовлення</p> <% } %>
+                                </div>
+                                <div class="cart-item-price" data-label="Ціна: "><%= formatPrice(item.price, selectedCurrency, exchangeRates, currencySymbols) %></div>
+                                <div class="cart-item-quantity">
+                                    <button class="quantity-btn minus-btn" aria-label="Зменшити кількість" <%= item.productId === process.env.CUSTOM_PRODUCT_ID ? 'disabled' : '' %>>-</button>
+                                    <input type="number" class="quantity-input" value="<%= item.quantity %>" min="1" aria-label="Кількість" data-product-id="<%= item.productId %>" <%= item.productId === process.env.CUSTOM_PRODUCT_ID ? 'readonly disabled' : '' %>>
+                                    <button class="quantity-btn plus-btn" aria-label="Збільшити кількість" <%= item.productId === process.env.CUSTOM_PRODUCT_ID ? 'disabled' : '' %>>+</button>
+                                </div>
+                                <div class="cart-item-total" data-label="Сума: "><%= formatPrice(item.lineTotal, selectedCurrency, exchangeRates, currencySymbols) %></div>
+                                <div class="cart-item-remove">
+                                    <button class="remove-item-btn" aria-label="Видалити товар" data-product-id="<%= item.productId %>">
+                                        <svg class="icon icon-trash" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor">
+                                            <path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        <% }); %>
+                        </div>
+
+                        <div class="cart-summary">
+                            <h2 class="summary-title">Підсумок кошика</h2>
+                            <div class="summary-row">
+                                <span>Проміжний підсумок:</span>
+                                <span class="subtotal-amount"><%= formatPrice(subtotal, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                            </div>
+                            <div class="summary-row shipping-note">
+                                <span>Доставка:</span>
+                                <span>Буде розрахована на наступному кроці</span>
+                            </div>
+                            <div class="summary-row total-row">
+                                <span>До сплати:</span>
+                                <span class="total-amount"><%= formatPrice(total, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                            </div>
+                            <div class="cart-actions">
+                                <a href="/checkout" class="btn btn-primary btn-lg checkout-button">Оформити замовлення</a>
+                                <a href="/catalog" class="btn btn-secondary continue-shopping-button">Продовжити покупки</a>
+                            </div>
+                        </div>
+                    </div>
+
+            <% } else { %>
+                <div class="cart-empty">
+                    <p>Ваш кошик порожній.</p>
+                    <a href="/catalog" class="btn btn-primary">Перейти до каталогу</a>
+                </div>
+            <% } %>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/js/main.js" defer></script>
+    </body>
+</html>

@@ -1,0 +1,212 @@
+.contacts-page-main .section-padding {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.contacts-hero {
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-light-bg); 
+}
+
+.contacts-hero .page-title {
+    font-size: clamp(2.2rem, 7vw, 4rem);
+    color: var(--color-accent-dark);
+    margin-bottom: 10px;
+}
+
+.contacts-subtitle {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--color-text-light);
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 300;
+}
+
+.contact-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+.contact-block-title {
+    font-size: 1.8em;
+    font-family: var(--font-heading);
+    color: var(--color-text);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--color-accent-light);
+    position: relative;
+}
+.contact-block-title::after {
+    display: none; 
+}
+
+.contact-info-block p {
+    font-size: 1.05em;
+    color: var(--color-text-light);
+    margin-bottom: 12px;
+    line-height: 1.7;
+    display: flex;
+    align-items: center;
+}
+
+.contact-info-block p i {
+    color: var(--color-accent);
+    margin-right: 12px;
+    font-size: 1.2em;
+    width: 20px;
+    text-align: center;
+}
+
+.contact-info-block a {
+    color: var(--color-accent-dark);
+    text-decoration: none;
+}
+.contact-info-block a:hover {
+    text-decoration: underline;
+    color: var(--color-accent);
+}
+
+.social-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.social-icons-contact a {
+    color: var(--color-text-light);
+    font-size: 1.8em;
+    margin-right: 18px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+.social-icons-contact a:hover {
+    color: var(--color-accent);
+    transform: scale(1.1);
+}
+.social-icons-contact a:last-child {
+    margin-right: 0;
+}
+
+.contact-form .form-group {
+    margin-bottom: 20px;
+}
+
+.contact-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.95em;
+    color: var(--color-text);
+}
+.contact-form label .required {
+    color: var(--color-danger);
+    margin-left: 3px;
+}
+
+.contact-form .form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-main);
+    font-size: 1em;
+    font-family: var(--font-body);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--color-white);
+    color: var(--color-text);
+}
+
+.contact-form .form-control:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(185, 147, 108, 0.2);
+}
+
+.contact-form textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.contact-form .btn-primary {
+    padding: 12px 30px;
+    font-size: 1.05em;
+}
+
+.map-section {
+    padding: 0;
+    margin-top: 50px;
+    border-top: 1px solid var(--color-border);
+}
+.map-section iframe {
+    display: block;
+}
+
+.alert { 
+    max-width: 100%; 
+}
+
+
+@media (max-width: 992px) {
+    .contact-details-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    .contact-info-block {
+        text-align: center;
+    }
+    .contact-info-block p {
+        justify-content: center;
+    }
+     .contact-info-block p i {
+        margin-right: 10px;
+    }
+    .social-icons-contact {
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .contacts-hero {
+        min-height: 30vh;
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+    .contact-block-title {
+        font-size: 1.6em;
+    }
+    .contact-form-block {
+        padding: 20px;
+        background-color: var(--color-light-bg);
+        border-radius: var(--border-radius-main);
+    }
+}
+
+@media (max-width: 480px) {
+    .contacts-hero .page-title {
+        font-size: clamp(1.8rem, 6vw, 3rem);
+    }
+    .contacts-subtitle {
+        font-size: clamp(1rem, 2.5vw, 1.3rem);
+    }
+    .contact-block-title {
+        font-size: 1.4em;
+    }
+    .contact-info-block p {
+        font-size: 1em;
+    }
+    .contact-form .form-control {
+        padding: 10px 12px;
+    }
+     .contact-form .btn-primary {
+        width: 100%;
+    }
+}
+
+.contacts-page-main section {
+    overflow-x: hidden;
+}

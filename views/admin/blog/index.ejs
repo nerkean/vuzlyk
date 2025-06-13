@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель - Керування Блогом</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .post-image-thumbnail {
+            max-width: 80px;
+            max-height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--color-border-light);
+        }
+        .status-published {
+            color: var(--color-success);
+            font-weight: bold;
+        }
+        .status-draft {
+            color: var(--color-text-light);
+            font-style: italic;
+        }
+        .actions-cell {
+            white-space: nowrap;
+        }
+        .actions-cell .btn, .actions-cell form {
+            margin-right: 5px;
+            display: inline-block; /* Для кнопок и форм в ряд */
+        }
+        .actions-cell .btn-edit {
+            color: var(--color-primary);
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid var(--color-primary);
+            border-radius: var(--border-radius-main);
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .actions-cell .btn-edit:hover {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+        }
+        .actions-cell .btn-delete-post {
+            background-color: transparent;
+            border: 1px solid var(--color-danger);
+            color: var(--color-danger);
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: var(--border-radius-main);
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .actions-cell .btn-delete-post:hover {
+            background-color: var(--color-danger);
+            color: var(--color-white);
+        }
+        .add-new-post-btn {
+            margin-bottom: 20px;
+            background-color: var(--color-accent);
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: var(--border-radius-main);
+            display: inline-block;
+            font-weight: 600;
+        }
+        .add-new-post-btn:hover {
+            background-color: var(--color-accent-dark);
+            color: white;
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <header class="admin-header">
+        <div class="container">
+            <h1>Панель Адміністратора</h1>
+<nav>
+    <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
+    <a href="/admin/products" class="<%= typeof pageName !== 'undefined' && pageName === 'products' ? 'active' : '' %>">Товари</a>
+    <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
+    <a href="/admin/blog/html-guide" class="<%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">HTML Інструкція</a> 
+    <a href="/admin/logout">Вийти</a>
+</nav>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <h2>Список Статей Блогу</h2>
+
+            <a href="/admin/blog/new" class="add-new-post-btn">Додати Нову Статтю</a>
+
+            <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+                <div class="table-responsive-wrapper">
+                    <table class="product-list-table"> 
+                        <thead>
+                            <tr>
+                                <th>Зображення</th>
+                                <th>Заголовок</th>
+                                <th>Дата Публікації</th>
+                                <th>Статус</th>
+                                <th>Теги</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% posts.forEach(post => { %>
+                                <tr data-post-id="<%= post._id %>">
+                                    <td data-label="Зображення">
+                                        <% if (post.imageUrl) { %>
+                                            <img src="<%= post.imageUrl %>" alt="Зображення для <%= post.title %>" class="post-image-thumbnail">
+                                        <% } else { %>
+                                            <span class="text-muted">-</span>
+                                        <% } %>
+                                    </td>
+                                    <td data-label="Заголовок">
+                                        <a href="/blog/<%= post.slug %>" target="_blank" title="Переглянути статтю на сайті"><%= post.title %></a>
+                                    </td>
+                                    <td data-label="Дата Публікації">
+                                        <%= post.isPublished && post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('uk-UA') : '-' %>
+                                    </td>
+                                    <td data-label="Статус">
+                                        <% if (post.isPublished) { %>
+                                            <span class="status-published">Опубліковано</span>
+                                        <% } else { %>
+                                            <span class="status-draft">Чернетка</span>
+                                        <% } %>
+                                    </td>
+                                    <td data-label="Теги">
+                                        <%= post.tags && post.tags.length > 0 ? post.tags.join(', ') : '-' %>
+                                    </td>
+                                    <td data-label="Дії" class="actions-cell">
+                                        <a href="/admin/blog/<%= post._id %>/edit" class="btn-edit">Редагувати</a>
+                                        <form action="/admin/blog/<%= post._id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Ви впевнені, що хочете видалити цю статтю?');">
+                                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn-delete-post">Видалити</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <p>Ще немає жодної статті в блозі. <a href="/admin/blog/new">Створити першу статтю?</a></p>
+            <% } %>
+        </div>
+    </main>
+
+    <%# Модальное окно подтверждения, если нужно (по аналогии с orders.ejs) %>
+    <%# Вы можете скопировать сюда модальное окно из orders.ejs и адаптировать JS, если хотите подтверждение удаления через модалку, а не confirm() %>
+
+    <script>
+        // Скрипт для модального окна, если будете его использовать
+        // (пока используется стандартный confirm)
+    </script>
+</body>
+</html>

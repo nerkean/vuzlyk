@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Новий відгук' %> - Вузлик до вузлика</title> <meta name="description" content="Залиште ваш відгук про товар <%= product ? product.name : '' %> від майстерні Вузлик до вузлика.">
+    <meta name="robots" content="noindex">
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" href="/css/common.css"> <link rel="preload" href="/css/product-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/product-page.css"></noscript>
+    <link rel="preload" href="/css/auth.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/auth.css"></noscript>
+    <link rel="preload" href="/css/review.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/review.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+
+</head>
+<body>
+
+    <%- include('partials/header') %> <main>
+        <section class="review-form-section section-padding">
+            <div class="container">
+
+                <% if (product) { %>
+                    <h1 class="section-title text-center">Ваш відгук на товар</h1>
+
+                    <div class="product-review-info">
+                        <% if (product.images && product.images.length > 0) { %>
+                            <div class="product-review-image">
+                                <%
+                                  let reviewImgSrc = '/images/placeholder.png';
+                                  if (product.images[0].thumb) {
+                                      reviewImgSrc = product.images[0].thumb;
+                                  } else if (typeof product.images[0] === 'string') {
+                                      reviewImgSrc = product.images[0];
+                                  }
+                                %>
+                                <img src="<%= reviewImgSrc %>"
+                                     alt="<%= product.name %>"
+                                     width="80" height="80"
+                                     onerror="this.onerror=null; this.src='/images/placeholder.png';"
+                                     fetchpriority="high"> </div>
+                        <% } %>
+                        <div class="product-review-details">
+                             <h2><%= product.name %></h2>
+                             </div>
+                    </div>
+
+                    <form action="/api/products/<%= product._id %>/reviews" method="POST" class="auth-form review-form" id="review-form">
+<input type="hidden" name="_csrf" value="<%= csrfToken %>"> <input type="hidden" name="productId" value="<%= product._id %>">
+                         <% if (typeof query !== 'undefined' && query.error) { %>
+                            <div class="alert alert-danger" role="alert">
+                                <% if (query.error === 'invalid_rating') { %>
+                                    Будь ласка, оберіть оцінку (кількість зірок).
+                                <% } else if (query.error === 'server_error') { %>
+                                    Сталася помилка сервера при збереженні відгуку.
+                                <% } else { %>
+                                    <%= query.error %>
+                                <% } %>
+                            </div>
+                        <% } %>
+                        <div id="review-form-message" class="form-message" role="alert" aria-live="polite"></div>
+
+                        <div class="form-group rating-group">
+                            <label>Ваша оцінка <span class="required">*</span>:</label>
+                            <div class="star-rating-input">
+                                <input type="radio" id="rating-5" name="rating" value="5" required><label for="rating-5" title="5 зірок"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="rating-4" name="rating" value="4" required><label for="rating-4" title="4 зірки"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="rating-3" name="rating" value="3" required><label for="rating-3" title="3 зірки"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="rating-2" name="rating" value="2" required><label for="rating-2" title="2 зірки"><i class="fas fa-star"></i></label>
+                                <input type="radio" id="rating-1" name="rating" value="1" required><label for="rating-1" title="1 зірка"><i class="fas fa-star"></i></label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                             <label for="review_text">Ваш відгук (необов'язково):</label>
+                             <textarea id="review_text" name="text" class="form-control" rows="5" maxlength="1000" placeholder="Напишіть декілька слів про ваші враження..."></textarea>
+                        </div>
+
+                        <div class="form-group text-center">
+                            <button type="submit" class="btn btn-primary">Відправити відгук</button>
+                        </div>
+                    </form>
+
+                <% } else { %>
+                    <p class="text-center">Не вдалося завантажити інформацію про товар.</p>
+                    <p class="text-center"><a href="/catalog" class="btn btn-secondary">Повернутись до каталогу</a></p>
+                <% } %>
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/js/main.js" defer></script>
+    </body>
+</html>

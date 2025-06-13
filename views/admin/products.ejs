@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %></title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        /* Додаткові стилі для кращого вигляду таблиці товарів */
+        .product-list-table img {
+            max-width: 70px; /* Максимальна ширина мініатюри */
+            max-height: 70px; /* Максимальна висота мініатюри */
+            object-fit: cover; /* Зберігає пропорції, обрізаючи зайве */
+            border-radius: 4px;
+            border: 1px solid var(--color-border-light);
+        }
+        .product-list-table .product-actions {
+            white-space: nowrap; /* Щоб кнопки не переносились */
+        }
+        .product-list-table .product-actions .btn,
+        .product-list-table .product-actions form {
+            margin-bottom: 5px; /* Невеликий відступ знизу для кнопок, якщо вони стануть в стовпчик на малих екранах */
+        }
+         @media (max-width: 768px) {
+            .product-list-table td[data-label="Фото"] img {
+                max-width: 50px;
+                max-height: 50px;
+            }
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <header class="admin-header">
+        <div class="container">
+            <h1>Панель Адміністратора</h1>
+            <nav>
+                <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
+                <a href="/admin/products" class="active">Товари</a>
+                <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
+                <a href="/admin/blog/html-guide" class="<%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">HTML Інструкція</a> 
+                <a href="/admin/logout">Вийти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <div class="container">
+            <h1><%= pageTitle %></h1>
+            <a href="/admin/products/new" class="btn btn-primary" style="margin-bottom: 1.5rem; display: inline-block;">Додати новий товар</a>
+
+            <% if (products && products.length > 0) { %>
+                <div class="table-responsive-wrapper">
+                    <table class="product-list-table">
+                        <thead>
+                            <tr>
+                                <th>Фото</th>
+                                <th>Назва</th>
+                                <th>Ціна (грн)</th>
+                                <th>Категорія</th>
+                                <th>Статус</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% products.forEach(product => { %>
+                                <tr>
+                                    <td data-label="Фото">
+                                        <% if (product.images && product.images.length > 0 && product.images[0] && product.images[0].thumb && product.images[0].thumb.url) { %>
+                                            <img src="<%= product.images[0].thumb.url %>" alt="<%= product.name %>">
+                                        <% } else { %>
+                                            <img src="/images/placeholder.png" alt="Фото відсутнє" style="width:50px; height:50px; object-fit:contain; background:#eee;">
+                                        <% } %>
+                                     </td>
+                                    <td data-label="Назва"><%= product.name %></td>
+                                    <td data-label="Ціна (грн)">
+                                        <%= product.price %>
+                                        <% if (typeof product.maxPrice === 'number' && product.maxPrice > product.price) { %>
+                                            - <%= product.maxPrice %>
+                                        <% } %>
+                                    </td>
+                                    <td data-label="Категорія"><%= product.category %></td>
+                                    <td data-label="Статус"><%= product.status %></td>
+                                    <td data-label="Дії" class="product-actions">
+                                        <a href="/admin/products/<%= product._id %>/edit" class="btn btn-warning btn-sm">Редагувати</a>
+                                        <% var safeName = product.name.replace(/"/g, '&quot;'); %>
+                                        <form action="/admin/products/<%= product._id %>/delete" method="POST" style="display: inline-block; margin-left: 5px;" onsubmit="return confirm('Ви впевнені, що хочете видалити товар «<%= safeName %>»?');">
+                                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <p>Ще немає жодного товару. <a href="/admin/products/new">Додайте перший</a>.</p>
+            <% } %>
+        </div>
+    </main>
+</body>
+</html>

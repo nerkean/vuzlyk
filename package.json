@@ -1,0 +1,68 @@
+{
+  "name": "vuzlyk-do-vuzlyka",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Інтернет-магазин української вишивки ручної роботи 'Вузлик до вузлика'",
+  "main": "app.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "embroidery",
+    "vyshyvanka",
+    "handmade",
+    "ukraine",
+    "вишивка",
+    "вишиванка",
+    "ручна робота",
+    "українські традиції"
+  ],
+  "author": {
+    "name": "Майстерня 'Вузлик до вузлика'",
+    "email": "vuzlykinfo@gmail.com",
+    "url": "https://vuzlyk.com"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nerkean/vuzlyk_do_vuzlyka_site.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nerkean/vuzlyk_do_vuzlyka_site.git/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.6.0",
+    "compression": "^1.8.0",
+    "connect-mongo": "^5.1.0",
+    "cookie-parser": "^1.4.7",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.13.1",
+    "multer": "^1.4.5-lts.2",
+    "nodemailer": "^6.10.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "sharp": "^0.34.1",
+    "sitemap": "^8.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
