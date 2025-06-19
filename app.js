@@ -125,6 +125,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+const csrfProtection = csrf({ cookie: true });
+app.use(csrfProtection);
+
 if (process.env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
         if (req.headers['x-forwarded-proto'] !== 'https') {
@@ -232,7 +235,6 @@ app.use((req, res, next) => {
     res.locals.isProduction = process.env.NODE_ENV === 'production';
     res.locals.formatPrice = app.locals.formatPrice;
     res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    res.locals.csrfToken = req.csrfToken();
     next();
 });
 

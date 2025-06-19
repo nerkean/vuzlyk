@@ -70,7 +70,8 @@ router.get('/new', checkAdminAuth, (req, res) => {
         post: {},
         errors: null,
         formData: {},
-        layout: 'admin/layout'
+        layout: 'admin/layout',
+        csrfToken: req.csrfToken()
     });
 });
 
