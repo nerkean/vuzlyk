@@ -8,6 +8,9 @@ const sharp = require('sharp');
 const cloudinary = require('cloudinary').v2;
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const Post = require('../models/Post');
+const csrf = require('csurf');
+
+const csrfProtection = csrf({ cookie: true });
 
 function checkAdminAuth(req, res, next) {
     if (req.session && req.session.isAdmin) {
@@ -71,7 +74,7 @@ router.get('/new', checkAdminAuth, (req, res) => {
     });
 });
 
-router.post('/', checkAdminAuth, blogUpload.single('imageFile'), async (req, res, next) => {
+router.post('/', checkAdminAuth, blogUpload.single('imageFile'), csrfProtection, async (req, res, next) => {
     const { title, summary, content, tags, metaTitle, metaDescription, isPublished } = req.body;
     let errors = [];
 
@@ -171,7 +174,7 @@ router.get('/:id/edit', checkAdminAuth, async (req, res, next) => {
     }
 });
 
-router.put('/:id', checkAdminAuth, blogUpload.single('imageFile'), async (req, res, next) => {
+router.put('/:id', checkAdminAuth,  blogUpload.single('imageFile'), csrfProtection, async (req, res, next) => {
     const postId = req.params.id;
     const { title, summary, content, tags, metaTitle, metaDescription, isPublished, deleteCurrentImage } = req.body;
     let errors = [];
@@ -276,7 +279,7 @@ router.put('/:id', checkAdminAuth, blogUpload.single('imageFile'), async (req, r
     }
 });
 
-router.post('/:id/delete', checkAdminAuth, async (req, res, next) => {
+router.post('/:id/delete', checkAdminAuth, csrfProtection, async (req, res, next) => {
     const postId = req.params.id;
     try {
         if (!mongoose.Types.ObjectId.isValid(postId)) {
