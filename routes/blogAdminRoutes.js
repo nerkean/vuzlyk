@@ -97,7 +97,8 @@ router.post('/', checkAdminAuth, blogUpload.single('imageFile'), csrfProtection,
             errors: errors,
             formData: req.body,
             post: req.body,
-            layout: 'admin/layout'
+            layout: 'admin/layout',
+            csrfToken: req.csrfToken()
         });
     }
 
