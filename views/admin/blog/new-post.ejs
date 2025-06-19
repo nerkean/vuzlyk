@@ -28,6 +28,7 @@
 
             <div class="admin-form-container">
                 <form action="/admin/blog" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <%- include('_form-fields', { post: (typeof post !== 'undefined' ? post : {}), errors: (typeof errors !== 'undefined' ? errors : null), formData: (typeof formData !== 'undefined' ? formData : {}) }) %>
                     
                     <div class="form-actions">
