@@ -10,6 +10,9 @@ const sharp = require('sharp');
 const cloudinary = require('cloudinary').v2;
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true });
+
 const uploadDir = path.join(__dirname, '..', 'public', 'images', 'uploads');
 fs.mkdir(uploadDir, { recursive: true })
     .then(() => console.log(`[Admin Routes] Папка для завантажень існує або створена: ${uploadDir}`))
@@ -216,14 +219,15 @@ router.get('/products', checkAdminAuth, async (req, res, next) => {
     }
 });
 
-router.get('/products/new', checkAdminAuth, (req, res) => {
+router.get('/products/new', checkAdminAuth,  csrfProtection, (req, res) => {
     const categories = ['Вишивка'];
     res.render('admin/new-product', {
         pageTitle: 'Додати Новий Товар',
         categories: categories,
         formData: {},
         error: req.query.error || null,
-        query: req.query
+        query: req.query,
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -448,27 +452,18 @@ if (sku && sku.trim() !== '') {
 });
 
 
-router.get('/products/:id/edit', checkAdminAuth, async (req, res, next) => {
+router.get('/products/:id/edit', checkAdminAuth, csrfProtection, async (req, res, next) => {
     try {
-        const productId = req.params.id;
-        if (!mongoose.Types.ObjectId.isValid(productId)) {
-            return res.redirect('/admin/products?error=invalid_id');
-        }
-        const product = await Product.findById(productId).lean();
-        if (!product) {
-            return res.redirect('/admin/products?error=notfound');
-        }
-        const categories = ['Вишивка'];
-        let errorMessage = null;
-        if (req.query.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
-        else if (req.query.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
-        else if (req.query.error) errorMessage = decodeURIComponent(req.query.error);
-
+        const product = await Product.findById(req.params.id).lean();
+        if (!product) return res.redirect('/admin/products?error=notfound');
+        
         res.render('admin/edit-product', {
             pageTitle: `Редагувати: ${product.name}`,
             productData: product,
-            categories: categories,
-            errorMessage: errorMessage
+            categories: ['Вишивка'],
+            errorMessage: req.query.error ? decodeURIComponent(req.query.error) : null,
+            pageName: 'products',
+            csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error('[Admin Routes] Помилка отримання товару для редагування:', error);
@@ -476,7 +471,7 @@ router.get('/products/:id/edit', checkAdminAuth, async (req, res, next) => {
     }
 });
 
-router.put('/products/:id', checkAdminAuth, cpUpload, async (req, res, next) => {
+router.put('/products/:id', checkAdminAuth,  csrfProtection, cpUpload, async (req, res, next) => {
     const productId = req.params.id;
     const categories = ['Вишивка'];
     let productToUpdate;
@@ -732,7 +727,7 @@ const {
 });
 
 
-router.post('/products/:id/delete', checkAdminAuth, async (req, res, next) => {
+router.post('/products/:id/delete', checkAdminAuth,  csrfProtection, async (req, res, next) => {
     const productId = req.params.id;
     try {
         if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -779,7 +774,7 @@ router.post('/products/:id/delete', checkAdminAuth, async (req, res, next) => {
     }
 });
 
-router.post('/generate-meta-description', checkAdminAuth, async (req, res) => {
+router.post('/generate-meta-description', checkAdminAuth,  csrfProtection, async (req, res) => {
     const { productName, productDescription } = req.body;
 
     if (!productName || !productDescription) {

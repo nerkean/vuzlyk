@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Адмін-панель - Замовлення</title>
+    <meta name="csrf-token" content="<%= csrfToken %>">
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/admin.css">
     <style>
@@ -123,15 +124,16 @@
             const ordersTable = document.querySelector('.orders-table');
             const modal = document.getElementById('confirmationModal');
             
-            if (!modal) return; 
+            // ИСПРАВЛЕНИЕ: Получаем CSRF-токен из мета-тега
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            if (!modal || !ordersTable) return; 
             
             const closeButton = modal.querySelector('.close-button');
             const confirmBtn = document.getElementById('confirmActionBtn');
             const cancelBtn = document.getElementById('cancelActionBtn');
             const confirmationMessage = document.getElementById('confirmationMessage');
             let actionToConfirm = null; 
-
-            if (!ordersTable) return; 
 
             const showModal = (message, onConfirm) => {
                 if (!confirmationMessage) return;
@@ -167,11 +169,13 @@
                     const orderId = select.dataset.orderId;
                     const newStatus = select.value;
 
-                    console.log(`Зміна статусу для ${orderId} на ${newStatus}`);
                     try {
                         const response = await fetch(`/admin/orders/${orderId}/update-status`, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'CSRF-Token': csrfToken // ИСПРАВЛЕНИЕ: Добавляем токен
+                            },
                             body: JSON.stringify({ newStatus })
                         });
                         const result = await response.json();
@@ -179,7 +183,6 @@
                            throw new Error(result.message || `HTTP error! status: ${response.status}`);
                         }
                         if (result.success) {
-                            console.log('Статус оновлено!');
                             select.style.borderColor = 'green'; 
                             setTimeout(() => { select.style.borderColor = ''; }, 1500);
                         } else {
@@ -199,17 +202,18 @@
                     const orderRow = deleteButton.closest('tr'); 
 
                     showModal(`Ви впевнені, що хочете видалити замовлення ${orderId}?`, async () => {
-                        console.log(`Видалення замовлення ${orderId}`);
                         try {
                             const response = await fetch(`/admin/orders/${orderId}`, {
-                                method: 'DELETE'
+                                method: 'DELETE',
+                                headers: {
+                                    'CSRF-Token': csrfToken 
+                                }
                             });
                             const result = await response.json();
                              if (!response.ok) { 
-                                throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                                 throw new Error(result.message || `HTTP error! status: ${response.status}`);
                              }
                             if (result.success) {
-                                console.log('Замовлення видалено!');
                                 if(orderRow) orderRow.remove(); 
                             } else {
                                 throw new Error(result.message || 'Невідома помилка видалення');

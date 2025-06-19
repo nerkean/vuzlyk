@@ -235,8 +235,6 @@ app.use((req, res, next) => {
     res.locals.isProduction = process.env.NODE_ENV === 'production';
     res.locals.formatPrice = app.locals.formatPrice;
     res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    res.locals.csrfToken = req.csrfToken();
-    
     next();
 });
 
@@ -1156,9 +1154,26 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+    // ВАЖНО: Определяем все переменные, нужные для рендера, ПЕРЕД вызовом res.render
+    const localsForError = {
+        ...res.locals,
+        // ИСПРАВЛЕНИЕ: Убедимся, что currentUser всегда определен (хотя бы как null)
+        currentUser: req.user || null, 
+        // ИСПРАВЛЕНИЕ: Безопасный доступ к свойствам сессии
+        isAdmin: (req.session && req.session.isAdmin) || false,
+        cartItemCount: (req.session && req.session.cart) ? req.session.cart.reduce((sum, item) => sum + (item.quantity || 0), 0) : 0,
+        // Добавляем остальные переменные, которые могут понадобиться в header/footer
+        selectedCurrency: (req.session && req.session.currency) || 'UAH',
+        exchangeRates: currentRates,
+        currencySymbols: CURRENCY_SYMBOLS,
+        formatPrice: app.locals.formatPrice,
+        baseUrl: process.env.BASE_URL || `${req.protocol}://${req.get('host')}`
+    };
+
     if (err.code === 'EBADCSRFTOKEN') {
       console.warn(`[CSRF] Invalid CSRF token for ${req.method} ${req.originalUrl}`);
       return res.status(403).render('error', { 
+          ...localsForError,
           pageTitle: 'Помилка безпеки',
           message: 'Форма застаріла або недійсна. Будь ласка, поверніться назад, оновіть сторінку та спробуйте ще раз.'
       });
@@ -1172,7 +1187,19 @@ app.use((err, req, res, next) => {
         ? 'На жаль, на сервері сталася несподівана помилка.'
         : (err.message || 'Сталася помилка.');
     
-    res.status(statusCode).render('500', { pageTitle: 'Помилка сервера', message: userMessage });
+    // Также рекомендуется исправить обработчик 404 ошибки для консистентности
+    if (statusCode === 404) {
+        return res.status(404).render('404', {
+            ...localsForError,
+            pageTitle: 'Сторінку Не Знайдено'
+        });
+    }
+
+    res.status(statusCode).render('500', { 
+        ...localsForError,
+        pageTitle: 'Помилка сервера', 
+        message: userMessage 
+    });
 });
 
 app.locals.formatPrice = (amountUAH, targetCurrency, rates, symbols) => {
