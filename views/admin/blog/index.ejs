@@ -133,7 +133,6 @@
                                     <td data-label="Дії" class="actions-cell">
                                         <a href="/admin/blog/<%= post._id %>/edit" class="btn-edit">Редагувати</a>
                                         <form action="/admin/blog/<%= post._id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Ви впевнені, що хочете видалити цю статтю?');">
-                                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                             <button type="submit" class="btn-delete-post">Видалити</button>
                                         </form>
                                     </td>
