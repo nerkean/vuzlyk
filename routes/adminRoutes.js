@@ -72,10 +72,11 @@ function checkAdminAuth(req, res, next) {
     res.redirect('/admin/login');
 }
 
-router.get('/login', (req, res) => {
+router.get('/login', csrfProtection, (req, res) => { // 1. Добавили csrfProtection
     if (req.session.isAdmin) return res.redirect('/admin/orders');
     res.render('admin/login', {
-        error: req.query.error === '1' ? 'Неправильний логін або пароль.' : null
+        error: req.query.error === '1' ? 'Неправильний логін або пароль.' : null,
+        csrfToken: req.csrfToken() // 2. Передали токен в шаблон
     });
 });
 
@@ -109,7 +110,7 @@ router.get('/logout', (req, res) => {
 });
 
 
-router.get('/orders', checkAdminAuth, async (req, res) => {
+router.get('/orders', checkAdminAuth, csrfProtection, async (req, res) => {
     try {
         const ordersFromDB = await Order.find().sort({ receivedAt: -1 }).lean();
         
@@ -158,7 +159,8 @@ router.get('/orders', checkAdminAuth, async (req, res) => {
 
         res.render('admin/orders', {
             orders: ordersWithProductDetails,
-            pageTitle: "Керування Замовленнями"
+            pageTitle: "Керування Замовленнями",
+            csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error("Помилка завантаження замовлень:", error);
@@ -206,12 +208,13 @@ router.delete('/orders/:id', checkAdminAuth, async (req, res) => {
 });
 
 
-router.get('/products', checkAdminAuth, async (req, res, next) => {
+router.get('/products', checkAdminAuth, csrfProtection, async (req, res, next) => {
     try {
         const products = await Product.find({}).sort({ createdAt: -1 }).lean();
         res.render('admin/products', {
             pageTitle: 'Керування Товарами',
-            products: products
+            products: products,
+            csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error("[Admin Routes] Помилка завантаження товарів для адмін-панелі:", error);

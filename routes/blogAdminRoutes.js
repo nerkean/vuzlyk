@@ -76,7 +76,15 @@ router.get('/new', checkAdminAuth, csrfProtection, (req, res) => {
     });
 });
 
-router.post('/', checkAdminAuth, blogUpload.single('imageFile'), csrfProtection, async (req, res, next) => {
+function debugCsrf(req, res, next) {
+    console.log('--- ДЕБАГ CSRF ---');
+    console.log('Токен в сессии (секрет):', req.session ? req.session.csrfSecret : 'Сессия не найдена');
+    console.log('Токен из тела запроса (_csrf):', req.body ? req.body._csrf : 'Тело запроса (req.body) пустое');
+    console.log('------------------');
+    next();
+}
+
+router.post('/', checkAdminAuth, blogUpload.single('imageFile'), debugCsrf, csrfProtection, async (req, res, next) => {
     const { title, summary, content, tags, metaTitle, metaDescription, isPublished } = req.body;
     let errors = [];
 

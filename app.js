@@ -126,7 +126,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const csrfProtection = csrf({ cookie: true });
-app.use(csrfProtection);
 
 if (process.env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
