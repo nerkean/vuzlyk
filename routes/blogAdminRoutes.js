@@ -50,13 +50,14 @@ const blogUpload = multer({
     fileFilter: blogFileFilter
 });
 
-router.get('/', checkAdminAuth, async (req, res, next) => {
+router.get('/', checkAdminAuth, csrfProtection, async (req, res, next) => { // 1. Добавили csrfProtection
     try {
         const posts = await Post.find({}).sort({ createdAt: -1 }).lean();
         res.render('admin/blog/index', {
             pageTitle: 'Керування Блогом',
             posts: posts,
-            layout: 'admin/layout'
+            layout: 'admin/layout',
+            csrfToken: req.csrfToken() // 2. Передали токен в шаблон
         });
     } catch (error) {
         console.error("[Blog Admin Routes] Помилка завантаження статей:", error);
@@ -64,7 +65,7 @@ router.get('/', checkAdminAuth, async (req, res, next) => {
     }
 });
 
-router.get('/new', checkAdminAuth, (req, res) => {
+router.get('/new', checkAdminAuth, csrfProtection, (req, res) => {
     res.render('admin/blog/new-post', {
         pageTitle: 'Додати Нову Статтю',
         post: {},
@@ -275,7 +276,8 @@ router.put('/:id', checkAdminAuth,  blogUpload.single('imageFile'), csrfProtecti
             errors: errors,
             post: { ...currentPostData, ...req.body },
             formData: { ...currentPostData, ...req.body },
-            layout: 'admin/layout'
+            layout: 'admin/layout',
+            csrfToken: req.csrfToken()
         });
     }
 });
