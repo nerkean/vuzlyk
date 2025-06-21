@@ -269,7 +269,7 @@ app.get('/', async (req, res, next) => {
     }
 });
 
-app.get('/product/:id', async (req, res, next) => {
+app.get('/product/:id', csrfProtection, async (req, res, next) => {
   const productId = req.params.id;
   const userId = req.user?._id;
   try {
@@ -346,7 +346,8 @@ app.get('/product/:id', async (req, res, next) => {
       res.render('product-detail', {
         product: product, reviews: reviews, averageRating: averageRating, ratingCount: product.ratingCount,
         similarProducts: similarProducts, isCustomProduct: isCustomProduct, canReview: canReview,
-        hasReviewed: hasReviewed, pageTitle: pageTitle, metaDescription: metaDescription, productLD: productSchema
+        hasReviewed: hasReviewed, pageTitle: pageTitle, metaDescription: metaDescription, productLD: productSchema,
+        csrfToken: req.csrfToken()
       });
   } catch (error) {
       console.error(`Помилка отримання товару ${productId}:`, error);
@@ -354,7 +355,7 @@ app.get('/product/:id', async (req, res, next) => {
   }
 });
 
-app.get('/catalog', async (req, res, next) => {
+app.get('/catalog', csrfProtection, async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 12; 
     const sortOption = req.query.sort || 'default';
@@ -399,7 +400,8 @@ app.get('/catalog', async (req, res, next) => {
             selectedCurrency: res.locals.selectedCurrency,
             exchangeRates: res.locals.exchangeRates,
             currencySymbols: res.locals.currencySymbols,
-            query: req.query 
+            query: req.query,
+            csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error("Помилка при завантаженні каталогу:", error);
@@ -476,7 +478,7 @@ app.post('/cart/add', async (req, res) => {
     }
 });
 
-app.get('/cart', (req, res) => {
+app.get('/cart', csrfProtection, (req, res) => {
   console.log('[LOG] Обробка маршруту GET /cart');
   const cart = req.session.cart || [];
   let subtotal = 0;
@@ -499,7 +501,8 @@ app.get('/cart', (req, res) => {
       pageTitle: 'Ваш кошик - Вузлик',
       cartItems: cartItemsForRender,
       subtotal: subtotal, 
-      total: total,     
+      total: total,
+      csrfToken: req.csrfToken()  
   });
 });
 
@@ -663,7 +666,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-app.get('/checkout', (req, res) => {
+app.get('/checkout', csrfProtection, (req, res) => {
     const cart = req.session.cart || [];
     let subtotal = 0;
     const cartItemsForRender = cart.map(item => {
@@ -683,7 +686,8 @@ app.get('/checkout', (req, res) => {
         cartItems: cartItemsForRender,
         subtotal: subtotal,
         total: total,
-        currentUser: req.user
+        currentUser: req.user,
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -973,15 +977,16 @@ app.get('/about', (req, res) => {
   }
 });
 
-app.get('/contacts', (req, res) => {
+app.get('/contacts', csrfProtection, (req, res) => {
     res.render('contacts', {
         pageTitle: "Контакти - Вузлик до вузлика", 
         query: req.query,
-        formData: {} 
+        formData: {},
+        csrfToken: req.csrfToken()
     });
 });
 
-app.post('/contacts/send', async (req, res) => {
+app.post('/contacts/send', csrfProtection, async (req, res) => {
     const { name, email, phone, subject, message } = req.body;
     const recaptchaToken = req.body['g-recaptcha-response'];
 
@@ -989,7 +994,8 @@ app.post('/contacts/send', async (req, res) => {
         return res.render('contacts', {
             pageTitle: "Помилка відправки - Контакти",
             query: { error: 'Будь ласка, заповніть усі обов\'язкові поля (ім\'я, email, повідомлення).' },
-            formData: { name, email, phone, subject, message } 
+            formData: { name, email, phone, subject, message },
+            csrfToken: req.csrfToken() 
         });
     }
 
@@ -998,16 +1004,18 @@ app.post('/contacts/send', async (req, res) => {
         return res.render('contacts', {
             pageTitle: "Помилка відправки - Контакти",
             query: { error: 'Будь ласка, введіть коректний email.' },
-            formData: { name, email, phone, subject, message } 
+            formData: { name, email, phone, subject, message },
+            csrfToken: req.csrfToken() 
         });
     }
 
-    if (!process.env.RECAPTCHA_V2_SECRET_KEY) {
+if (!process.env.RECAPTCHA_V2_SECRET_KEY) {
         console.error('[Contact Form V2] RECAPTCHA_V2_SECRET_KEY не налаштовано на сервері.');
         return res.render('contacts', {
             pageTitle: "Помилка відправки - Контакти",
             query: { error: 'Помилка конфігурації сервера reCAPTCHA.' },
-            formData: { name, email, phone, subject, message }
+            formData: { name, email, phone, subject, message },
+            csrfToken: req.csrfToken() 
         });
     }
 
@@ -1016,7 +1024,8 @@ app.post('/contacts/send', async (req, res) => {
         return res.render('contacts', {
             pageTitle: "Помилка відправки - Контакти",
             query: { error: 'Будь ласка, пройдіть перевірку "Я не робот".' },
-            formData: { name, email, phone, subject, message }
+            formData: { name, email, phone, subject, message },
+            csrfToken: req.csrfToken() 
         });
     }
     
@@ -1031,7 +1040,8 @@ app.post('/contacts/send', async (req, res) => {
             return res.render('contacts', {
                 pageTitle: "Помилка відправки - Контакти",
                 query: { error: 'Перевірка "Я не робот" не пройдена. Спробуйте ще раз.' },
-                formData: { name, email, phone, subject, message }
+                formData: { name, email, phone, subject, message },
+                csrfToken: req.csrfToken()
             });
         }
 
@@ -1095,7 +1105,8 @@ ${message}
         return res.render('contacts', {
             pageTitle: "Помилка відправки - Контакти",
             query: { error: 'Сталася помилка при відправці повідомлення. Спробуйте пізніше.' },
-            formData: { name, email, phone, subject, message }
+            formData: { name, email, phone, subject, message },
+            csrfToken: req.csrfToken()
         });
     }
 });
