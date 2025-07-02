@@ -234,8 +234,8 @@ router.get('/products/new', checkAdminAuth,  csrfProtection, (req, res) => {
     });
 });
 
-router.post('/products', checkAdminAuth, cpUpload, async (req, res, next) => {
-    const categories = ['Вишивка'];
+router.post('/products', checkAdminAuth, cpUpload, csrfProtection, async (req, res, next) => {
+    const categories = ['Вишивка', 'Прикраси']; // Добавим сюда новую категорию
     const formData = req.body;
 
     const mainImageFiles = req.files && req.files.imageFiles ? req.files.imageFiles : [];
@@ -256,7 +256,7 @@ router.post('/products', checkAdminAuth, cpUpload, async (req, res, next) => {
         }
         return res.status(400).render('admin/new-product', {
             pageTitle: 'Помилка - Додати Товар', categories, formData,
-            error: fileValidationErrorMessage.trim()
+            error: fileValidationErrorMessage.trim(), csrfToken: req.csrfToken() 
         });
     }
 
@@ -266,7 +266,7 @@ router.post('/products', checkAdminAuth, cpUpload, async (req, res, next) => {
         }
         return res.status(400).render('admin/new-product', {
             pageTitle: 'Помилка - Додати Товар', categories, formData,
-            error: 'Необхідно завантажити хоча б одне основне зображення товару.'
+            error: 'Необхідно завантажити хоча б одне основне зображення товару.', csrfToken: req.csrfToken() 
         });
     }
     
@@ -302,7 +302,7 @@ const {
             if (livePhotoFile) allTempFiles.push(livePhotoFile.path);
             await Promise.all(allTempFiles.map(p => fs.unlink(p).catch(e => console.error("[Admin Routes] Cleanup failed for validation error (missing fields):", e.message, p))));
             return res.status(400).render('admin/new-product', {
-                pageTitle: 'Помилка - Додати Товар', categories, formData, error: 'validation'
+                pageTitle: 'Помилка - Додати Товар', categories, formData, error: 'validation', csrfToken: req.csrfToken()
             });
         }
         
@@ -311,7 +311,7 @@ const {
             if (livePhotoFile) allTempFiles.push(livePhotoFile.path);
             await Promise.all(allTempFiles.map(p => fs.unlink(p).catch(e => console.error("[Admin Routes] Cleanup failed for price validation error:", e.message, p))));
             return res.status(400).render('admin/new-product', {
-                pageTitle: 'Помилка - Додати Товар', categories, formData, error: 'price_validation'
+                pageTitle: 'Помилка - Додати Товар', categories, formData, error: 'price_validation', csrfToken: req.csrfToken()
             });
         }
 
@@ -367,7 +367,7 @@ const {
             if (livePhotoFile) await fs.unlink(livePhotoFile.path).catch(e => {});
             return res.status(400).render('admin/new-product', { 
                 pageTitle: 'Помилка - Додати Товар', categories, formData,
-                error: 'Не вдалося обробити жодного основного зображення.'
+                error: 'Не вдалося обробити жодного основного зображення.', csrfToken: req.csrfToken()
             });
         }
 
@@ -406,7 +406,7 @@ const newProduct = new Product({
     livePhotoUrl: livePhotoUrlDb,
     livePhotoPublicId: livePhotoPublicIdDb,
     tags: processedTags, materials: processedMaterials, colors: processedColors,
-    care_instructions, creation_time_info, isFeatured: isFeatured === 'on',
+    care_instructions, creation_time_info, isFeatured: isFeatured === 'on', csrfToken: req.csrfToken()
 });
 
 if (sku && sku.trim() !== '') {
@@ -444,12 +444,12 @@ if (sku && sku.trim() !== '') {
             let errorMsg = 'Помилка валідації: ';
             for (let field in error.errors) { errorMsg += `${error.errors[field].message} `; }
             return res.status(400).render('admin/new-product', {
-                pageTitle: 'Помилка - Додати Товар', categories, formData, error: errorMsg.trim()
+                pageTitle: 'Помилка - Додати Товар', categories, formData, error: errorMsg.trim(), csrfToken: req.csrfToken()
             });
         }
         return res.status(500).render('admin/new-product', {
             pageTitle: 'Помилка - Додати Товар', categories, formData,
-            error: error.message || 'Сталася невідома помилка при обробці зображень.'
+            error: error.message || 'Сталася невідома помилка при обробці зображень.', csrfToken: req.csrfToken()
         });
     }
 });
@@ -474,7 +474,7 @@ router.get('/products/:id/edit', checkAdminAuth, csrfProtection, async (req, res
     }
 });
 
-router.put('/products/:id', checkAdminAuth,  csrfProtection, cpUpload, async (req, res, next) => {
+router.put('/products/:id', checkAdminAuth, cpUpload, csrfProtection, async (req, res, next) => {
     const productId = req.params.id;
     const categories = ['Вишивка'];
     let productToUpdate;
@@ -517,7 +517,7 @@ const {
         if (!name || !description || !price || !category || !creation_time_info || !status) {
             if (newMainImageTempPaths.length > 0) await Promise.all(newMainImageTempPaths.map(p=>fs.unlink(p).catch(e=>{})));
             if (newLivePhotoTempPath) await fs.unlink(newLivePhotoTempPath).catch(e=>{});
-            return res.redirect(`/admin/products/${productId}/edit?error=${encodeURIComponent('Будь ласка, заповніть усі обов\'язкові поля.')}`);
+           return res.redirect(`/admin/products/${productId}/edit?error=${encodeURIComponent('Будь ласка, заповніть усі обов\'язкові поля.')}`);
         }
 
         productToUpdate.name = name;
@@ -631,7 +631,8 @@ const {
                 pageTitle: `Помилка - Редагувати: ${productDataForForm.name || 'Товар'}`,
                 productData: productDataForForm,
                 categories: categories,
-                errorMessage: 'Має бути хоча б одне основне зображення товару. Якщо ви видалили всі старі, завантажте нові.'
+                errorMessage: 'Має бути хоча б одне основне зображення товару. Якщо ви видалили всі старі, завантажте нові.',
+                csrfToken: req.csrfToken() // <--- ДОБАВЛЕНО ЗДЕСЬ
             });
         }
         productToUpdate.images = finalImagesArray;
@@ -724,7 +725,8 @@ const {
             pageTitle: `Помилка - Редагувати: ${productDataForForm.name || 'Товар'}`,
             productData: productDataForForm,
             categories: categories,
-            errorMessage: errorMsgForRender
+            errorMessage: errorMsgForRender,
+            csrfToken: req.csrfToken() // <--- И ДОБАВЛЕНО ЗДЕСЬ
         });
     }
 });

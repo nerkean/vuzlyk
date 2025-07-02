@@ -50,21 +50,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeMenuBtn = document.getElementById('close-menu-btn');
     const siteOverlay = document.getElementById('site-overlay');
 
-    if (menuToggleBtn && sideMenu && closeMenuBtn && siteOverlay) {
-        const openMenu = () => {
-            sideMenu.classList.add('is-open');
-            siteOverlay.classList.add('is-visible');
-        };
+   if (menuToggleBtn && sideMenu && closeMenuBtn && siteOverlay) {
+    const openMenu = () => {
+        sideMenu.classList.add('is-open');
+        siteOverlay.classList.add('is-visible');
+        menuToggleBtn.setAttribute('aria-expanded', 'true'); // <-- ДОБАВЛЕНО
+    };
 
-        const closeMenu = () => {
-            sideMenu.classList.remove('is-open');
-            siteOverlay.classList.remove('is-visible');
-        };
+    const closeMenu = () => {
+        sideMenu.classList.remove('is-open');
+        siteOverlay.classList.remove('is-visible');
+        menuToggleBtn.setAttribute('aria-expanded', 'false'); // <-- ДОБАВЛЕНО
+    };
 
-        menuToggleBtn.addEventListener('click', openMenu);
-        closeMenuBtn.addEventListener('click', closeMenu);
-        siteOverlay.addEventListener('click', closeMenu);
-    }
+    menuToggleBtn.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    siteOverlay.addEventListener('click', closeMenu);
+}
 
     if (navToggleBtn && mainNavMenu) {
         navToggleBtn.addEventListener('click', () => {
@@ -273,4 +275,165 @@ if (cartItemsList) {
         }
     });
     }
+
+const searchToggleButton = document.querySelector('.search-toggle');
+const searchOverlay = document.getElementById('search-overlay');
+const searchCloseButton = document.getElementById('search-overlay-close');
+const searchInput = document.getElementById('search-input'); // Используем ID
+const searchResultsContainer = document.getElementById('search-results-container');
+
+if (searchToggleButton && searchOverlay && searchCloseButton) {
+    
+    const openSearch = () => {
+        searchOverlay.classList.add('is-active');
+        setTimeout(() => searchInput.focus(), 400); 
+    };
+
+    const closeSearch = () => {
+        searchOverlay.classList.remove('is-active');
+        searchInput.value = ''; // Очищаем поле при закрытии
+        searchResultsContainer.innerHTML = '';
+        searchResultsContainer.style.display = 'none';
+    };
+
+    searchToggleButton.addEventListener('click', openSearch);
+    searchCloseButton.addEventListener('click', closeSearch);
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && searchOverlay.classList.contains('is-active')) {
+            closeSearch();
+        }
+    });
+
+    // --- Логика "живого" поиска ---
+    let searchTimeout;
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+
+        clearTimeout(searchTimeout); // Отменяем предыдущий таймер
+
+        if (query.length < 2) { // Начинаем поиск с 2-х символов
+            searchResultsContainer.innerHTML = '';
+            searchResultsContainer.style.display = 'none';
+            return;
+        }
+
+        // Ждем 300 мс после окончания ввода, чтобы не слать запрос на каждую букву
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/search-suggestions?q=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const results = await response.json();
+                displaySearchResults(results);
+            } catch (error) {
+                console.error('Search error:', error);
+                searchResultsContainer.innerHTML = '<div class="no-results-message">Помилка пошуку...</div>';
+                searchResultsContainer.style.display = 'block';
+            }
+        }, 300);
+    });
+
+    const displaySearchResults = (results) => {
+        searchResultsContainer.innerHTML = ''; // Очищаем старые результаты
+
+        if (results.length === 0) {
+            searchResultsContainer.innerHTML = '<div class="no-results-message">Нічого не знайдено</div>';
+        } else {
+            results.forEach(item => {
+                const itemElement = document.createElement('a');
+                itemElement.href = item.url;
+                itemElement.classList.add('search-result-item');
+
+                let imageSrc = item.image || '/images/placeholder.svg';
+                let itemType = item.type === 'product' ? 'Товар' : 'Стаття';
+
+                itemElement.innerHTML = `
+                    <img src="${imageSrc}" alt="Зображення ${item.name}">
+                    <div class="result-item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-type">${itemType}</div>
+                    </div>
+                `;
+                searchResultsContainer.appendChild(itemElement);
+            });
+        }
+        searchResultsContainer.style.display = 'block';
+    };
+}
+
+document.body.addEventListener('click', async (event) => {
+    const wishlistBtn = event.target.closest('.wishlist-btn');
+    const removeFromWishlistBtn = event.target.closest('.remove-from-wishlist');
+
+    const button = wishlistBtn || removeFromWishlistBtn;
+    if (!button) return;
+
+        if (button.dataset.redirectToLogin === 'true') {
+        window.location.href = '/login?redirect=' + window.location.pathname;
+        return;
+    }
+
+    event.preventDefault();
+    const productId = button.dataset.productId;
+    if (!productId) return;
+
+    try {
+        const response = await fetch(`/wishlist/toggle/${productId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.status === 401) { // Если пользователь не залогинен
+            window.location.href = '/login';
+            return;
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Обновляем все кнопки с этим товаром на странице
+            const allWishlistBtns = document.querySelectorAll(`.wishlist-btn[data-product-id="${productId}"]`);
+            
+            allWishlistBtns.forEach(btn => {
+                if (result.inWishlist) {
+                    btn.classList.add('in-wishlist');
+                    btn.innerHTML = '<i class="fas fa-heart"></i>'; // Закрашенное сердце
+                } else {
+                    btn.classList.remove('in-wishlist');
+                    btn.innerHTML = '<i class="far fa-heart"></i>'; // Пустое сердце
+                }
+            });
+
+            // Если мы на странице списка желаний и удаляем товар
+            if (removeFromWishlistBtn) {
+                const productCard = button.closest('.product-card');
+                if (productCard) {
+                    productCard.remove();
+                     // Проверяем, не пустой ли список
+                    if (document.querySelectorAll('.product-card').length === 0) {
+                        location.reload(); // Перезагружаем, чтобы показать сообщение "список пуст"
+                    }
+                }
+            }
+        } else {
+            alert(result.message || 'Сталася помилка');
+        }
+    } catch (error) {
+        console.error('Wishlist toggle error:', error);
+    }
+});
+
+
+const submenuToggle = document.querySelector('.side-menu-nav-list .has-submenu > a');
+
+if (submenuToggle) {
+    submenuToggle.addEventListener('click', function(event) {
+        // Запрещаем переход по ссылке, если у нее есть подменю
+        if (this.parentElement.classList.contains('has-submenu')) {
+            event.preventDefault();
+        }
+        
+        this.parentElement.classList.toggle('is-open');
+    });
+}
 });

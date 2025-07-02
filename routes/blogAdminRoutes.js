@@ -163,7 +163,7 @@ router.post('/', checkAdminAuth, blogUpload.single('imageFile'), debugCsrf, csrf
     }
 });
 
-router.get('/:id/edit', checkAdminAuth, async (req, res, next) => {
+router.get('/:id/edit', checkAdminAuth, csrfProtection, async (req, res, next) => {
     try {
         const postId = req.params.id;
         if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -178,7 +178,8 @@ router.get('/:id/edit', checkAdminAuth, async (req, res, next) => {
             post: post,
             errors: null,
             formData: post,
-            layout: 'admin/layout'
+            layout: 'admin/layout',
+             csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error('[Blog Admin Routes] Помилка отримання статті для редагування:', error);

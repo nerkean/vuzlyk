@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <%- include('partials/head') %>
+    <link rel="stylesheet" href="/css/catalog-page.css">
+    <link rel="stylesheet" href="/css/blog-page.css">
+    <style>
+        .search-results-section { padding-bottom: 40px; }
+        .search-results-grid { margin-top: 30px; }
+        .no-results-found { text-align: center; font-size: 1.2em; color: var(--color-text-light); margin-top: 40px;}
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+
+    <main class="search-page-main section-padding">
+        <div class="container">
+            <h1 class="page-title">Результати пошуку: "<%= query %>"</h1>
+
+            <% if (products.length > 0) { %>
+                <section class="search-results-section">
+                    <h2>Знайдені товари (<%= products.length %>)</h2>
+                    <div class="product-grid search-results-grid">
+                        <% products.forEach(product => { %>
+                            <%- include('partials/product-card', { product: product }) %>
+                        <% }) %>
+                    </div>
+                </section>
+            <% } %>
+
+            <% if (posts.length > 0) { %>
+                <section class="search-results-section">
+                    <h2>Знайдені статті (<%= posts.length %>)</h2>
+                    <div class="blog-posts-list search-results-grid">
+                         <% posts.forEach(post => { %>
+                            <%- include('partials/blog-post-item', { post: post }) %>
+                        <% }) %>
+                    </div>
+                </section>
+            <% } %>
+
+            <% if (products.length === 0 && posts.length === 0) { %>
+                <p class="no-results-found">На жаль, за вашим запитом нічого не знайдено.</p>
+            <% } %>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+    <script src="/js/main.js"></script>
+</body>
+</html>

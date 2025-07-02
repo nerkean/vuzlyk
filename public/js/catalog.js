@@ -15,8 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1;
     let currentSort = 'default';
     let currentFilters = {};
+    let isUserLoggedIn = false;
+let wishlistIds = new Set();
 
     if (productGrid) {
+         isUserLoggedIn = productGrid.dataset.isLoggedIn === 'true';
+    try {
+        wishlistIds = new Set(JSON.parse(productGrid.dataset.wishlistIds || '[]'));
+    } catch(e) { console.error('Error parsing wishlist IDs', e); }
         selectedCurrency = productGrid.dataset.currency || 'UAH';
         try {
             const ratesData = productGrid.dataset.rates;
@@ -191,6 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         </a>
                     </div>
                     <div class="product-info">
+        <button 
+            class="wishlist-btn ${ wishlistIds.has(productId) ? 'in-wishlist' : ''}" 
+            data-product-id="${productId}" 
+            aria-label="Додати в список бажань"
+            ${ !isUserLoggedIn ? 'data-redirect-to-login="true"' : '' }
+        >
+            <i class="fa${ wishlistIds.has(productId) ? 's' : 'r' } fa-heart"></i>
+        </button>
                          <a href="/product/${productId}"><h3>${productName}</h3></a>
                          <p class="price">${priceDisplayHTML}</p>
                          <button class="btn btn-tertiary add-to-cart-button" data-product-id="${productId}" aria-label="Додати ${productName} в кошик">
@@ -331,24 +345,40 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFiltersContainer.style.display = hasActiveTags ? 'flex' : 'none';
     }
     
-    function applyFiltersAndSort(page = 1, scroll = true) {
-        const formData = filterForm ? new FormData(filterForm) : new FormData();
-        currentFilters = {};
-        const priceFrom = formData.get('price_from');
-        const priceTo = formData.get('price_to');
-        const statuses = formData.getAll('status');
-        const tags = formData.getAll('tags');
+function applyFiltersAndSort(page = 1, scroll = true) {
+    const formData = filterForm ? new FormData(filterForm) : new FormData();
+    currentFilters = {}; // Скидаємо фільтри
 
-        if (priceFrom) currentFilters.price_from = priceFrom;
-        if (priceTo) currentFilters.price_to = priceTo;
-        if (statuses.length > 0) currentFilters.status = statuses;
-        if (tags.length > 0) currentFilters.tags = tags;
-        if (sortSelect && sortSelect.value) currentSort = sortSelect.value;
-        currentFilters.sort = currentSort;
-        
-        fetchAndRenderProducts(page, currentFilters, scroll);
-        updateActiveFiltersDisplay();
+    // --- 👇 ОСНОВНЕ ВИПРАВЛЕННЯ ТУТ 👇 ---
+    // Завжди перевіряємо URL на наявність категорії і додаємо її до фільтрів
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = urlParams.get('category');
+    if (categoryFromUrl) {
+        currentFilters.category = categoryFromUrl;
     }
+    // --- 👆 КІНЕЦЬ ВИПРАВЛЕННЯ 👆 ---
+
+    // Збираємо решту фільтрів з форми
+    const priceFrom = formData.get('price_from');
+    const priceTo = formData.get('price_to');
+    const statuses = formData.getAll('status');
+    const tags = formData.getAll('tags');
+
+    if (priceFrom) currentFilters.price_from = priceFrom;
+    if (priceTo) currentFilters.price_to = priceTo;
+    if (statuses.length > 0) currentFilters.status = statuses;
+    if (tags.length > 0) currentFilters.tags = tags;
+    
+    // Додаємо сортування
+    if (sortSelect && sortSelect.value) {
+        currentSort = sortSelect.value;
+    }
+    currentFilters.sort = currentSort;
+    
+    // Викликаємо функцію для отримання та відображення продуктів
+    fetchAndRenderProducts(page, currentFilters, scroll);
+    updateActiveFiltersDisplay();
+}
 
     if (filterForm) {
         filterForm.addEventListener('submit', (event) => { 

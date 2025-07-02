@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список бажань - Вузлик до вузлика</title>
+    <meta name="robots" content="noindex, nofollow"> <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/catalog-page.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <%- include('partials/header') %> <main class="wishlist-page-main section-padding">
+        <div class="container">
+            <h1 class="page-title">Мій список бажань</h1>
+
+            <% if (wishlist && wishlist.length > 0) { %>
+                <div class="product-grid">
+                    <% wishlist.forEach(product => { %>
+                        <article class="product-card" data-product-id="<%= product._id %>">
+                            <div class="product-image-wrapper">
+                                <a href="/product/<%= product._id %>">
+                                    <img src="<%= product.images[0]?.medium?.url || '/images/placeholder.svg' %>" alt="<%= product.name %>">
+                                </a>
+                            </div>
+                            <div class="product-info" style="position: relative;">
+                                <a href="/product/<%= product._id %>"><h3><%= product.name %></h3></a>
+                                <p class="price"><%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %></p>
+                                <button class="btn btn-tertiary add-to-cart-button" data-product-id="<%= product._id %>">В кошик</button>
+                                <button class="remove-from-wishlist" data-product-id="<%= product._id %>" aria-label="Видалити зі списку бажань">&times;</button>
+                            </div>
+                        </article>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="wishlist-empty">
+                    <p>Ваш список бажань порожній.</p>
+                    <a href="/catalog" class="btn btn-primary">Перейти до каталогу</a>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %> <script src="/js/main.js"></script>
+</body>
+</html>

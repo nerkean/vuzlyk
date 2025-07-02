@@ -11,6 +11,8 @@ const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true });
 
 const router = express.Router();
 
@@ -137,17 +139,18 @@ function isLoggedIn(req, res, next) {
     res.redirect('/login');
 }
 
-router.get('/register', (req, res) => {
+router.get('/register', csrfProtection, (req, res) => {
     res.render('register', {
         pageTitle: 'Реєстрація',
         errors: req.query.error ? [{ msg: decodeURIComponent(req.query.error) }] : [],
         name: req.query.name || '',
         email: req.query.email || '',
-        query: req.query
+        query: req.query,
+        csrfToken: req.csrfToken()
     });
 });
 
-router.post('/register', registerLimiter,
+router.post('/register', csrfProtection, registerLimiter,
     [
       body('email', 'Будь ласка, введіть дійсний email').isEmail().normalizeEmail(),
       body('name', 'Ім\'я не може бути порожнім').notEmpty().trim().escape(), 
@@ -176,7 +179,8 @@ if (!errors.isEmpty()) {
     errors: errors.array().map(err => ({ msg: err.msg })),
     name: req.body.name || '',
     email: req.body.email || '',
-    query: req.query
+    query: req.query,
+    csrfToken: req.csrfToken()
   });
 }
       const { email, password, name } = req.body;
@@ -191,7 +195,8 @@ if (existingUser) {
         errors: validationErrors, 
         name: name,           
         email: email,        
-        query: req.query
+        query: req.query,
+        csrfToken: req.csrfToken()
     });
 }
   
@@ -233,12 +238,13 @@ if (existingUser) {
               errors: catchErrors, 
               name: name,     
               email: email,    
-              query: req.query
+              query: req.query,
+              csrfToken: req.csrfToken()
           });
       }
   });
 
-router.get('/verify-email', (req, res) => {
+router.get('/verify-email', csrfProtection, (req, res) => { // <-- Добавили csrfProtection
     const email = req.session.verificationEmail;
     if (!email) {
         return res.redirect('/register');
@@ -247,7 +253,8 @@ router.get('/verify-email', (req, res) => {
         pageTitle: 'Підтвердження Email',
         email: email,
         error: req.query.error ? decodeURIComponent(req.query.error) : null,
-        success: req.query.success ? decodeURIComponent(req.query.success) : null 
+        success: req.query.success ? decodeURIComponent(req.query.success) : null,
+        csrfToken: req.csrfToken() // <-- Добавили передачу токена
     });
 });
 
@@ -296,7 +303,7 @@ router.get('/resend-verification', resendVerificationLimiter, async (req, res) =
 });
 
 
-router.post('/verify-code', verifyCodeLimiter, async (req, res, next) => {
+router.post('/verify-code', csrfProtection, verifyCodeLimiter, async (req, res, next) => {
     const { code } = req.body;
     const email = req.session.verificationEmail;
 
@@ -355,7 +362,7 @@ router.post('/verify-code', verifyCodeLimiter, async (req, res, next) => {
     }
 });
 
-router.get('/login', (req, res) => {
+router.get('/login', csrfProtection, (req, res) => { // <-- Добавили csrfProtection
     const loginError = req.query.error === '1' ? 'Неправильний email або пароль.' : null;
     if (req.query.redirect && !req.session.returnTo) {
         req.session.returnTo = req.query.redirect;
@@ -364,7 +371,8 @@ router.get('/login', (req, res) => {
         pageTitle: 'Вхід',
         error: loginError,
         query: req.query,
-        message: req.query.message ? decodeURIComponent(req.query.message) : null 
+        message: req.query.message ? decodeURIComponent(req.query.message) : null,
+        csrfToken: req.csrfToken() // <-- Добавили передачу токена
     });
 });
 
@@ -378,7 +386,7 @@ router.post('/login', loginLimiter, passport.authenticate('local', {
     res.redirect(redirectUrl);
 });
 
-router.get('/profile', isLoggedIn, async (req, res, next) => {
+router.get('/profile', csrfProtection, isLoggedIn, async (req, res, next) => {
     try {
         const userId = req.user._id;
         const [userOrders, userReviews] = await Promise.all([
@@ -395,6 +403,7 @@ router.get('/profile', isLoggedIn, async (req, res, next) => {
             query: req.query,
             success: req.query.success ? decodeURIComponent(req.query.success) : null, 
             error: req.query.error ? decodeURIComponent(req.query.error) : null, 
+            csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error("Помилка завантаження даних профілю:", error);
@@ -564,6 +573,50 @@ router.get('/auth/google/callback', passport.authenticate('google', {
     const redirectUrl = req.session.returnTo || '/'; 
     delete req.session.returnTo;
     res.redirect(redirectUrl);
+});
+
+router.get('/wishlist', isLoggedIn, async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id).populate('wishlist').lean();
+        
+        res.render('wishlist', {
+            pageTitle: 'Список бажань',
+            wishlist: user.wishlist,
+            // Передаем ID для быстрой проверки на фронтенде
+            wishlistIds: new Set(user.wishlist.map(p => p._id.toString())) 
+        });
+    } catch (error) {
+        console.error("Ошибка загрузки списка желаний:", error);
+        next(error);
+    }
+});
+
+
+// API-маршрут для добавления/удаления товара из списка
+// Используем POST для изменения данных на сервере
+router.post('/wishlist/toggle/:productId', isLoggedIn, async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const user = await User.findById(req.user._id);
+
+        // Проверяем, есть ли уже товар в списке
+        const productIndex = user.wishlist.indexOf(productId);
+
+        if (productIndex > -1) {
+            // Если есть - удаляем
+            user.wishlist.splice(productIndex, 1);
+            await user.save();
+            res.json({ success: true, inWishlist: false });
+        } else {
+            // Если нет - добавляем
+            user.wishlist.push(productId);
+            await user.save();
+            res.json({ success: true, inWishlist: true });
+        }
+    } catch (error) {
+        console.error('Ошибка изменения списка желаний:', error);
+        res.status(500).json({ success: false, message: 'Помилка сервера' });
+    }
 });
 
 

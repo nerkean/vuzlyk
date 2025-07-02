@@ -65,69 +65,12 @@
     <meta name="twitter:description" content="<%= metaDescription %>">
     <meta name="twitter:image" content="<%= ogImage %>">
     
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "<%= canonicalUrl %>"
-    },
-    "headline": <%- JSON.stringify(post.metaTitle || post.title) %>,
-    "description": <%- JSON.stringify(post.metaDescription || post.summary) %>,
-    <% if (post.imageUrl) { %>
-    "image": {
-        "@type": "ImageObject",
-        "url": "<%= new URL(post.imageUrl, locals.baseUrl || 'https://vuzlyk.com').href %>"
-    },
-    <% } %>
-    "author": {
-        "@type": "Organization",
-        "name": "<%= post.authorDisplay && post.authorDisplay.trim() !== '' ? post.authorDisplay : 'Вузлик до вузлика' %>",
-        "url": "<%= locals.baseUrl || 'https://vuzlyk.com' %>"
-    },
-    "publisher": {
-        "@type": "Organization",
-        "name": "Вузлик до вузлика",
-        "url": "<%= locals.baseUrl || 'https://vuzlyk.com' %>",
-        "logo": {
-            "@type": "ImageObject",
-            "url": "<%= new URL('/images/logo.webp', locals.baseUrl || 'https://vuzlyk.com').href %>",
-            "width": 180,
-            "height": 60
-        }
-    },
-    "datePublished": "<%= post.publishedAt ? new Date(post.publishedAt).toISOString() : new Date(post.createdAt).toISOString() %>",
-    "dateModified": "<%= new Date(post.updatedAt).toISOString() %>",
-    <%
-        let articleTextContent = post.content ? post.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
-        let wordCount = articleTextContent ? articleTextContent.split(/\s+/).length : 0;
-    %>
-    "articleBody": <%- JSON.stringify(articleTextContent) %>,
-    <% if (wordCount > 0) { %>
-    "wordCount": "<%= wordCount %>",
-    <% } %>
-    <% if (post.tags && post.tags.length > 0) { %>
-    "keywords": <%- JSON.stringify(post.tags.join(", ")) %>,
-    <% } %>
-    "isPartOf": {
-        "@type": "Blog",
-        "name": "Блог майстерні Вузлик до вузлика",
-        "url": "<%= new URL('/blog', locals.baseUrl || 'https://vuzlyk.com').href %>",
-        "publisher": {
-            "@type": "Organization",
-            "name": "Вузлик до вузлика",
-             "url": "<%= locals.baseUrl || 'https://vuzlyk.com' %>",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "<%= new URL('/images/logo.webp', locals.baseUrl || 'https://vuzlyk.com').href %>",
-                "width": 180,
-                "height": 60
-            }
-        }
-    }
-}
-</script>
+<% if (typeof jsonLd !== 'undefined') { %>
+    <script type="application/ld+json">
+        <%- JSON.stringify(jsonLd) %>
+    </script>
+<% } %>
+
 </head>
 <body>
     <%- include('../partials/header', { cartItemCount: typeof cartItemCount !== 'undefined' ? cartItemCount : 0 }) %>

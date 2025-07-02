@@ -7,6 +7,7 @@
     <meta name="description" content="Майстерня 'Вузлик до вузлика' пропонує унікальну українську вишивку ручної роботи. Замовляйте ексклюзивні вишиванки, вишиті картини та аксесуари, створені з любов'ю. Відкрийте красу традицій у сучасному виконанні. Доставка по Україні та світу.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<%= canonicalUrl %>" />
+        <meta name="csrf-token" content="<%= csrfToken %>">
 
     <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
@@ -212,8 +213,65 @@
                     <span>Унікальні</span>
                     <span>вишивки</span>
                     </h1>
-                <p data-aos="fade-up" data-aos-delay="600">Кожен стібок – це ваші вишиті історії. Відкрийте для себе ексклюзивну українську вишивку, створену з душею та натхненням для поціновувачів справжнього мистецтва.</p>
+                <p data-aos="fade-up" data-aos-delay="600">Мистецтво, втілене у кожному стібку.</p>
                 <a href="/catalog" class="btn btn-primary btn-lg" data-aos="fade-up" data-aos-delay="800">До Колекції<i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </section>
+
+        
+<section class="gift-story-section section-padding">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Подаруйте емоцію, вишиту вручну</h2>
+        <p class="section-subtitle text-center" data-aos="fade-up" data-aos-delay="100">
+            Вишивка — це не просто річ. Це спогад, оберіг, символ любові, який залишається назавжди.
+        </p>
+        <div class="gift-story-grid">
+            <div class="gift-story-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="gift-story-image">
+                    <img src="/images/story-family.jpg" alt="Сімейна вишивка" loading="lazy">
+                </div>
+                <div class="gift-story-content">
+                    <h3>Збережіть найцінніше</h3>
+                    <p>Створіть унікальну сімейну реліквію — вишиту картину з іменами, важливою датою або символом вашої родини. Це подарунок, що передаватиметься з покоління в покоління.</p>
+                </div>
+            </div>
+
+            <div class="gift-story-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="gift-story-image">
+                    <img src="/images/story-place.jpg" alt="Вишивка пам'ятного місця" loading="lazy">
+                </div>
+                <div class="gift-story-content">
+                    <h3>Згадайте особливе місце</h3>
+                    <p>Дім, де ви виросли, місце першого побачення або улюблений пейзаж. Ми можемо вишити будь-яке дороге вашому серцю місце, перетворивши його на витвір мистецтва.</p>
+                </div>
+            </div>
+
+            <div class="gift-story-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="gift-story-image">
+                    <img src="/images/story-dream.jpg" alt="Вишивка мрії" loading="lazy">
+                </div>
+                <div class="gift-story-content">
+                    <h3>Втілюйте власну ідею</h3>
+                    <p>Маєте унікальний задум? Розкажіть нам про нього! Ми допоможемо створити вишивку за вашим власним ескізом, щоб ваша мрія стала реальністю, вишитою нитками.</p>
+                    <a href="/product/667341addf89b9e6a71c855a" class="btn btn-secondary btn-sm">Замовити свою вишивку</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section section-padding bg-light">
+            <div class="container grid-container-about">
+                <div class="about-image" data-aos="fade-right" data-aos-duration="800">
+                    <img src="/images/field.webp" alt="Процес створення української вишивки ручної роботи" width="600" height="700" loading="lazy">
+                </div>
+                <div class="about-text" data-aos="fade-left" data-aos-duration="800" data-aos-delay="150">
+                    <h2>Історія в Кожному Стібку: Про Майстерню "Вузлик до вузлика"</h2>
+                    <p><strong>"Вузлик до вузлика"</strong> – це творча майстерня, де народжується унікальна українська вишивка. Ми зберігаємо тепло традицій та поєднуємо їх із сучасним баченням, щоб створювати виняткові вишиті вироби, які будуть радувати вас роками та стануть справжньою сімейною цінністю.</p>
+                    <p>Ми віримо, що вишивка – це не просто прикраса, а генетичний код нації, мова символів, що єднає покоління. Кожен виріб у нашій майстерні - це результат кропіткої ручної праці, натхнення та безмежної любові до української культури. Ми використовуємо лише найкращі натуральні матеріали, такі як льон та бавовна, а кожен орнамент несе в собі глибокий зміст та позитивну енергетику.</p>
+                    <p>Наша мета – не просто створювати гарні вишивки, а дарувати вам частинку української душі, тепло наших рук та оберіг на довгі роки. Ми прагнемо, щоб кожна вишита річ від "Вузлик до вузлика" розповідала свою історію та приносила радість своєму власнику.</p>
+                    <a href="/about" class="btn btn-secondary">Дізнатися Більше про Нас</a>
+                </div>
             </div>
         </section>
 
@@ -230,20 +288,29 @@
             </div>
         </section>
 
-        <section class="about-section section-padding bg-light">
-            <div class="container grid-container-about">
-                <div class="about-image" data-aos="fade-right" data-aos-duration="800">
-                    <img src="/images/field.webp" alt="Процес створення української вишивки ручної роботи" width="600" height="700" loading="lazy">
+<section class="categories-section section-padding">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Наші Категорії</h2>
+        <div class="categories-grid">
+            
+            <a href="/catalog?category=vyshyvka" class="category-item" data-aos="fade-up" data-aos-delay="100">
+                <img src="/images/category-vyshyvka.jpg" alt="Вишивка ручної роботи" loading="lazy">
+                <div class="category-item-overlay">
+                    <h3>Вишивка</h3>
                 </div>
-                <div class="about-text" data-aos="fade-left" data-aos-duration="800" data-aos-delay="150">
-                    <h2>Історія в Кожному Стібку: Про Майстерню "Вузлик до вузлика"</h2>
-                    <p><strong>"Вузлик до вузлика"</strong> – це творча майстерня, де народжується унікальна українська вишивка. Ми зберігаємо тепло традицій та поєднуємо їх із сучасним баченням, щоб створювати виняткові вишиті вироби, які будуть радувати вас роками та стануть справжньою сімейною цінністю.</p>
-                    <p>Ми віримо, що вишивка – це не просто прикраса, а генетичний код нації, мова символів, що єднає покоління. Кожен виріб у нашій майстерні - це результат кропіткої ручної праці, натхнення та безмежної любові до української культури. Ми використовуємо лише найкращі натуральні матеріали, такі як льон та бавовна, а кожен орнамент несе в собі глибокий зміст та позитивну енергетику.</p>
-                    <p>Наша мета – не просто створювати гарні вишивки, а дарувати вам частинку української душі, тепло наших рук та оберіг на довгі роки. Ми прагнемо, щоб кожна вишита річ від "Вузлик до вузлика" розповідала свою історію та приносила радість своєму власнику.</p>
-                    <a href="/about" class="btn btn-secondary">Дізнатися Більше про Нас</a>
+            </a>
+
+            <a href="/catalog?category=prykrasy" class="category-item" data-aos="fade-up" data-aos-delay="200">
+                <img src="/images/category-prykrasy.jpg" alt="Прикраси ручної роботи" loading="lazy">
+                <div class="category-item-overlay">
+                    <h3>Прикраси</h3>
                 </div>
-            </div>
-        </section>
+            </a>
+            
+        </div>
+    </div>
+</section>
+
 
         <section class="featured-products section-padding bg-light">
             <div class="container">
@@ -280,21 +347,29 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="product-info">
-                                    <a href="/product/<%= product.slug || product._id %>"><h3><%= product.name %></h3></a>
-                                    <p class="price">
-                                        <%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %>
-                                        <% if (typeof product.maxPrice === 'number' && product.maxPrice > product.price) { %>
-                                            - <%= formatPrice(product.maxPrice, selectedCurrency, exchangeRates, currencySymbols) %>
-                                        <% } %>
-                                    </p>
+<div class="product-info">
+    <button 
+        class="wishlist-btn <%= (wishlistIds && wishlistIds.has(product._id.toString())) ? 'in-wishlist' : '' %>" 
+        data-product-id="<%= product._id %>" 
+        aria-label="Додати в список бажань"
+        <% if (!currentUser) { %>
+            data-redirect-to-login="true"
+        <% } %>
+    >
+        <i class="fa<%= (wishlistIds && wishlistIds.has(product._id.toString())) ? 's' : 'r' %> fa-heart"></i>
+    </button>
+    
+    <a href="/product/<%= product._id %>">
+        <h3><%= product.name %></h3>
+    </a>
+    <p class="price"><%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %></p>
                                     <button class="btn btn-tertiary add-to-cart-button" data-product-id="<%= product._id %>">
                                         <svg class="icon icon-cart-plus" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor">
                                             <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20l44 0 0 44c0 11 9 20 20 20s20-9 20-20l0-44 44 0c11 0 20-9 20-20s-9-20-20-20l-44 0 0-44c0-11-9-20-20-20s-20 9-20 20l0 44-44 0c-11 0-20 9-20 20z"/>
                                         </svg>
                                         В кошик
                                     </button>
-                                </div>
+</div>
                             </article>
                         <% }); %>
                     </div>
@@ -356,6 +431,8 @@
                 </div>
             </div>
         </section>
+
+        
 
         <section class="map-section section-padding">
             <div class="container">

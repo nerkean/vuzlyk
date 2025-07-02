@@ -89,17 +89,20 @@
                             </div>
                         </div>
 
-                        <div class="admin-form-group">
-                            <label for="category">Категорія <span style="color:red;">*</span></label>
-                            <select id="category" name="category" required>
-                                <option value="">-- Виберіть категорію --</option>
-                                <% if (typeof categories !== 'undefined' && Array.isArray(categories)) { %>
-                                    <% categories.forEach(cat => { %>
-                                        <option value="<%= cat %>" <%= (productData.category === cat) ? 'selected' : '' %>><%= cat %></option>
-                                    <% }); %>
-                                <% } %>
-                            </select>
-                        </div>
+<div class="admin-form-group">
+    <label for="category">Категорія<span class="required">*</span></label>
+    <select name="category" id="category" class="admin-form-control">
+        
+        <option value="Вишивка" <%= (typeof productData !== 'undefined' && productData.category === 'Вишивка') || (typeof formData !== 'undefined' && formData.category === 'Вишивка') ? 'selected' : '' %>>
+            Вишивка
+        </option>
+        
+        <option value="Прикраси" <%= (typeof productData !== 'undefined' && productData.category === 'Прикраси') || (typeof formData !== 'undefined' && formData.category === 'Прикраси') ? 'selected' : '' %>>
+            Прикраси
+        </option>
+
+    </select>
+</div>
                         
                         <div class="admin-form-group">
                             <label for="status">Статус товару <span style="color:red;">*</span></label>

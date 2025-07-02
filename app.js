@@ -26,6 +26,7 @@ const Order = require('./models/Order');
 const Post = require('./models/Post');
 
 const app = express();
+
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5500;
 const DB_URI = process.env.MONGODB_URI;
@@ -209,7 +210,7 @@ async function fetchAndUpdateRates() {
 fetchAndUpdateRates();
 setInterval(fetchAndUpdateRates, 6 * 60 * 60 * 1000);
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     let currentCurrency = 'UAH';
     const queryCurrency = req.query.currency?.toUpperCase();
     if (queryCurrency && AVAILABLE_CURRENCIES.includes(queryCurrency)) {
@@ -220,6 +221,48 @@ app.use((req, res, next) => {
     }
     const currentIndex = AVAILABLE_CURRENCIES.indexOf(currentCurrency);
     const nextIndex = (currentIndex + 1) % AVAILABLE_CURRENCIES.length;
+
+    try {
+        const transliterate = (text) => {
+            const uaToEn = {
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ie', 'ж': 'zh',
+                'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'i', 'й': 'i', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+                'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts',
+                'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'iu', 'я': 'ia', ' ': '-'
+            };
+            return text.toLowerCase()
+                       .split('').map(char => uaToEn[char] || char)
+                       .join('')
+                       .replace(/[^\w-]+/g, ''); // Удаляем все, что не является буквой, цифрой или дефисом
+        };
+
+        const distinctCategories = await Product.distinct('category').lean();
+        
+        // Теперь мы создаем правильный slug с помощью транслитерации
+        res.locals.categories = distinctCategories.map(cat => ({
+            name: cat,
+            slug: transliterate(cat)
+        }));
+
+    } catch (error) {
+        console.error("Ошибка получения категорий для хедера:", error);
+        res.locals.categories = []; // В случае ошибки передаем пустой массив
+    }
+
+    if (req.user) {
+        try {
+            // Lean() для скорости, нам нужны только ID
+            const userWithWishlist = await User.findById(req.user._id, 'wishlist').lean(); 
+            // Создаем Set для быстрой проверки (вместо медленного перебора массива)
+            res.locals.wishlistIds = new Set(userWithWishlist.wishlist.map(id => id.toString()));
+        } catch (error) {
+            console.error("Ошибка получения списка желаний пользователя:", error);
+            res.locals.wishlistIds = new Set();
+        }
+    } else {
+        // Для гостей создаем пустой Set
+        res.locals.wishlistIds = new Set();
+    }
 
     res.locals.currentUser = req.user;
     res.locals.isAdmin = req.session.isAdmin || false;
@@ -255,13 +298,14 @@ app.use('/admin', adminRoutes);
 app.use('/admin/blog', blogAdminRoutes);
 app.use('/blog', blogRoutes);
 
-app.get('/', async (req, res, next) => {
+app.get('/', csrfProtection, async (req, res, next) => {
     try {
         const featuredProducts = await Product.find({ isFeatured: true }).select('name price maxPrice images slug').limit(4).lean();
         res.render('index', {
            featuredProducts: featuredProducts,
            canonicalUrl: res.locals.baseUrl + '/',
-           pageName: 'home' 
+           pageName: 'home',
+           csrfToken: req.csrfToken()
         });
     } catch (error) {
         console.error("Помилка отримання товарів для головної:", error);
@@ -371,6 +415,35 @@ app.get('/catalog', csrfProtection, async (req, res, next) => {
 
         const filterQuery = {}; 
 
+               const { category } = req.query;
+        let pageTitle = 'Каталог товарів ручної роботи';
+        let pageHeading = 'Каталог товарів';
+        let metaDescription = 'Перегляньте каталог унікальних виробів ручної роботи від майстерні "Вузлик до вузлика".';
+        let categoryTags = []; // По умолчанию пустой массив
+
+                const allVyshyvkaTags = ["дитячі", "пейзажі", "весільні", "контурна", "архітектурна", "квіти", "карти", "тварини", "сімейні", "літери", "свята"];
+        const allPrykrasyTags = ["сережки", "браслети", "кольє", "бісер", "натуральний камінь", "срібло"];
+
+        
+        if (category === 'prykrasy') {
+            pageTitle = 'Каталог Прикрас Ручної Роботи';
+            pageHeading = 'Прикраси';
+            metaDescription = 'Відкрийте для себе ексклюзивні прикраси ручної роботи: сережки, браслети, кольє та багато іншого.';
+            categoryTags = ["сережки", "браслети", "кольє", "бісер", "натуральний камінь", "срібло"];
+            filterQuery.category = 'Прикраси';
+
+        } else if (category === 'vyshyvka') {
+            pageTitle = 'Каталог Вишивки Ручної Роботи';
+            pageHeading = 'Вишивка';
+            metaDescription = 'Перегляньте каталог унікальної вишивки ручної роботи: картини, вишиванки, рушники.';
+            categoryTags = ["дитячі", "пейзажі", "весільні", "контурна", "архітектурна", "квіти", "карти", "тварини", "сімейні", "літери", "свята"];
+            filterQuery.category = 'Вишивка';
+        } else {
+            // Якщо категорія НЕ вибрана, показуємо ВСІ теги
+            pageHeading = 'Усі товари';
+            categoryTags = [...allVyshyvkaTags, ...allPrykrasyTags];
+        }
+
         const products = await Product.find(filterQuery)
             .sort(sortQuery)
             .skip(skip)
@@ -384,12 +457,11 @@ app.get('/catalog', csrfProtection, async (req, res, next) => {
                                    ? (products[0].images[0].medium || products[0].images[0].thumb)
                                    : null;
 
-        const pageTitle = 'Каталог Вишивки Ручної Роботи';
-        const pageHeading = pageTitle; 
-
         res.render('catalog', {
             pageTitle: pageTitle,
             pageHeading: pageHeading,
+             metaDescription: metaDescription,
+            categoryTags: categoryTags, // <-- Передаем правильные теги
             products: products,
             currentPage: page,
             totalPages: totalPages,
@@ -634,6 +706,18 @@ app.get('/api/products', async (req, res) => {
                 filterQuery.tags = { $in: tags };
             }
         }
+        if (req.query.category && typeof req.query.category === 'string') {
+            const categorySlug = req.query.category.toLowerCase();
+            
+            // І додаємо відповідну умову в наш об'єкт для пошуку в базі даних
+            if (categorySlug === 'prykrasy') {
+                filterQuery.category = 'Прикраси';
+            } else if (categorySlug === 'vyshyvka') {
+                filterQuery.category = 'Вишивка';
+            }
+            // Якщо параметр category не 'prykrasy' і не 'vyshyvka', ми його ігноруємо, 
+            // щоб уникнути показу порожньої сторінки.
+        }
         let sortQuery = {};
         const sortOption = req.query.sort || 'default';
         switch (sortOption) {
@@ -663,6 +747,78 @@ app.get('/api/products', async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ success: false, message: "Помилка сервера" });
+    }
+});
+
+app.get('/api/search-suggestions', async (req, res) => {
+    const query = req.query.q;
+    if (!query || query.length < 2) {
+        return res.json([]);
+    }
+
+    try {
+        const searchQuery = new RegExp(query, 'i'); // 'i' - для поиска без учета регистра
+        const limit = 5; // Ограничиваем количество подсказок
+
+        // Ищем в товарах
+        const products = await Product.find(
+            { name: searchQuery },
+            'name slug images' // Выбираем только нужные поля
+        ).limit(limit).lean();
+
+        // Ищем в статьях
+        const posts = await Post.find(
+            { title: searchQuery, isPublished: true },
+            'title slug imageUrl' // Выбираем только нужные поля
+        ).limit(limit).lean();
+
+        // Форматируем результаты в единый вид
+        const productResults = products.map(p => ({
+            name: p.name,
+            url: `/product/${p.slug || p._id}`,
+            image: p.images?.[0]?.thumb?.url || '/images/placeholder.svg',
+            type: 'product'
+        }));
+
+        const postResults = posts.map(p => ({
+            name: p.title,
+            url: `/blog/${p.slug}`,
+            image: p.imageUrl || '/images/placeholder.svg',
+            type: 'post'
+        }));
+
+        // Объединяем и отдаем первые 5-7 результатов
+        const combinedResults = [...productResults, ...postResults].slice(0, 7);
+
+        res.json(combinedResults);
+
+    } catch (error) {
+        console.error('Search suggestions error:', error);
+        res.status(500).json([]);
+    }
+});
+
+// Маршрут для страницы с полными результатами (когда нажимают Enter)
+app.get('/search', csrfProtection, async (req, res, next) => {
+    const query = req.query.q || '';
+
+    try {
+        const searchQuery = new RegExp(query, 'i');
+        
+        const products = await Product.find({ name: searchQuery }).lean();
+        const posts = await Post.find({ title: searchQuery, isPublished: true }).lean();
+
+        res.render('search-results', {
+            pageTitle: `Результати пошуку для "${query}"`,
+            query: query,
+            products: products,
+            posts: posts,
+            csrfToken: req.csrfToken()
+        });
+
+    } catch (error) {
+        console.error("Search page error:", error);
+        next(error);
     }
 });
 

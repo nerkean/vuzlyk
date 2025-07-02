@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= pageTitle %></title>
+            <meta name="csrf-token" content="<%= csrfToken %>">
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/admin.css">
 </head>
@@ -90,19 +91,20 @@
                         </div>
                     </div>
 
-                    <div class="admin-form-group">
-                        <label for="category">Категорія <span style="color:red;">*</span></label>
-                        <select id="category" name="category" required>
-                            <option value="">-- Виберіть категорію --</option> 
-                            <% if (typeof categories !== 'undefined' && Array.isArray(categories)) { %>
-                                <% categories.forEach(cat => { %>
-                                    <option value="<%= cat %>" <%= (locals.formData?.category === cat) ? 'selected' : '' %>><%= cat %></option>
-                                <% }); %>
-                            <% } else { %>
-                                <option value="" disabled>Помилка: список категорій не завантажено.</option>
-                            <% } %>
-                        </select>
-                    </div>
+<div class="admin-form-group">
+    <label for="category">Категорія<span class="required">*</span></label>
+    <select name="category" id="category" class="admin-form-control">
+        
+        <option value="Вишивка" <%= (typeof productData !== 'undefined' && productData.category === 'Вишивка') || (typeof formData !== 'undefined' && formData.category === 'Вишивка') ? 'selected' : '' %>>
+            Вишивка
+        </option>
+        
+        <option value="Прикраси" <%= (typeof productData !== 'undefined' && productData.category === 'Прикраси') || (typeof formData !== 'undefined' && formData.category === 'Прикраси') ? 'selected' : '' %>>
+            Прикраси
+        </option>
+
+    </select>
+</div>
 
                     <div class="admin-form-group">
                         <label for="status">Статус товару <span style="color:red;">*</span></label>
@@ -378,90 +380,80 @@
                 });
             }
             
-            if (productForm) {
-                productForm.addEventListener('submit', async function(event) {
-                    event.preventDefault(); 
+if (productForm) {
+            productForm.addEventListener('submit', async function(event) {
+                // 1. Зупиняємо стандартну відправку
+                event.preventDefault(); 
             
-                    if (selectedFiles.length === 0) {
-                        alert('Будь ласка, завантажте хоча б одне основне зображення товару.');
-                        imageInput.focus(); 
-                        return; 
-                    }
-                    if (selectedFiles.length > MAX_FILES) {
-                        alert(`Забагато файлів. Максимум ${MAX_FILES}. Видаліть зайві.`);
-                        return;
-                    }
-            
-                    const formDataForSubmit = new FormData(); 
-            
-                    const formElements = productForm.elements;
-                    for (let i = 0; i < formElements.length; i++) {
-                        const element = formElements[i];
-                        if (element.type !== 'file' && element.type !== 'submit' && element.type !== 'button' && element.name) {
-                            if (element.type === 'checkbox') {
-                                if (element.checked) {
-                                    formDataForSubmit.append(element.name, element.value || 'on');
-                                }
-                            } else {
-                                formDataForSubmit.append(element.name, element.value);
-                            }
-                        }
-                    }
-            
-                    selectedFiles.forEach((file) => {
-                        formDataForSubmit.append('imageFiles', file, file.name);
-                    });
+                // 2. Валідація на клієнті
+                if (selectedFiles.length === 0) {
+                    alert('Будь ласка, завантажте хоча б одне основне зображення товару.');
+                    return;
+                }
 
-                    if (livePhotoInput.files && livePhotoInput.files[0]) {
-                        formDataForSubmit.append('livePhotoFile', livePhotoInput.files[0], livePhotoInput.files[0].name);
-                    }
-            
-                    const submitButton = productForm.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        submitButton.disabled = true;
-                        submitButton.textContent = 'Збереження...';
-                    }
-            
-                    try {
-                        const response = await fetch('/admin/products', {
-                            method: 'POST',
-                            body: formDataForSubmit 
-                        });
-            
-                        if (response.ok) {
-                            if (response.redirected) {
-                                window.location.href = response.url; 
-                            } else {
-                                alert('Товар успішно збережено!');
-                                window.location.href = '/admin/products';
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Збереження...`;
+
+                // 3. Створюємо НОВИЙ об'єкт FormData
+                const formData = new FormData();
+
+                // 4. Додаємо всі текстові поля та токен у FormData
+                const formElements = this.elements;
+                for (let i = 0; i < formElements.length; i++) {
+                    const element = formElements[i];
+                    if (element.name && element.type !== 'file' && element.type !== 'submit' && element.type !== 'button') {
+                        if (element.type === 'checkbox') {
+                            if (element.checked) {
+                                formData.append(element.name, 'on');
                             }
                         } else {
-                            let errorText = `Помилка збереження товару: ${response.statusText}`;
-                            try {
-                                const errorData = await response.json(); 
-                                if (errorData && errorData.error) { 
-                                    errorText = errorData.error;
-                                }
-                            } catch (e) {
-                                console.warn("Не вдалося розпарсити JSON з відповіді про помилку.");
-                            }
-                            alert(errorText);
-                            if (submitButton) {
-                                submitButton.disabled = false;
-                                submitButton.textContent = 'Зберегти товар';
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Помилка при відправці форми:', error);
-                        alert('Сталася мережева помилка при збереженні товару.');
-                        if (submitButton) {
-                            submitButton.disabled = false;
-                            submitButton.textContent = 'Зберегти товар';
+                            formData.append(element.name, element.value);
                         }
                     }
+                }
+
+                // 5. Додаємо файли з нашого масиву selectedFiles
+                selectedFiles.forEach(file => {
+                    formData.append('imageFiles', file);
                 });
-            }
-        });
+                
+                // 6. Додаємо "живе" фото, якщо воно є
+                if (livePhotoInput.files[0]) {
+                    formData.append('livePhotoFile', livePhotoInput.files[0]);
+                }
+
+                try {
+                    // 7. Відправляємо зібраний FormData на сервер
+                    const response = await fetch('/admin/products', {
+                        method: 'POST',
+                        body: formData
+                        // Заголовки тут не потрібні, браузер сам встановить Content-Type: multipart/form-data
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '/admin/products';
+                    } else {
+                        // Якщо сервер повернув помилку
+                        const errorData = await response.json().catch(() => ({ error: 'Не вдалося обробити відповідь сервера.' }));
+                        // Шукаємо помилку валідації CSRF
+                        if (response.status === 403 || (errorData.message && errorData.message.includes('csrf'))) {
+                             alert('Помилка безпеки. Спробуйте оновити сторінку і відправити форму ще раз.');
+                        } else {
+                             alert(`Помилка: ${errorData.error || response.statusText}`);
+                        }
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Зберегти товар';
+                    }
+                } catch (error) {
+                    console.error('Помилка при відправці форми:', error);
+                    alert('Помилка мережі. Перевірте консоль.');
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Зберегти товар';
+                }
+            });
+        }
+    });
     </script>
 </body>
 </html>

@@ -51,13 +51,25 @@ const userSchema = new Schema({
     defaultShippingInfo: {
         type: defaultShippingInfoSchema,
         default: null 
-    }
+    },
+        wishlist: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Product'
+    }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
-    if (!this.password || !this.isModified('password')) return next();
+    // Хешуємо пароль, тільки якщо він був змінений І ще не є хешем
+    if (!this.isModified('password')) {
+        return next();
+    }
 
     try {
+        // Проста перевірка: хеші bcrypt довгі і починаються з певних символів
+        if (this.password && this.password.length > 50 && this.password.startsWith('$2')) {
+            return next(); // Це вже хеш, нічого не робимо
+        }
+
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
         next();
