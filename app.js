@@ -49,11 +49,11 @@ cloudinary.config({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(compression());
 app.use(methodOverride('_method'));
 app.use(
     helmet({

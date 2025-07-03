@@ -1,3 +1,14 @@
+import Swiper from 'swiper';
+import { Autoplay, EffectFade, Pagination } from 'swiper/modules'
+
+// Импортируем стили Swiper, чтобы esbuild их тоже "увидел" и включил в бандл
+import 'swiper/css';
+import 'swiper/css/effect-fade';
+import 'swiper/css/pagination';
+// Твои основные стили (укажи правильные пути)
+import '../css/common.css';
+import '../css/homepage.css';
+
 function formatPriceJS(amountUAH, targetCurrency, rates, symbols) {
     const baseAmount = typeof amountUAH === 'number' ? amountUAH : 0;
     const currency = (targetCurrency && rates[targetCurrency] && symbols[targetCurrency])
@@ -43,6 +54,20 @@ function updateCartView(data) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+        const heroSwiperElement = document.querySelector('.hero-swiper');
+    if (heroSwiperElement) {
+const heroSwiper = new Swiper('.hero-swiper', {
+            modules: [Autoplay, EffectFade, Pagination],
+            loop: true,
+            effect: 'fade',
+            fadeEffect: { crossFade: true },
+            autoplay: { delay: 5000, disableOnInteraction: false },
+            speed: 1000,
+            pagination: { el: '.swiper-pagination', clickable: true },
+            allowTouchMove: false,
+        });
+    }
+
     const navToggleBtn = document.getElementById('mobile-nav-toggle');
     const mainNavMenu = document.getElementById('main-nav-menu');
     const menuToggleBtn = document.getElementById('mobile-nav-toggle');

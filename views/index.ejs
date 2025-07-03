@@ -22,22 +22,6 @@
     <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/images/image1-original.webp" as="image" imagesrcset="/images/image1-480w.webp 480w, /images/image1-800w.webp 800w, /images/image1-1200w.webp 1200w, /images/image1-1600w.webp 1600w, /images/image1-original.webp 1920w" imagesizes="100vw">
 
-    <% if (locals.isProduction && locals.gaMeasurementId) { %>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'AW-17036727455');
-          gtag('config', '<%= locals.gaMeasurementId %>');
-          console.log('GA4 Initialized with ID:', '<%= gaMeasurementId %>');
-        </script>
-    <% } %>
-
-    <link rel="stylesheet" href="/css/common.css">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"></noscript>
-
     <link rel="preload" href="/css/homepage.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/css/homepage.css"></noscript>
 
@@ -47,6 +31,17 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
 
+        <% if (isProduction) { %>
+    <style>
+        h1{font-family:var(--font-heading);font-weight:700;margin-bottom:.8em;line-height:1.3;color:var(--color-text)}@media (max-width:992px){:root{--padding-section:60px 0}h1{font-size:calc(2.2em + 1.5vw)}.mobile-nav-toggle{display:block}}@font-face{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:400;font-display:block;src:url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/webfonts/fa-regular-400.woff2) format("woff2"),url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/webfonts/fa-regular-400.ttf) format("truetype")}@font-face{font-family:"Font Awesome 6 Free";font-style:normal;font-weight:900;font-display:block;src:url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/webfonts/fa-solid-900.woff2) format("woff2"),url(https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/webfonts/fa-solid-900.ttf) format("truetype")}:root{--font-heading:'Montserrat',sans-serif;--font-body:'Roboto',sans-serif;--color-text:#333333;--color-text-light:#555555;--color-background:#FFFFFF;--color-light-bg:#f7f5f2;--color-accent:#b9936c;--color-accent-dark:#a07e5a;--color-accent-light:#e1c8a0;--color-white:#FFFFFF;--color-border:#e0e0e0;--color-dark-bg:#2a2a2a;--color-footer-text:#e0e0e0;--color-star:#ffc107;--color-success:#198754;--color-danger:#dc3545;--container-width:1320px;--padding-section:70px 0;--border-radius-main:8px;--box-shadow-light:0 4px 15px rgba(0, 0, 0, 0.06);--box-shadow-medium:0 8px 25px rgba(0, 0, 0, 0.1)}*,::after,::before{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--color-text);background-color:var(--color-background);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden}main{flex-grow:1}.container{width:92%;max-width:var(--container-width);margin:0 auto;padding:0 15px}.section-padding{padding:var(--padding-section)}img{max-width:100%;height:auto;display:block}a{color:var(--color-accent);text-decoration:none}h1,h2{font-family:var(--font-heading);font-weight:700;margin-bottom:.8em;line-height:1.3;color:var(--color-text)}h1{font-size:calc(2.5em + 1vw);line-height:1.1}h2{font-size:calc(1.8em + .8vw);margin-bottom:.6em}p{margin-bottom:1.2em;color:var(--color-text-light)}.section-title{text-align:center;margin-bottom:50px;font-size:calc(2em + 1vw);font-weight:700;position:relative;padding-bottom:15px}.section-title::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:70px;border-bottom:2px dashed var(--color-accent)}.icon{display:inline-block;width:1em;height:1em;vertical-align:-.125em;fill:currentColor;stroke:none}.site-header .container{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px}.logo{justify-self:start}.main-nav{justify-self:center}.header-actions{justify-self:end}.main-nav ul{list-style:none;display:flex;gap:35px;margin:0;padding:0}.main-nav a{color:var(--color-text);text-decoration:none;font-weight:500;font-size:1em;padding:10px 0;position:relative;font-family:var(--font-body)}.main-nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background-color:var(--color-accent)}.has-dropdown{position:relative}.has-dropdown .dropdown-menu{position:absolute;top:100%;left:50%;background-color:var(--color-white);border-radius:var(--border-radius-main);box-shadow:var(--box-shadow-medium);border:1px solid var(--color-border);list-style:none;padding:10px 0;margin-top:10px;min-width:200px;z-index:1001;opacity:0;visibility:hidden;transform:translateX(-50%) translateY(10px)}.dropdown-menu a{padding:10px 20px;white-space:nowrap;display:block}.dropdown-menu a::after{display:none}.has-dropdown>a i{font-size:.7em;margin-left:5px}.currency-switcher a,.header-action-icon,.search-toggle{font-size:1.3em;color:var(--color-text-light);background:0 0;border:none;padding:5px}.currency-switcher a{font-family:var(--font-heading);font-weight:700;font-size:1em;text-decoration:none}.cart-count{position:absolute;top:-5px;right:-8px;background-color:var(--color-accent);color:var(--color-white);border-radius:50%;width:18px;height:18px;font-size:.7em;line-height:18px;text-align:center;font-weight:700}@media (max-width:992px){.site-header .container{grid-template-columns:auto 1fr auto}.header-actions .desktop-only,.main-nav{display:none}.logo{grid-column:2/3;justify-self:center}.header-actions{grid-column:3/4}.mobile-nav-toggle{display:block;grid-column:1/2;grid-row:1;background:0 0;border:none;padding:5px;font-size:1.5em}}@media (min-width:993px){.main-nav{display:flex}.mobile-nav-toggle{display:none}}.side-menu{position:fixed;top:0;left:0;width:320px;height:100%;background-color:var(--color-white);box-shadow:5px 0 25px rgba(0,0,0,.1);z-index:1002;transform:translateX(-100%);display:flex;flex-direction:column;padding:20px}.side-menu-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--color-border)}.side-menu-logo{font-family:var(--font-heading);font-weight:700;font-size:1.5em;color:var(--color-text)}.close-menu-btn{background:0 0;border:none;font-size:2.5em;line-height:1;color:var(--color-text-light)}.side-menu-nav-list{list-style:none;margin:20px 0;padding:0;flex-grow:1}.side-menu-nav-list a{display:block;padding:15px 10px;font-size:1.1em;font-weight:500;color:var(--color-text-light);border-radius:var(--border-radius-main)}.side-menu-footer .btn{width:100%}.site-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1001;opacity:0;visibility:hidden}@media (max-width:480px){.new-header .logo-text{display:none}.new-header .header-actions{gap:15px}}.btn{display:inline-block;padding:14px 35px;border-radius:var(--border-radius-main);text-decoration:none;font-weight:700;font-family:var(--font-heading);border:none;font-size:1em;text-align:center;letter-spacing:.5px;box-shadow:0 4px 10px rgba(0,0,0,.1);will-change:transform,box-shadow}.btn i{margin-left:8px}.btn-lg{padding:16px 40px;font-size:1.1em}.btn-primary{background:linear-gradient(45deg,var(--color-accent),var(--color-accent-light));color:var(--color-white)}.site-header{background-color:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:15px 0;border-bottom:1px solid var(--color-border);position:sticky;top:0;left:0;width:100%;z-index:1000;box-shadow:var(--box-shadow-light)}.logo a{font-family:var(--font-heading);font-size:1.9em;font-weight:700;color:var(--color-text);text-decoration:none;display:flex;align-items:center;flex-shrink:0}.logo-img{height:50px;width:80px;margin-right:12px}.header-actions{display:flex;align-items:center;gap:15px}.header-cart{position:relative;flex-shrink:0;margin:0}.cart-count{position:absolute;top:-8px;right:-10px;background-color:var(--color-accent);color:var(--color-white);border-radius:50%;width:20px;height:20px;font-size:.75em;line-height:20px;text-align:center;font-weight:700;font-family:var(--font-body)}.mobile-nav-toggle{display:none;background:0 0;border:none;margin:0;z-index:1001;color:var(--color-text)}.mobile-nav-toggle .icon{width:24px;height:24px;display:block}@media (max-width:992px){:root{--padding-section:60px 0}h1{font-size:calc(2.2em + 1.5vw)}h2{font-size:calc(1.6em + 1vw)}.section-title{font-size:calc(1.8em + 1.2vw)}.mobile-nav-toggle{display:block}}@media (max-width:768px){body{font-size:15px}:root{--padding-section:50px 0}h1{font-size:calc(2em + 2vw)}.logo a span{font-size:.7em;line-height:1.2;display:block;margin-left:10px}.logo{flex-shrink:1}.logo-img{margin-right:0}}@media (max-width:480px){:root{--padding-section:40px 0}h1{font-size:calc(1.8em + 3vw)}.btn{padding:12px 25px;font-size:.95em}.btn-lg{padding:14px 30px;font-size:1em}}.search-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(247,245,242,.98);backdrop-filter:blur(5px);z-index:1010;display:flex;justify-content:center;align-items:center;opacity:0;visibility:hidden}.search-overlay-close{position:absolute;top:30px;right:40px;background:0 0;border:none;font-size:3rem;color:var(--color-text-light)}.search-overlay-content{width:90%;max-width:700px;text-align:center;transform:translateY(20px)}.search-form{position:relative;margin-bottom:20px}.search-input{width:100%;padding:20px 60px 20px 25px;font-size:1.5rem;border:none;border-bottom:2px solid var(--color-border);background-color:transparent;color:var(--color-text);font-family:var(--font-heading);outline:0}.search-submit-btn{position:absolute;right:15px;top:50%;transform:translateY(-50%);background:0 0;border:none;font-size:1.5rem;color:var(--color-accent);padding:10px}.search-results-container{margin-top:10px;max-height:40vh;overflow-y:auto;text-align:left;background-color:#fff;border-radius:var(--border-radius-main);box-shadow:var(--box-shadow-light);border:1px solid var(--color-border);display:none}@media (max-width:768px){.search-input{font-size:1.2rem;padding:15px 50px 15px 15px}.search-submit-btn{font-size:1.2rem}.search-overlay-close{top:20px;right:20px;font-size:2.5rem}}.side-menu-nav-list a{display:flex;align-items:center;gap:15px;font-weight:600;font-size:1.05em;padding:14px 15px;border-radius:6px}.side-menu-nav-list i{width:22px;text-align:center;font-size:1.1em;flex-shrink:0;color:var(--color-accent);opacity:.8}.gift-story-section{background-color:var(--color-white)}.side-menu-nav-list .submenu{list-style:none;padding-left:35px;margin-top:8px;margin-bottom:8px;display:none}.side-menu-nav-list .submenu a{font-size:.95em;font-weight:400;padding:8px 10px}.side-menu-nav-list,.side-menu-nav-list ul{list-style-type:none;padding:0}:root{--swiper-theme-color:#007aff}:host{position:relative;display:block;margin-left:auto;margin-right:auto;z-index:1}.swiper{margin-left:auto;margin-right:auto;position:relative;overflow:hidden;list-style:none;padding:0;z-index:1;display:block}.swiper-wrapper{position:relative;width:100%;height:100%;z-index:1;display:flex;box-sizing:content-box}.swiper-wrapper{transform:translate3d(0,0,0)}.swiper-slide{flex-shrink:0;width:100%;height:100%;position:relative;display:block}:root{--swiper-navigation-size:44px}.swiper-pagination{position:absolute;text-align:center;transform:translate3d(0,0,0);z-index:10}.hero{min-height:600px;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;color:var(--color-white)}.hero-swiper{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}.hero-swiper .swiper-pagination{bottom:15px;text-align:center;width:100%;padding-bottom:5px;box-sizing:border-box}.hero-slide{position:relative;overflow:hidden;width:100%;height:100%}.hero-slide-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-1;display:block}.hero-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(rgba(0,0,0,.4),rgba(0,0,0,.6));z-index:1}.hero-content{position:relative;z-index:2}.hero-title{font-size:calc(3em + 2vw);font-weight:700;line-height:1.1;margin-bottom:.5em;text-shadow:2px 2px 5px rgba(0,0,0,.5);display:block;overflow:hidden;color:var(--color-white)}.hero-title span{display:inline-block;opacity:0;transform:translateY(100%);animation:.8s cubic-bezier(.2,.8,.2,1) forwards revealWord}.hero-title span:nth-child(1){animation-delay:.1s}.hero-title span:nth-child(2){animation-delay:.3s}@keyframes revealWord{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}.hero-content p{font-size:1.4em;margin-bottom:2em;font-weight:300;text-shadow:1px 1px 3px rgba(0,0,0,.4);color:rgba(255,255,255,.95)}@media (max-width:992px){.hero{background-attachment:scroll}}@media (max-width:768px){.hero{padding:100px 0}.hero-content p{font-size:1.2em}}@media (max-width:480px){.hero{padding:80px 0}.hero-content p{font-size:1.1em}}[data-aos^=fade][data-aos^=fade]{opacity:0}[data-aos=fade-up]{transform:translate3d(0,100px,0)}.fa-solid,.far,.fas{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:var(--fa-display,inline-block);font-style:normal;font-variant:normal;line-height:1;text-rendering:auto}.fa-solid,.far,.fas{font-family:"Font Awesome 6 Free"}.fa-shopping-bag:before{content:"\f290"}.fa-user:before{content:"\f007"}.fa-feather-alt:before{content:"\f56b"}.fa-arrow-right:before{content:"\f061"}.fa-heart:before{content:"\f004"}.fa-question-circle:before{content:"\f059"}.fa-envelope:before{content:"\f0e0"}.fa-info-circle:before{content:"\f05a"}.fa-home:before{content:"\f015"}.fa-search:before{content:"\f002"}.fa-chevron-down:before{content:"\f078"}.fa-store:before{content:"\f54e"}:host,:root{--fa-style-family-brands:"Font Awesome 6 Brands";--fa-font-brands:normal 400 1em/1 "Font Awesome 6 Brands"}:host,:root{--fa-font-regular:normal 400 1em/1 "Font Awesome 6 Free"}.far{font-weight:400}:host,:root{--fa-style-family-classic:"Font Awesome 6 Free";--fa-font-solid:normal 900 1em/1 "Font Awesome 6 Free"}.fa-solid,.fas{font-weight:900}
+    </style>
+    <link rel="preload" href="/dist/main.bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/dist/main.bundle.css"></noscript>
+<% } else { %>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/homepage.css">
+<% } %>
+<script src="/dist/main.bundle.js" defer></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -253,7 +248,7 @@
                 <div class="gift-story-content">
                     <h3>Втілюйте власну ідею</h3>
                     <p>Маєте унікальний задум? Розкажіть нам про нього! Ми допоможемо створити вишивку за вашим власним ескізом, щоб ваша мрія стала реальністю, вишитою нитками.</p>
-                    <a href="/product/667341addf89b9e6a71c855a" class="btn btn-secondary btn-sm">Замовити свою вишивку</a>
+                    <a href="/product/68060e0fe39ed348e8785150" class="btn btn-secondary btn-sm">Замовити свою вишивку</a>
                 </div>
             </div>
         </div>
@@ -441,7 +436,7 @@
                     Майстерня "Вузлик до вузлика" з любов'ю створює унікальні вишивки в серці України, у місті Бровари Київської області, та з радістю відправляє їх у будь-який куточок світу, щоб поділитися красою українських традицій.
                 </p>
                 <div class="map-container" data-aos="fade-up" data-aos-delay="200">
-                    <div id="gmap"></div>
+                    <div id="gmap" data-api-key="<%= locals.googleMapsApiKey %>"></div>
                 </div>
                 <div class="map-address-info" data-aos="fade-up" data-aos-delay="250">
                     <p>Ми працюємо для вас в Україні, Київська область, м. Бровари.</p>
@@ -453,9 +448,7 @@
     </main>
 
     <%- include('partials/footer') %>
-
-    <script src="/js/main.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+<script src="/dist/main.bundle.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" xintegrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 
     <script defer>
@@ -534,21 +527,53 @@
         }
 
 
-          if (document.getElementById('gmap')) {
-              const mapsApiKey = "<%= locals.googleMapsApiKey %>";
-              if (mapsApiKey && mapsApiKey !== 'undefined' && mapsApiKey !== '') {
-                  const script = document.createElement('script');
-                  script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsApiKey}&callback=initMap&loading=async&defer`;
-                  script.onerror = () => console.error("Google Maps script failed to load.");
-                  document.head.appendChild(script);
-                  window.initMap = initMap;
-              } else {
-                  console.warn("Google Maps API Key is not configured. Map will not be loaded.");
-                  const gmapDiv = document.getElementById('gmap');
-                  if(gmapDiv) gmapDiv.innerHTML = '<p style="text-align:center; padding-top:50px;">Карта тимчасово недоступна.</p>';
-              }
-          }
+         const mapElement = document.getElementById('gmap');
+        if (mapElement) {
+            const mapObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const mapsApiKey = mapElement.dataset.apiKey;
+                        if (mapsApiKey && mapsApiKey !== 'undefined' && mapsApiKey !== '') {
+                            if (!window.google || !window.google.maps) {
+                                const script = document.createElement('script');
+                                script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsApiKey}&callback=initMap&loading=async&defer`;
+                                script.onerror = () => console.error("Google Maps script failed to load.");
+                                document.head.appendChild(script);
+                                window.initMap = initMap;
+                            }
+                        } else {
+                            console.warn("Google Maps API Key is not configured.");
+                            mapElement.innerHTML = '<p style="text-align:center; padding-top:50px;">Карта тимчасово недоступна.</p>';
+                        }
+                        // После загрузки отключаем наблюдатель
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: "100px" }); // Начать загрузку за 100px до появления карты
+
+            mapObserver.observe(mapElement);
+            }
       });
     </script>
+    <% if (isProduction && gaMeasurementId) { %>
+<script defer>
+    // Откладываем загрузку аналитики, чтобы не мешать основному рендерингу
+    setTimeout(() => {
+        const gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=<%= gaMeasurementId %>';
+        document.head.appendChild(gtagScript);
+
+        gtagScript.onload = () => {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17036727455');
+            gtag('config', '<%= gaMeasurementId %>');
+            console.log('GA4 Initialized with ID (delayed):', '<%= gaMeasurementId %>');
+        };
+    }, 3000); // Задержка 3 секунды
+</script>
+<% } %>
 </body>
 </html>
