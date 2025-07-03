@@ -15,20 +15,6 @@
 
     <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
-    
-    <% if (locals.isProduction && locals.gaMeasurementId) { %>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'AW-17036727455');
-          gtag('config', '<%= locals.gaMeasurementId %>');
-          console.log('GA4 Initialized with ID:', '<%= gaMeasurementId %>');
-        </script>
-    <% } else { %>
-        <% } %>
 
     <link rel="stylesheet" href="/css/common.css"> <link rel="preload" href="/css/auth.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/css/auth.css"></noscript>
@@ -99,5 +85,25 @@
     <%- include('partials/footer') %>
 <script src="/dist/main.bundle.js" defer></script>
     <script src="/js/login.js" defer></script>
+        <% if (isProduction && gaMeasurementId) { %>
+<script defer>
+    // Откладываем загрузку аналитики, чтобы не мешать основному рендерингу
+    setTimeout(() => {
+        const gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=<%= gaMeasurementId %>';
+        document.head.appendChild(gtagScript);
+
+        gtagScript.onload = () => {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17036727455');
+            gtag('config', '<%= gaMeasurementId %>');
+            console.log('GA4 Initialized with ID (delayed):', '<%= gaMeasurementId %>');
+        };
+    }, 3000); // Задержка 3 секунды
+</script>
+<% } %>
 </body>
 </html>

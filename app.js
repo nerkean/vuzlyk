@@ -51,6 +51,19 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
+
+if (process.env.NODE_ENV === 'production') {
+  app.use('/dist', express.static(path.join(__dirname, 'public', 'dist'), {
+    immutable: true,
+    maxAge: '1y' 
+  }));
+
+  app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), {
+    immutable: true,
+    maxAge: '1y'
+  }));
+}
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());

@@ -41,19 +41,6 @@
 
 <meta name="csrf-token" content="<%= csrfToken %>">
 
-    <% if (locals.isProduction && locals.gaMeasurementId) { %>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'AW-17036727455'); 
-          gtag('config', '<%= locals.gaMeasurementId %>');
-          console.log('GA4 Initialized with ID:', '<%= locals.gaMeasurementId %>');
-        </script>
-    <% } %>
-
     <link rel="canonical" href="<%= canonicalUrl %>" />
     <meta property="og:title" content="<%= pageTitle %>">
     <meta property="og:description" content="<%= metaDescription %>">
@@ -435,5 +422,25 @@
           }
       });
     </script>
+        <% if (isProduction && gaMeasurementId) { %>
+<script defer>
+    // Откладываем загрузку аналитики, чтобы не мешать основному рендерингу
+    setTimeout(() => {
+        const gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=<%= gaMeasurementId %>';
+        document.head.appendChild(gtagScript);
+
+        gtagScript.onload = () => {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17036727455');
+            gtag('config', '<%= gaMeasurementId %>');
+            console.log('GA4 Initialized with ID (delayed):', '<%= gaMeasurementId %>');
+        };
+    }, 3000); // Задержка 3 секунды
+</script>
+<% } %>
 </body>
 </html>
