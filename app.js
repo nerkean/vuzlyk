@@ -27,6 +27,29 @@ const Post = require('./models/Post');
 
 const app = express();
 
+const cache = {
+    data: new Map(),
+    set(key, value, ttl_seconds) {
+        console.log(`[CACHE] Установка ключа: ${key} на ${ttl_seconds} сек.`);
+        const expires = Date.now() + ttl_seconds * 1000;
+        this.data.set(key, { value, expires });
+    },
+    get(key) {
+        const item = this.data.get(key);
+        if (item && Date.now() < item.expires) {
+            console.log(`[CACHE] Хит для ключа: ${key}`);
+            return item.value;
+        }
+        this.data.delete(key); // Удаляем, если истек срок или не найден
+        console.log(`[CACHE] Промах для ключа: ${key}`);
+        return null;
+    },
+    clear() {
+        this.data.clear();
+        console.log('[CACHE] Кеш очищен.');
+    }
+};
+
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5500;
 const DB_URI = process.env.MONGODB_URI;
@@ -236,44 +259,39 @@ app.use(async (req, res, next) => {
     const nextIndex = (currentIndex + 1) % AVAILABLE_CURRENCIES.length;
 
     try {
-        const transliterate = (text) => {
-            const uaToEn = {
-                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ie', 'ж': 'zh',
-                'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'i', 'й': 'i', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
-                'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts',
-                'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'iu', 'я': 'ia', ' ': '-'
-            };
-            return text.toLowerCase()
-                       .split('').map(char => uaToEn[char] || char)
-                       .join('')
-                       .replace(/[^\w-]+/g, ''); // Удаляем все, что не является буквой, цифрой или дефисом
-        };
+        const CACHE_TTL_CATEGORIES = 3600; // Кешируем категории на 1 час
+        let categories = cache.get('categories');
 
-        const distinctCategories = await Product.distinct('category').lean();
-        
-        // Теперь мы создаем правильный slug с помощью транслитерации
-        res.locals.categories = distinctCategories.map(cat => ({
-            name: cat,
-            slug: transliterate(cat)
-        }));
+        if (!categories) {
+            const transliterate = (text) => {
+                const uaToEn = {'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ie','ж':'zh','з':'z','и':'y','і':'i','ї':'i','й':'i','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'','ю':'iu','я':'ia',' ':'-','_':'-','/':'-','\\':'-'};
+                return text.toLowerCase().split('').map(char => uaToEn[char] || char).join('').replace(/[^\w-]+/g, '').replace(/--+/g, '-');
+            };
+            const distinctCategories = await Product.distinct('category').lean();
+            categories = distinctCategories.map(cat => ({
+                name: cat,
+                slug: transliterate(cat)
+            }));
+            cache.set('categories', categories, CACHE_TTL_CATEGORIES);
+        }
+        res.locals.categories = categories;
 
     } catch (error) {
         console.error("Ошибка получения категорий для хедера:", error);
-        res.locals.categories = []; // В случае ошибки передаем пустой массив
+        res.locals.categories = [];
     }
 
+
     if (req.user) {
+        // Логика для списка желаний остается без изменений, так как она персональная
         try {
-            // Lean() для скорости, нам нужны только ID
             const userWithWishlist = await User.findById(req.user._id, 'wishlist').lean(); 
-            // Создаем Set для быстрой проверки (вместо медленного перебора массива)
             res.locals.wishlistIds = new Set(userWithWishlist.wishlist.map(id => id.toString()));
         } catch (error) {
             console.error("Ошибка получения списка желаний пользователя:", error);
             res.locals.wishlistIds = new Set();
         }
     } else {
-        // Для гостей создаем пустой Set
         res.locals.wishlistIds = new Set();
     }
 
@@ -313,7 +331,14 @@ app.use('/blog', blogRoutes);
 
 app.get('/', csrfProtection, async (req, res, next) => {
     try {
-        const featuredProducts = await Product.find({ isFeatured: true }).select('name price maxPrice images slug').limit(4).lean();
+        const CACHE_TTL_FEATURED = 1800; // Кешируем популярные товары на 30 минут
+        let featuredProducts = cache.get('featuredProducts');
+
+        if (!featuredProducts) {
+            featuredProducts = await Product.find({ isFeatured: true }).select('name price maxPrice images slug').limit(4).lean();
+            cache.set('featuredProducts', featuredProducts, CACHE_TTL_FEATURED);
+        }
+        
         res.render('index', {
            featuredProducts: featuredProducts,
            canonicalUrl: res.locals.baseUrl + '/',
