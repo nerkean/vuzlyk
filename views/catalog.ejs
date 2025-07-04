@@ -424,7 +424,6 @@
     </script>
         <% if (isProduction && gaMeasurementId) { %>
 <script defer>
-    // Откладываем загрузку аналитики, чтобы не мешать основному рендерингу
     setTimeout(() => {
         const gtagScript = document.createElement('script');
         gtagScript.async = true;
@@ -439,7 +438,7 @@
             gtag('config', '<%= gaMeasurementId %>');
             console.log('GA4 Initialized with ID (delayed):', '<%= gaMeasurementId %>');
         };
-    }, 3000); // Задержка 3 секунды
+    }, 3000); 
 </script>
 <% } %>
 </body>

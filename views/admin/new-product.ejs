@@ -99,8 +99,8 @@
             Вишивка
         </option>
         
-        <option value="Прикраси" <%= (typeof productData !== 'undefined' && productData.category === 'Прикраси') || (typeof formData !== 'undefined' && formData.category === 'Прикраси') ? 'selected' : '' %>>
-            Прикраси
+        <option value="Аксесуари" <%= (typeof productData !== 'undefined' && productData.category === 'Аксесуари') || (typeof formData !== 'undefined' && formData.category === 'Аксесуари') ? 'selected' : '' %>>
+            Аксесуари
         </option>
 
     </select>
@@ -181,6 +181,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const metaDescTextarea = document.getElementById('metaDescription');
             const metaDescCounter = document.getElementById('metaDescCounter');
             const metaDescMaxLength = 170; 
@@ -287,51 +288,49 @@
             const productNameInput = document.getElementById('name');
             const productDescriptionTextarea = document.getElementById('description');
 
-            if (generateMetaBtn && productNameInput && productDescriptionTextarea && metaDescTextarea) {
-                generateMetaBtn.addEventListener('click', async function() {
-                    const productName = productNameInput.value.trim();
-                    const productDescription = productDescriptionTextarea.value.trim();
+           if (generateMetaBtn && productNameInput && productDescriptionTextarea && metaDescTextarea) {
+            generateMetaBtn.addEventListener('click', async function() {
+                const productName = productNameInput.value.trim();
+                const productDescription = productDescriptionTextarea.value.trim();
 
-                    if (!productName && !productDescription) {
-                        alert('Будь ласка, введіть назву та опис товару для генерації мета-опису.');
-                        return;
-                    }
-                    if (!productName) {
-                        alert('Будь ласка, введіть назву товару.'); return;
-                    }
-                     if (!productDescription) {
-                        alert('Будь ласка, введіть опис товару.'); return;
-                    }
+                if (!productName || !productDescription) {
+                    alert('Будь ласка, введіть назву та опис товару для генерації мета-опису.');
+                    return;
+                }
+                
+                this.disabled = true;
+                this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Генеруємо...`;
 
-                    this.disabled = true;
-                    this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Генеруємо...`;
-
-                    try {
-                        const response = await fetch('/admin/generate-meta-description', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', },
-                            body: JSON.stringify({ productName: productName, productDescription: productDescription })
-                        });
-                        if (!response.ok) {
-                            const errorData = await response.json().catch(() => ({}));
-                            throw new Error(errorData.message || `Помилка сервера: ${response.status}`);
-                        }
-                        const data = await response.json();
-                        if (data.metaDescription) {
-                            metaDescTextarea.value = data.metaDescription;
-                            updateMetaCounter(); 
-                        } else {
-                            alert('Не вдалося згенерувати мета-опис.');
-                        }
-                    } catch (error) {
-                        console.error('Помилка генерації мета-опису:', error);
-                        alert(`Помилка: ${error.message}`);
-                    } finally {
-                        this.disabled = false;
-                        this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: text-bottom;"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707ZM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707L7.293 4Zm-.646 2.472A.5.5 0 1 0 6 5.843V4.013a.5.5 0 1 0-1 0v1.829h-1.02a.5.5 0 1 0 0 1H5v1.829a.5.5 0 1 0 1 0V6.843h1.02a.5.5 0 0 0 .646-.371Z"/><path d="M.5 12.04A.5.5 0 0 0 0 12.5v1.167l1.829 1.828a.5.5 0 0 0 .707-.707L1.207 13.5h1.166a.5.5 0 0 0 .5-.5V12a.5.5 0 0 0-.5-.5H1.207l1.328-1.329a.5.5 0 0 0-.707-.707L.5 11.293V12.04Zm15 0a.5.5 0 0 0-.5-.5h-1.166l-1.329-1.329a.5.5 0 0 0-.707.707L13.5 12h-1.167a.5.5 0 0 0-.5.5v.5a.5.5 0 0 0 .5.5h1.166l1.329 1.329a.5.5 0 0 0 .707-.707L14.5 13.5v-.793a.5.5 0 0 0-.5-.5Z"/><path d="M11.469 8.242c.063.577.346 1.383.997 2.294.634.921 1.373 1.853 1.996 2.62.313.384.415.962.23 1.373-.186.412-.646.656-1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02.048-1.562.252-.541.65-1.334 1.043-2.062-.631-.842-1.374-1.747-2.012-2.538-.317-.395-.423-.965-.234-1.379.188-.413.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022-.044 1.564Zm-6.938 0c-.063.577-.346 1.383-.997 2.294-.634.921-1.373 1.853-1.996 2.62-.313.384-.415.962-.23 1.373.186.412.646.656 1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02-.048-1.562-.252-.541-.65-1.334-1.043-2.062.631-.842 1.374-1.747 2.012-2.538-.317-.395-.423-.965-.234-1.379-.188-.413-.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022.044 1.564Z"/><path d="M4.973 8.242a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6.054 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg> Згенерувати`;
+                try {
+                    const response = await fetch('/admin/generate-meta-description', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            // ✅ ШАГ 2: Добавляем токен в заголовок запроса
+                            'CSRF-Token': csrfToken 
+                        },
+                        body: JSON.stringify({ productName: productName, productDescription: productDescription })
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.message || `Помилка сервера: ${response.status}`);
                     }
-                });
-            }
+                    const data = await response.json();
+                    if (data.metaDescription) {
+                        metaDescTextarea.value = data.metaDescription;
+                        updateMetaCounter(); 
+                    } else {
+                        alert('Не вдалося згенерувати мета-опис.');
+                    }
+                } catch (error) {
+                    console.error('Помилка генерації мета-опису:', error);
+                    alert(`Помилка: ${error.message}`);
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: text-bottom;"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707ZM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707L7.293 4Zm-.646 2.472A.5.5 0 1 0 6 5.843V4.013a.5.5 0 1 0-1 0v1.829h-1.02a.5.5 0 1 0 0 1H5v1.829a.5.5 0 1 0 1 0V6.843h1.02a.5.5 0 0 0 .646-.371Z"/><path d="M.5 12.04A.5.5 0 0 0 0 12.5v1.167l1.829 1.828a.5.5 0 0 0 .707-.707L1.207 13.5h1.166a.5.5 0 0 0 .5-.5V12a.5.5 0 0 0-.5-.5H1.207l1.328-1.329a.5.5 0 0 0-.707-.707L.5 11.293V12.04Zm15 0a.5.5 0 0 0-.5-.5h-1.166l-1.329-1.329a.5.5 0 0 0-.707.707L13.5 12h-1.167a.5.5 0 0 0-.5.5v.5a.5.5 0 0 0 .5.5h1.166l1.329 1.329a.5.5 0 0 0 .707-.707L14.5 13.5v-.793a.5.5 0 0 0-.5-.5Z"/><path d="M11.469 8.242c.063.577.346 1.383.997 2.294.634.921 1.373 1.853 1.996 2.62.313.384.415.962.23 1.373-.186.412-.646.656-1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02.048-1.562.252-.541.65-1.334 1.043-2.062-.631-.842-1.374-1.747-2.012-2.538-.317-.395-.423-.965-.234-1.379.188-.413.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022-.044 1.564Zm-6.938 0c-.063.577-.346 1.383-.997 2.294-.634.921-1.373 1.853-1.996 2.62-.313.384-.415.962-.23 1.373.186.412.646.656 1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02-.048-1.562-.252-.541-.65-1.334-1.043-2.062.631-.842 1.374-1.747 2.012-2.538.317-.395-.423-.965-.234-1.379-.188-.413-.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022.044 1.564Z"/><path d="M4.973 8.242a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6.054 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg> Згенерувати`;
+                }
+            });
+        }
 
             const livePhotoInput = document.getElementById('livePhotoFile');
             const livePhotoPreviewContainer = document.getElementById('livePhotoPreviewContainer');

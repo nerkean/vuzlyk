@@ -136,7 +136,9 @@
                             <% if (product.price !== undefined) { %>
                                 <% if (product.maxPrice && product.maxPrice > product.price) { %>
                                     <%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %> - <%= formatPrice(product.maxPrice, selectedCurrency, exchangeRates, currencySymbols) %>
-                                    <span class="price-note" style="display: block; font-size: 0.7em; color: var(--color-text-light); margin-top: -5px;">(ціна залежить від складності)</span>
+                                                                       <% if (product._id.toString() === '68060e0fe39ed348e8785150') { %>
+                                        <span class="price-note" style="display: block; font-size: 0.7em; color: var(--color-text-light); margin-top: -5px;">(ціна залежить від складності)</span>
+                                    <% } %>
                                 <% } else { %>
                                     <%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %>
                                 <% } %>

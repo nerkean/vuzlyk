@@ -459,27 +459,27 @@ app.get('/catalog', csrfProtection, async (req, res, next) => {
         let metaDescription = 'Перегляньте каталог унікальних виробів ручної роботи від майстерні "Вузлик до вузлика".';
         let categoryTags = []; // По умолчанию пустой массив
 
-                const allVyshyvkaTags = ["дитячі", "пейзажі", "весільні", "контурна", "архітектурна", "квіти", "карти", "тварини", "сімейні", "літери", "свята"];
-        const allPrykrasyTags = ["сережки", "браслети", "кольє", "бісер", "натуральний камінь", "срібло"];
+        const allVyshyvkaTags = ["дитячі", "пейзажі", "весільні", "контурна", "архітектурна", "квіти", "карти", "тварини", "сімейні", "літери", "свята", "закладка"];
+        const allPrykrasyTags = [];
 
         
-        if (category === 'prykrasy') {
+        if (category === 'aksesuary') {
             pageTitle = 'Каталог Прикрас Ручної Роботи';
-            pageHeading = 'Прикраси';
-            metaDescription = 'Відкрийте для себе ексклюзивні прикраси ручної роботи: сережки, браслети, кольє та багато іншого.';
-            categoryTags = ["сережки", "браслети", "кольє", "бісер", "натуральний камінь", "срібло"];
-            filterQuery.category = 'Прикраси';
+            pageHeading = 'Аксесуари';
+            metaDescription = 'Відкрийте для себе ексклюзивні аксесуари ручної роботи: сережки, браслети, кольє та багато іншого.';
+           
+            filterQuery.category = 'Аксесуари';
 
         } else if (category === 'vyshyvka') {
             pageTitle = 'Каталог Вишивки Ручної Роботи';
             pageHeading = 'Вишивка';
             metaDescription = 'Перегляньте каталог унікальної вишивки ручної роботи: картини, вишиванки, рушники.';
-            categoryTags = ["дитячі", "пейзажі", "весільні", "контурна", "архітектурна", "квіти", "карти", "тварини", "сімейні", "літери", "свята"];
+            categoryTags = ["дитячі", "пейзажі", "весільні", "контурна", "архітектурна", "квіти", "карти", "тварини", "сімейні", "літери", "свята", "закладка"];
             filterQuery.category = 'Вишивка';
         } else {
             // Якщо категорія НЕ вибрана, показуємо ВСІ теги
             pageHeading = 'Усі товари';
-            categoryTags = [...allVyshyvkaTags, ...allPrykrasyTags];
+            categoryTags = [...allVyshyvkaTags];
         }
 
         const products = await Product.find(filterQuery)
@@ -748,8 +748,8 @@ app.get('/api/products', async (req, res) => {
             const categorySlug = req.query.category.toLowerCase();
             
             // І додаємо відповідну умову в наш об'єкт для пошуку в базі даних
-            if (categorySlug === 'prykrasy') {
-                filterQuery.category = 'Прикраси';
+            if (categorySlug === 'aksesuary') {
+                filterQuery.category = 'Аксесуари';
             } else if (categorySlug === 'vyshyvka') {
                 filterQuery.category = 'Вишивка';
             }
