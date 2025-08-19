@@ -162,13 +162,6 @@ strong { font-weight: 700; color: var(--color-text); }
     align-items: center;
     flex-shrink: 0;
 }
-
-.logo-img {
-    height: 50px;
-    width: 60px;
-    margin-right: 12px;
-}
-
 /* ========================================= */
 /* == ФИНАЛЬНЫЕ СТИЛИ ДЛЯ НОВОГО ХЕДЕРА == */
 /* ========================================= */
@@ -476,7 +469,7 @@ strong { font-weight: 700; color: var(--color-text); }
     box-shadow: var(--box-shadow-light);
 }
 .logo a { font-family: var(--font-heading); font-size: 1.9em; font-weight: 700; color: var(--color-text); text-decoration: none; display: flex; align-items: center; flex-shrink: 0; }
-.logo-img { height: 50px; width: 80px; margin-right: 12px; }
+.logo-img { height: 50px; width: 60px; margin-right: 12px; }
 .header-actions { display: flex; align-items: center; gap: 15px;  }
 .header-cart { position: relative; flex-shrink: 0; margin: 0; }
 .header-cart a { font-size: 1.5em; color: var(--color-text); text-decoration: none; position: relative; display: inline-block; }
