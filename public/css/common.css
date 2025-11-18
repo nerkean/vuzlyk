@@ -492,6 +492,35 @@ strong { font-weight: 700; color: var(--color-text); }
     border-top: 1px solid var(--color-border);
     overflow: hidden;
 }
+.footer-phone {
+    margin-top: 12px;
+}
+
+.footer-phone a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-light);   /* спокойный светло-серый */
+    font-size: 0.95em;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-phone i {
+    font-size: 1.1em;
+    color: var(--color-accent);        /* иконка — фирменный акцент */
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+.footer-phone a:hover {
+    color: var(--color-accent-dark);
+}
+
+.footer-phone a:hover i {
+    opacity: 1;
+}
+
 .footer-pattern {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;

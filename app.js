@@ -25,6 +25,53 @@ const Review = require('./models/Review');
 const Order = require('./models/Order');
 const Post = require('./models/Post');
 
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+async function sendTelegramOrderNotification(order) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+        console.warn('[Telegram] TELEGRAM_BOT_TOKEN або TELEGRAM_CHAT_ID не задані. Сповіщення не відправлено.');
+        return;
+    }
+
+    try {
+        const itemsText = (order.items || [])
+            .map(item => `• ${item.name} — ${item.quantity} шт × ${item.price}₴`)
+            .join('\n') || '—';
+
+        const lines = [
+            '🧵 НОВЕ ЗАМОВЛЕННЯ НА Vuzlyk',
+            '',
+            `ID: ${order._id}`,
+            `Імʼя: ${order.contactInfo?.name || '—'}`,
+            `Телефон: ${order.contactInfo?.phone || '—'}`,
+            `Email: ${order.contactInfo?.email || '—'}`,
+            '',
+            `Доставка: ${order.shipping?.method || '—'}`,
+            order.shipping?.city ? `Місто: ${order.shipping.city}` : null,
+            order.shipping?.warehouse ? `Відділення: ${order.shipping.warehouse}` : null,
+            order.shipping?.address ? `Адреса: ${order.shipping.address}` : null,
+            '',
+            'Товари:',
+            itemsText,
+            '',
+            `Сума: ${order.totalAmount}₴`,
+            order.comments && order.comments !== 'Немає'
+                ? `\nКоментар клієнта: ${order.comments}`
+                : null,
+        ].filter(Boolean);
+
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            chat_id: TELEGRAM_CHAT_ID,
+            text: lines.join('\n')
+        });
+
+        console.log('[Telegram] Повідомлення про замовлення успішно відправлено.');
+    } catch (err) {
+        console.error('[Telegram] Помилка відправки повідомлення:', err.message);
+    }
+}
+
 const app = express();
 
 const cache = {
@@ -994,6 +1041,11 @@ app.post('/order/place', async (req, res) => {
     try {
         const newOrder = new Order(orderData);
         await newOrder.save();
+
+         sendTelegramOrderNotification(newOrder).catch(err => {
+            console.error('[Telegram] Помилка при відправці сповіщення:', err.message);
+        });
+        
         if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.ADMIN_EMAIL) {
             throw new Error('Email configuration missing.');
         } else {
