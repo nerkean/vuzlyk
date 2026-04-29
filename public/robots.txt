@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 User-agent: *
 Disallow: /admin/
 Disallow: /cart/
@@ -14,17 +13,4 @@ Allow: /
 Allow: /catalog
 Allow: /about
 Allow: /product/
-=======
-Disallow: /admin/
-Disallow: /profile/
-Disallow: /cart
-Disallow: /checkout
-Disallow: /order/
-Disallow: /auth/
-Disallow: /verify-email
-Disallow: /resend-verification
-Disallow: /product/*/review
-Disallow: /api/
-Allow: /
->>>>>>> 56a1076 (2.0)
 Sitemap: https://vuzlyk.com/sitemap.xml

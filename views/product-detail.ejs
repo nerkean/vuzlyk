@@ -136,7 +136,7 @@
                             <% if (product.price !== undefined) { %>
                                 <% if (product.maxPrice && product.maxPrice > product.price) { %>
                                     <%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %> - <%= formatPrice(product.maxPrice, selectedCurrency, exchangeRates, currencySymbols) %>
-                                                                       <% if (product._id.toString() === '68060e0fe39ed348e8785150') { %>
+                                                                                               <% if (product._id.toString() === '68060e0fe39ed348e8785150') { %>
                                         <span class="price-note" style="display: block; font-size: 0.7em; color: var(--color-text-light); margin-top: -5px;">(ціна залежить від складності)</span>
                                     <% } %>
                                 <% } else { %>
@@ -182,7 +182,15 @@
 </button>
     </div>
     <p style="font-size: 0.9em; margin-top: 10px; color: #6c757d;">Ми зв'яжемося для уточнення деталей</p>
-                    </div>
+    
+    <div class="local-pickup-info">
+    <i class="fa-solid fa-location-dot"></i>
+    <div>
+        <strong>Доступно для самовивозу</strong>
+        <span>м. Бровари (за попередньою домовленістю)</span>
+    </div>
+</div>
+    </div>
                 </div>
 
                 <div class="product-info-column" data-aos="fade-left" data-aos-duration="800" data-aos-delay="100">

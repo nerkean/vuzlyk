@@ -20,7 +20,6 @@
     background-color: #f0f0f0;
 }
 
-
 .product-gallery .main-image-container img {
     display: block;
     width: 100%;
@@ -75,6 +74,44 @@
 .add-to-cart-button {
     width: 100%;
 }
+
+/* --- СТИЛІ ДЛЯ БЛОКУ САМОВИВОЗУ (MERCHANT CENTER) --- */
+.local-pickup-info {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--color-white);
+    border: 1px dashed var(--color-accent);
+    border-radius: var(--border-radius-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: left;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.local-pickup-info i {
+    color: var(--color-accent);
+    font-size: 1.5em;
+}
+
+.local-pickup-info div {
+    display: flex;
+    flex-direction: column;
+}
+
+.local-pickup-info strong {
+    color: var(--color-text);
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-bottom: 3px;
+}
+
+.local-pickup-info span {
+    color: var(--color-text-light);
+    font-size: 0.85em;
+}
+/* --------------------------------------------------- */
 
 .product-title {
     font-size: 2.5em;

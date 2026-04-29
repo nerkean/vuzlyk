@@ -1125,12 +1125,12 @@ app.post('/order/place', async (req, res) => {
                 </body>
                 </html>
             `;
- const mailOptionsAdmin = {
-                from: `"Сайт Vuzlyk" <${process.env.EMAIL_USER}>`,
-                to: process.env.ADMIN_EMAIL,
-                subject: `Новий запит на замовлення з сайту Vuzlyk (#${newOrder._id} - ${orderData.contactInfo.name})`,
-                html: emailHtmlAdmin
-            };
+const mailOptionsAdmin = {
+    from: `"Сайт Vuzlyk" <info@vuzlyk.com>`,
+    to: process.env.ADMIN_EMAIL,
+    subject: `Новий запит на замовлення з сайту Vuzlyk (#${newOrder._id} - ${orderData.contactInfo.name})`,
+    html: emailHtmlAdmin
+};
             
             transporter.sendMail(mailOptionsAdmin, (error, info) => {
                 if (error) {
@@ -1186,12 +1186,12 @@ app.post('/order/place', async (req, res) => {
                 </html>
             `;
 
-  const mailOptionsCustomer = {
-                from: `"Вузлик до вузлика" <${process.env.EMAIL_USER}>`,
-                to: orderData.contactInfo.email,
-                subject: customerSubject,
-                html: customerEmailHtml
-            };
+const mailOptionsCustomer = {
+    from: `"Вузлик до вузлика" <info@vuzlyk.com>`,
+    to: orderData.contactInfo.email,
+    subject: customerSubject,
+    html: customerEmailHtml
+};
 
             transporter.sendMail(mailOptionsCustomer, (error, info) => {
                 if (error) {
@@ -1201,6 +1201,14 @@ app.post('/order/place', async (req, res) => {
             });
         }
         req.session.cart = [];
+        const savedOrder = await newOrder.save();
+
+// ТИМЧАСОВО ЗБЕРІГАЄМО ДАНІ В СЕСІЮ
+req.session.lastOrder = {
+    orderId: savedOrder._id.toString(),
+    email: req.body.email
+};
+
         res.redirect('/order/request-sent');
     } catch (error) {
         return res.redirect('/checkout?error=submission');
@@ -1208,7 +1216,18 @@ app.post('/order/place', async (req, res) => {
 });
 
 app.get('/order/request-sent', (req, res) => {
-  res.render('order-request-sent');
+    // Отримуємо дані з сесії (якщо їх немає, беремо порожній об'єкт, щоб не було помилки)
+    const orderData = req.session.lastOrder || {};
+    
+    // Очищаємо дані замовлення із сесії
+    if (req.session.lastOrder) {
+        delete req.session.lastOrder;
+    }
+
+    res.render('order-request-sent', {
+        orderId: orderData.orderId || '', 
+        customerEmail: orderData.email || ''   
+    });
 });
 
 app.get('/privacy-policy', (req, res) => { res.render('privacy-policy'); });
@@ -1231,6 +1250,40 @@ app.get('/contacts', csrfProtection, (req, res) => {
         csrfToken: req.csrfToken()
     });
 });
+
+app.get('/feeds/local-inventory.txt', async (req, res) => {
+    try {
+        // Подтягиваем все товары из базы
+        // Можешь добавить фильтр, например { status: 'В наявності' }, если нужно
+        const products = await Product.find({}); 
+        
+        // ВАЖНО: Это код твоей точки на Google Картах (Google Business Profile)
+        // Если ты его еще не задал в настройках профиля компании, можешь придумать свой (например, brovary_1)
+        // и позже вписать его в настройках адреса в Google Мой Бизнес.
+        const storeCode = 'brovary_1'; 
+
+        // Заголовки столбцов, которые требует Google (разделены табуляцией \t)
+        let feedContent = 'store_code\tid\tavailability\n';
+
+        products.forEach(product => {
+            const productId = product._id.toString();
+            // Если у тебя есть логика наличия, можешь менять 'in_stock' на 'out_of_stock'
+            // Но для вышивки под заказ обычно ставят in_stock
+            const availability = 'in_stock'; 
+
+            feedContent += `${storeCode}\t${productId}\t${availability}\n`;
+        });
+
+        // Устанавливаем правильный заголовок ответа, чтобы Google понял, что это текст
+        res.header('Content-Type', 'text/plain');
+        res.send(feedContent);
+
+    } catch (error) {
+        console.error('[GMC Feed] Помилка генерації локального фіда:', error);
+        res.status(500).send('Помилка сервера при генерації фіда');
+    }
+});
+
 
 app.post('/contacts/send', csrfProtection, async (req, res) => {
     const { name, email, phone, subject, message } = req.body;
