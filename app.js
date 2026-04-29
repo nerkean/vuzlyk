@@ -1260,7 +1260,7 @@ app.get('/feeds/local-inventory.txt', async (req, res) => {
         // ВАЖНО: Это код твоей точки на Google Картах (Google Business Profile)
         // Если ты его еще не задал в настройках профиля компании, можешь придумать свой (например, brovary_1)
         // и позже вписать его в настройках адреса в Google Мой Бизнес.
-        const storeCode = 'vuzlyk_brovary'; 
+        const storeCode = 'VUZLYK_BROVARY'; 
 
         // Заголовки столбцов, которые требует Google (разделены табуляцией \t)
         let feedContent = 'store_code\tid\tavailability\n';
