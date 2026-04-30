@@ -3,28 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вхід в Адмін-панель</title>
-    <link rel="stylesheet" href="/css/common.css"> <link rel="stylesheet" href="/css/admin.css"> </head>
-<body>
-    <div class="login-container">
-        <div class="login-box">
-            <h1>Вхід в Панель Адміністратора</h1>
-            <% if (typeof error !== 'undefined' && error) { %>
-                <p class="error-message">Неправильний логін або пароль.</p>
-            <% } %>
-            <form action="/admin/login" method="POST">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <div class="form-group">
-                    <label for="username">Логін:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Пароль:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary login-button">Увійти</button>
-            </form>
+    <title>Вхід в Адмін-панель | Вузлик</title>
+    
+    <!-- Підключення шрифтів та іконок -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    
+    <style>
+        /* Стилі специфічні для сторінки логіну */
+        body.login-body {
+            background-color: var(--bg-main, #f3f4f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: var(--font-body, 'Roboto', sans-serif);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Декоративні розмиті плями на фоні */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            z-index: 0;
+        }
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background-color: rgba(185, 147, 108, 0.3); /* Твій бренд-колір */
+            top: -100px;
+            right: -100px;
+            animation: float 8s ease-in-out infinite;
+        }
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background-color: rgba(59, 130, 246, 0.2); /* Світло-синій */
+            bottom: -50px;
+            left: -100px;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(30px) scale(1.05); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .login-card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 1;
+            position: relative;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-sizing: border-box;
+            margin: 20px;
+        }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand-icon {
+            font-size: 36px;
+            color: var(--brand-primary, #b9936c);
+            margin-bottom: 15px;
+            background: rgba(185, 147, 108, 0.1);
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .login-header h1 {
+            font-family: var(--font-heading, 'Montserrat', sans-serif);
+            font-size: 24px;
+            color: var(--text-primary, #1e293b);
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            color: var(--text-secondary, #64748b);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #ef4444;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary, #1e293b);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            color: var(--text-muted, #94a3b8);
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text-primary, #1e293b);
+            background-color: #f8fafc;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--brand-primary, #b9936c);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(185, 147, 108, 0.1);
+        }
+
+        .form-group input:focus + .input-icon {
+            color: var(--brand-primary, #b9936c);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted, #94a3b8);
+            cursor: pointer;
+            padding: 0;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        
+        .toggle-password:hover {
+            color: var(--text-primary, #1e293b);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--brand-primary, #b9936c);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-button:hover {
+            background-color: var(--brand-hover, #a07e5a);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(185, 147, 108, 0.3);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-secondary, #64748b);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: var(--brand-primary, #b9936c);
+        }
+        .back-link i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <!-- Декоративний фон -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <div class="login-card">
+        <div class="login-header">
+            <div class="brand-icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <h1>Адмін-панель</h1>
+            <p>Увійдіть, щоб керувати своїм магазином</p>
         </div>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="error-message">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Неправильний логін або пароль. Спробуйте ще раз.</span>
+            </div>
+        <% } %>
+
+        <form action="/admin/login" method="POST" id="loginForm">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="form-group">
+                <label for="username">Логін адміністратора</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" placeholder="Введіть ваш логін" required autocomplete="username">
+                    <i class="fa-regular fa-user input-icon"></i>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Введіть пароль" required autocomplete="current-password">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Показати пароль">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button type="submit" class="login-button" id="submitBtn">
+                <span>Увійти в систему</span>
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </form>
+
+        <a href="/" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Повернутися на головну сайту
+        </a>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Перемикач видимості пароля
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            if (togglePasswordBtn && passwordInput) {
+                togglePasswordBtn.addEventListener('click', () => {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    // Змінюємо іконку
+                    const icon = togglePasswordBtn.querySelector('i');
+                    if (type === 'text') {
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            }
+
+            // Анімація на кнопці під час відправки форми
+            const loginForm = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (loginForm && submitBtn) {
+                loginForm.addEventListener('submit', () => {
+                    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Вхід...';
+                    submitBtn.style.opacity = '0.8';
+                    submitBtn.style.pointerEvents = 'none';
+                });
+            }
+        });
+    </script>
 </body>
 </html>

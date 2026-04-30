@@ -3,356 +3,676 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= pageTitle %></title>
+    <title><%= pageTitle %> - Адмін-панель</title>
     <meta name="csrf-token" content="<%= csrfToken %>">
+    
+    <!-- Підключення шрифтів та іконок -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/admin.css">
+    
+    <style>
+        /* Основний контейнер форми */
+        .admin-form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-surface, #ffffff);
+            border-radius: var(--radius-lg, 16px);
+            box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+            padding: 30px 40px;
+        }
+
+        /* Секції форми */
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+        }
+        .form-section:last-of-type { border-bottom: none; margin-bottom: 20px; }
+
+        .form-section-title {
+            font-size: 18px;
+            color: var(--text-primary, #1e293b);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .form-section-title i { color: var(--brand-primary, #b9936c); }
+
+        /* Поля вводу та групи */
+        .admin-form-group { margin-bottom: 20px; }
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary, #1e293b);
+        }
+        .admin-form-group .required { color: #ef4444; margin-left: 3px; }
+
+        /* Стилізація самих елементів вводу */
+        .admin-form-control, 
+        .admin-form-group input[type="text"], 
+        .admin-form-group input[type="number"], 
+        .admin-form-group textarea, 
+        .admin-form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color, #cbd5e1);
+            border-radius: var(--radius-sm, 8px);
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-primary, #1e293b);
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .admin-form-control:focus, 
+        .admin-form-group input:focus, 
+        .admin-form-group textarea:focus, 
+        .admin-form-group select:focus {
+            outline: none;
+            border-color: var(--brand-primary, #b9936c);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(185, 147, 108, 0.15);
+        }
+
+        .form-row { display: flex; gap: 20px; }
+        .form-row .admin-form-group { flex: 1; }
+
+        /* Стилі для існуючих зображень */
+        .current-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .current-image-card {
+            position: relative;
+            border-radius: var(--radius-sm, 8px);
+            border: 1px solid var(--border-color, #e2e8f0);
+            overflow: hidden;
+            background: #fff;
+            box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05));
+        }
+        .current-image-card img, .current-image-card video {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            display: block;
+        }
+        .delete-overlay {
+            padding: 8px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .delete-overlay input { width: 14px; height: 14px; cursor: pointer; }
+        .delete-overlay:hover { background: #fee2e2; color: #b91c1c; }
+
+        /* Стилі для завантаження */
+        .file-upload-wrapper {
+            border: 2px dashed var(--border-color, #cbd5e1);
+            border-radius: var(--radius-md, 12px);
+            padding: 24px;
+            text-align: center;
+            background-color: #f8fafc;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-upload-wrapper:hover {
+            border-color: var(--brand-primary, #b9936c);
+            background-color: #fff;
+        }
+        .file-upload-wrapper input[type="file"] {
+            opacity: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;
+        }
+        .file-upload-content i { font-size: 28px; color: var(--text-muted, #94a3b8); margin-bottom: 10px; }
+
+        /* Прев'ю нових фото */
+        .image-preview-container { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+        .image-preview-item {
+            position: relative; width: 100px; height: 100px;
+            border-radius: var(--radius-sm, 8px); border: 1px solid var(--border-color, #e2e8f0);
+            overflow: hidden; box-shadow: var(--shadow-sm);
+        }
+        .image-preview-item img, .image-preview-item video { width: 100%; height: 100%; object-fit: cover; }
+        .btn-remove-preview {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(220, 38, 38, 0.9); color: white; border: none;
+            width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Чекбокси */
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--radius-sm, 8px);
+            border: 1px solid var(--border-color, #e2e8f0);
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .checkbox-group label:hover { background: #f1f5f9; }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand-primary, #b9936c); }
+
+        /* Дії */
+        .form-actions { display: flex; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color, #e2e8f0); }
+        .danger-zone { 
+            margin-top: 40px; 
+            padding: 25px; 
+            border: 1px dashed #fee2e2; 
+            border-radius: var(--radius-lg, 16px); 
+            background: #fffcfc; 
+        }
+
+        /* SEO Input Group */
+        .seo-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .seo-input-group textarea { flex: 1; min-height: 80px; }
+
+        @media (max-width: 768px) {
+            .form-row { flex-direction: column; gap: 0; }
+            .form-actions { flex-direction: column; }
+            .form-actions .btn { width: 100%; justify-content: center; }
+            .admin-form-container { padding: 20px; }
+            .seo-input-group { flex-direction: column; }
+            .seo-input-group .btn { width: 100%; }
+        }
+    </style>
 </head>
 <body class="admin-body">
 
-    <header class="admin-header">
-        <div class="container">
-            <h1>Панель Адміністратора</h1>
-            <nav>
-                <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
-                <a href="/admin/products" class="<%= typeof pageName !== 'undefined' && pageName === 'products' ? 'active' : '' %>">Товари</a>
-                <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
-                <a href="/admin/blog/html-guide" class="<%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">HTML Інструкція</a> 
-                <a href="/admin/logout">Вийти</a>
-            </nav>
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Замовлення</span>
+            </a>
+            <a href="/admin/products" class="nav-item active">
+                <i class="fa-solid fa-tags"></i>
+                <span>Товари</span>
+            </a>
+            <a href="/admin/blog" class="nav-item">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+            <a href="/admin/blog/html-guide" class="nav-item">
+                <i class="fa-solid fa-code"></i>
+                <span>HTML Інструкція</span>
+            </a>
+            <div class="nav-divider"></div>
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
 
-    <main class="admin-main">
-        <div class="container">
-            <h1><%= pageTitle %></h1>
-            <hr style="margin-bottom: 25px;">
-
-            <%
-            let errorMessage = null;
-            if (locals.errorMessage) {
-                errorMessage = locals.errorMessage;
-            } else if (locals.error) {
-                if (locals.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
-                else if (locals.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
-                else errorMessage = locals.error;
-            }
-            %>
-            <% if (errorMessage) { %>
-                <div class="alert alert-danger admin-alert" style="margin-bottom: 20px; text-align: left;">
-                    <strong>Помилка!</strong> <%= errorMessage %>
+    <div class="admin-content-wrapper">
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn"><i class="fa-solid fa-bars"></i></button>
+                <div style="font-weight: 500; color: var(--text-secondary);">
+                    <a href="/admin/products" style="color: inherit; text-decoration: none;">Товари</a> 
+                    <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin: 0 8px;"></i> 
+                    Редагування товару
                 </div>
-            <% } %>
+            </div>
+        </header>
 
-            <% if (typeof productData !== 'undefined' && productData) { %>
-                <div class="admin-form-container">
-                    <form method="POST" action="/admin/products/<%= productData._id %>?_method=PUT" enctype="multipart/form-data" id="editProductForm">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        
-                        <div class="admin-form-group">
-                            <label for="name">Назва товару <span style="color:red;">*</span></label>
-                            <input type="text" id="name" name="name" required value="<%= productData.name %>">
-                        </div>
+        <main class="admin-main">
+            <div class="container-fluid">
+                <div class="page-header" style="margin-bottom: 20px;">
+                    <h2 class="page-title"><%= pageTitle %></h2>
+                </div>
 
-                        <div class="admin-form-group">
-                            <label for="description">Опис <span style="color:red;">*</span></label>
-                            <textarea id="description" name="description" rows="5" required><%= productData.description %></textarea>
-                        </div>
+                <% if (locals.error || locals.errorMessage) { %>
+                    <div class="error-message" style="margin-bottom: 20px;">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span><%= locals.errorMessage || locals.error %></span>
+                    </div>
+                <% } %>
 
-                        <div class="admin-form-group">
-                            <label for="metaDescription">Meta Опис (для SEO)</label>
-                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                <textarea id="metaDescription" name="metaDescription" rows="3" maxlength="170" placeholder="Короткий опис для пошуку Google (до 170 симв.)" style="flex-grow: 1;"><%= productData.metaDescription || '' %></textarea>
-                                <button type="button" id="generateMetaDescBtnEdit" class="btn btn-secondary btn-sm" style="flex-shrink: 0; padding: 0.5rem 0.8rem; line-height: 1.5;">
-                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: text-bottom;">
-                                        <path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707ZM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707L7.293 4Zm-.646 2.472A.5.5 0 1 0 6 5.843V4.013a.5.5 0 1 0-1 0v1.829h-1.02a.5.5 0 1 0 0 1H5v1.829a.5.5 0 1 0 1 0V6.843h1.02a.5.5 0 0 0 .646-.371Z"/>
-                                        <path d="M.5 12.04A.5.5 0 0 0 0 12.5v1.167l1.829 1.828a.5.5 0 0 0 .707-.707L1.207 13.5h1.166a.5.5 0 0 0 .5-.5V12a.5.5 0 0 0-.5-.5H1.207l1.328-1.329a.5.5 0 0 0-.707-.707L.5 11.293V12.04Zm15 0a.5.5 0 0 0-.5-.5h-1.166l-1.329-1.329a.5.5 0 0 0-.707.707L13.5 12h-1.167a.5.5 0 0 0-.5.5v.5a.5.5 0 0 0 .5.5h1.166l1.329 1.329a.5.5 0 0 0 .707-.707L14.5 13.5v-.793a.5.5 0 0 0-.5-.5Z"/>
-                                        <path d="M11.469 8.242c.063.577.346 1.383.997 2.294.634.921 1.373 1.853 1.996 2.62.313.384.415.962.23 1.373-.186.412-.646.656-1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02.048-1.562.252-.541.65-1.334 1.043-2.062-.631-.842-1.374-1.747-2.012-2.538-.317-.395-.423-.965-.234-1.379.188-.413.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022-.044 1.564Zm-6.938 0c-.063.577-.346 1.383-.997 2.294-.634.921-1.373 1.853-1.996 2.62-.313.384-.415.962-.23 1.373.186.412.646.656 1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02-.048-1.562-.252-.541-.65-1.334-1.043-2.062.631-.842 1.374-1.747 2.012-2.538-.317-.395-.423-.965-.234-1.379-.188-.413-.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022.044 1.564Z"/>
-                                        <path d="M4.973 8.242a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6.054 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-                                     </svg>
-                                     Згенерувати
-                                </button>
+                <% if (typeof productData !== 'undefined' && productData) { %>
+                    <div class="admin-form-container">
+                        <form id="editProductForm">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            
+                            <!-- ОСНОВНА ІНФОРМАЦІЯ -->
+                            <div class="form-section">
+                                <h3 class="form-section-title"><i class="fa-solid fa-circle-info"></i> Основна інформація</h3>
+                                <div class="admin-form-group">
+                                    <label for="name">Назва товару <span class="required">*</span></label>
+                                    <input type="text" id="name" name="name" required value="<%= productData.name %>" placeholder="Введіть назву...">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="description">Опис товару <span class="required">*</span></label>
+                                    <textarea id="description" name="description" rows="6" required placeholder="Опишіть ваш виріб..."><%= productData.description %></textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="admin-form-group">
+                                        <label for="category">Категорія <span class="required">*</span></label>
+                                        <select name="category" id="category">
+                                            <option value="Вишивка" <%= productData.category === 'Вишивка' ? 'selected' : '' %>>Вишивка</option>
+                                            <option value="Аксесуари" <%= productData.category === 'Аксесуари' ? 'selected' : '' %>>Аксесуари</option>
+                                        </select>
+                                    </div>
+                                    <div class="admin-form-group">
+                                        <label for="sku">SKU (Артикул)</label>
+                                        <input type="text" id="sku" name="sku" value="<%= productData.sku || '' %>" placeholder="Напр: VSH-001">
+                                    </div>
+                                </div>
                             </div>
-                            <small>Цей текст буде показано в результатах пошуку. Має бути коротким і привабливим.</small>
-                            <div id="metaDescCounterEdit" style="font-size: 0.8em; text-align: right; color: #6c757d; margin-top: 3px;">0 / 170</div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="admin-form-group">
-                                <label for="price">Мін. ціна (грн) <span style="color:red;">*</span></label>
-                                <input type="number" id="price" name="price" required min="0" step="0.01" value="<%= productData.price %>">
+
+                            <!-- ЦІНА ТА СТАТУС -->
+                            <div class="form-section">
+                                <h3 class="form-section-title"><i class="fa-solid fa-tag"></i> Ціна та наявність</h3>
+                                <div class="form-row">
+                                    <div class="admin-form-group">
+                                        <label for="price">Основна ціна (грн) <span class="required">*</span></label>
+                                        <input type="number" id="price" name="price" required step="0.01" value="<%= productData.price %>" placeholder="0.00">
+                                    </div>
+                                    <div class="admin-form-group">
+                                        <label for="maxPrice">Макс. ціна (грн) <small>(необов'язково)</small></label>
+                                        <input type="number" id="maxPrice" name="maxPrice" step="0.01" value="<%= productData.maxPrice || '' %>" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="admin-form-group">
+                                        <label for="status">Статус товару <span class="required">*</span></label>
+                                        <select id="status" name="status" required>
+                                            <option value="Під замовлення" <%= productData.status === 'Під замовлення' ? 'selected' : '' %>>Під замовлення</option>
+                                            <option value="В наявності" <%= productData.status === 'В наявності' ? 'selected' : '' %>>В наявності</option>
+                                            <option value="Немає в наявності" <%= productData.status === 'Немає в наявності' ? 'selected' : '' %>>Немає в наявності</option>
+                                        </select>
+                                    </div>
+                                    <div class="admin-form-group">
+                                        <label for="creation_time_info">Термін виготовлення <span class="required">*</span></label>
+                                        <input type="text" id="creation_time_info" name="creation_time_info" required value="<%= productData.creation_time_info || '' %>" placeholder="Напр: 5-7 днів">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="admin-form-group">
-                                <label for="maxPrice">Макс. ціна (грн) <small>(необов'язково)</small></label>
-                                <input type="number" id="maxPrice" name="maxPrice" min="0" step="0.01" value="<%= productData.maxPrice || '' %>">
-                                <small>Якщо пусто або 0, ціна буде фіксована.</small>
-                            </div>
-                        </div>
 
-                        <div class="admin-form-group">
-                            <label for="category">Категорія<span class="required">*</span></label>
-                            <select name="category" id="category" class="admin-form-control">
-                                <option value="Вишивка" <%= (productData.category === 'Вишивка') ? 'selected' : '' %>>
-                                    Вишивка
-                                </option>
-                                <option value="Аксесуари" <%= (productData.category === 'Аксесуари') ? 'selected' : '' %>>
-                                    Аксесуари
-                                </option>
-                            </select>
-                        </div>
-                        
-                        <div class="admin-form-group">
-                            <label for="status">Статус товару <span style="color:red;">*</span></label>
-                            <select id="status" name="status" required>
-                               <option value="Під замовлення" <%= (productData.status === 'Під замовлення') ? 'selected' : '' %>>Під замовлення</option>
-                               <option value="В наявності" <%= (productData.status === 'В наявності') ? 'selected' : '' %>>В наявності</option>
-                            </select>
-                        </div>
-
-                        <div class="admin-form-group">
-                            <label for="creation_time_info">Термін виготовлення <small>(напр., 'до 10 роб. днів')</small> <span style="color:red;">*</span></label>
-                            <input type="text" id="creation_time_info" name="creation_time_info" required placeholder="Наприклад: 5-7 робочих днів" value="<%= productData.creation_time_info || '' %>">
-                        </div>
-
-                        <div class="admin-form-group">
-                            <label>Поточні основні зображення</label>
-                            <% if(productData.images && productData.images.length > 0) { %>
-                                <div class="current-images-list">
-                                    <% productData.images.forEach((imgSet, index) => { %>
-                                        <% if (imgSet && typeof imgSet === 'object' && imgSet.thumb && imgSet.thumb.url && imgSet.thumb.public_id) { %>
-                                            <div class="current-image-item">
-                                                <img src="<%= imgSet.thumb.url %>?v=<%= new Date().getTime() %>" alt="Мініатюра <%= index + 1 %>">
-                                                <label for="delete_image_<%= productData._id %>_<%= index %>">
-                                                    <input type="checkbox" name="images_to_delete" id="delete_image_<%= productData._id %>_<%= index %>" value="<%= imgSet.large.public_id %>,<%= imgSet.medium.public_id %>,<%= imgSet.thumb.public_id %>">
-                                                    Видалити
+                            <!-- МЕДІА -->
+                            <div class="form-section">
+                                <h3 class="form-section-title"><i class="fa-regular fa-images"></i> Медіафайли</h3>
+                                
+                                <label style="margin-bottom: 10px; display: block; font-weight: 600; font-size: 14px;">Поточні зображення <small>(відмітьте для видалення)</small></label>
+                                <div class="current-images-grid">
+                                    <% if(productData.images && productData.images.length > 0) { %>
+                                        <% productData.images.forEach((imgSet, index) => { %>
+                                            <div class="current-image-card">
+                                                <img src="<%= imgSet.thumb.url %>" alt="Фото">
+                                                <label class="delete-overlay">
+                                                    <input type="checkbox" name="images_to_delete" value="<%= imgSet.large.public_id %>,<%= imgSet.medium.public_id %>,<%= imgSet.thumb.public_id %>">
+                                                    <span>Видалити</span>
                                                 </label>
                                             </div>
-                                        <% } %>
-                                    <% }); %>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <p style="color: var(--text-muted); font-size: 13px;">Зображення відсутні</p>
+                                    <% } %>
                                 </div>
-                            <% } else { %>
-                                <p><small>Основних зображень немає.</small></p>
-                            <% } %>
-                        </div>
 
-                        <div class="admin-form-group">
-                            <label for="imageFiles">Завантажити нові основні зображення <small>(Якщо вибрано, додадуться до існуючих або замінять їх, якщо старі видалені)</small></label>
-                            <div id="file-selection-notice" style="display:none; color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; padding: .75rem 1.25rem; margin-bottom: 1rem; border-radius: .25rem;"></div>
-                            <input type="file" id="imageFiles" name="imageFiles" multiple class="form-control" accept="image/png, image/jpeg, image/jpg, image/gif, image/webp">
-                            <small>Можна вибрати декілька файлів (до 10). Дозволені формати: jpg, png, gif, webp.</small>
-                            <div class="image-preview-container" id="newImagePreviewContainerEdit"></div>
-                        </div>
-                        
-                        <hr style="margin: 20px 0;">
-
-                        <div class="admin-form-group">
-                            <label>Поточне "живе" фото (GIF/відео)</label>
-                            <div class="current-images-list">
-                                <% if (productData.livePhotoUrl) { %>
-                                    <div class="current-image-item">
-                                        <% if (productData.livePhotoUrl.endsWith('.gif')) { %>
-                                            <img src="<%= productData.livePhotoUrl %>?v=<%= new Date().getTime() %>" alt="Поточне живе фото (GIF)" style="border: 2px dashed var(--color-accent);">
-                                        <% } else if (productData.livePhotoUrl.endsWith('.mp4') || productData.livePhotoUrl.endsWith('.webm')) { %>
-                                            <video src="<%= productData.livePhotoUrl %>?v=<%= new Date().getTime() %>" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 2px dashed var(--color-accent);" controls></video>
-                                        <% } else { %>
-                                            <a href="<%= productData.livePhotoUrl %>" target="_blank">Переглянути файл</a>
-                                        <% } %>
-                                        <label for="delete_live_photo" style="color: var(--color-danger);">
-                                            <input type="checkbox" name="delete_live_photo" id="delete_live_photo" value="true">
-                                            Видалити "живе" фото
-                                        </label>
+                                <div class="admin-form-group">
+                                    <label>Додати нові фото</label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" id="imageFiles" name="imageFiles" multiple accept="image/*">
+                                        <div class="file-upload-content">
+                                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                                            <p>Оберіть нові файли</p>
+                                            <small>JPG, PNG або WEBP (макс. 10MB)</small>
+                                        </div>
                                     </div>
-                                <% } else { %>
-                                    <p><small>"Живого" фото ще немає.</small></p>
-                                <% } %>
+                                    <div class="image-preview-container" id="newImagePreview"></div>
+                                </div>
+
+                                <div class="admin-form-group" style="margin-top: 30px;">
+                                    <label>Поточне "живе" фото (відео/GIF)</label>
+                                    <% if (productData.livePhotoUrl) { %>
+                                        <div class="current-image-card" style="width: 120px;">
+                                            <% if (productData.livePhotoUrl.endsWith('.mp4') || productData.livePhotoUrl.endsWith('.webm')) { %>
+                                                <video src="<%= productData.livePhotoUrl %>" muted loop autoplay></video>
+                                            <% } else { %>
+                                                <img src="<%= productData.livePhotoUrl %>" alt="GIF">
+                                            <% } %>
+                                            <label class="delete-overlay">
+                                                <input type="checkbox" name="delete_live_photo" value="true">
+                                                <span>Видалити</span>
+                                            </label>
+                                        </div>
+                                    <% } else { %><p style="color: var(--text-muted); font-size: 13px;">Відсутнє</p><% } %>
+
+                                    <label style="margin-top: 15px; display: block; font-weight: 600; font-size: 14px;">Замінити "живе" фото</label>
+                                    <div class="file-upload-wrapper" style="padding: 15px;">
+                                        <input type="file" id="livePhotoFile" name="livePhotoFile" accept="image/gif,video/*">
+                                        <div class="file-upload-content">
+                                            <i class="fa-solid fa-film" style="font-size: 24px; color: var(--brand-primary);"></i>
+                                            <p style="font-size: 13px; margin-top: 5px;">Завантажити GIF або коротке відео</p>
+                                        </div>
+                                    </div>
+                                    <div class="image-preview-container" id="livePhotoPreview"></div>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="admin-form-group">
-                            <label for="livePhotoFile">Завантажити нове "живе" фото <small>(GIF/MP4/WebM, ЗАМІНИТЬ поточне, якщо є)</small></label>
-                            <input type="file" id="livePhotoFileEdit" name="livePhotoFile" accept="image/gif,video/mp4,video/webm" class="form-control">
-                             <small>Макс. розмір: 5MB.</small>
-                            <div class="image-preview-container" id="livePhotoPreviewContainerEdit" style="margin-top: 10px; min-height: 50px;"></div>
-                        </div>
-                        
-                        <div class="admin-form-group">
-                            <label for="tags">Теги <small>(через кому)</small></label>
-                            <input type="text" id="tags" name="tags" placeholder="квіти, традиційний, подарунок" value="<%= productData.tags ? productData.tags.join(', ') : '' %>">
-                        </div>
+                            <!-- ХАРАКТЕРИСТИКИ -->
+                            <div class="form-section">
+                                <h3 class="form-section-title"><i class="fa-solid fa-list-ul"></i> Характеристики</h3>
+                                <div class="form-row">
+                                    <div class="admin-form-group">
+                                        <label for="materials">Матеріали</label>
+                                        <input type="text" id="materials" name="materials" value="<%= productData.materials ? productData.materials.join(', ') : '' %>" placeholder="Напр: Льон, бавовна">
+                                    </div>
+                                    <div class="admin-form-group">
+                                        <label for="colors">Кольори</label>
+                                        <input type="text" id="colors" name="colors" value="<%= productData.colors ? productData.colors.join(', ') : '' %>" placeholder="Напр: Білий, червоний">
+                                    </div>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="care_instructions">Догляд за виробом</label>
+                                    <textarea id="care_instructions" name="care_instructions" rows="2" placeholder="Як прати та прасувати..."><%= productData.care_instructions || '' %></textarea>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="tags">Теги <small>(через кому)</small></label>
+                                    <input type="text" id="tags" name="tags" value="<%= productData.tags ? productData.tags.join(', ') : '' %>" placeholder="Напр: подарунок, ручна робота">
+                                </div>
+                            </div>
 
-                        <div class="admin-form-group">
-                            <label for="materials">Матеріали <small>(через кому)</small></label>
-                            <input type="text" id="materials" name="materials" placeholder="Льон 100%, Бавовна" value="<%= productData.materials ? productData.materials.join(', ') : '' %>">
-                        </div>
+                            <!-- SEO -->
+                            <div class="form-section">
+                                <h3 class="form-section-title"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO та відображення</h3>
+                                <div class="admin-form-group">
+                                    <label for="metaDescription">Meta Опис (для пошуку)</label>
+                                    <div class="seo-input-group">
+                                        <textarea id="metaDescription" name="metaDescription" rows="2" maxlength="170" placeholder="Короткий опис для Google..."><%= productData.metaDescription || '' %></textarea>
+                                        <button type="button" id="generateMetaBtn" class="btn btn-secondary" title="Згенерувати за допомогою AI">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI
+                                        </button>
+                                    </div>
+                                    <div id="metaCounter" style="font-size: 12px; margin-top: 5px; color: var(--text-muted); font-weight: 500;">0 / 170</div>
+                                </div>
+                                <div class="admin-form-group checkbox-group" style="margin-top: 10px;">
+                                    <label>
+                                        <input type="checkbox" name="isFeatured" <%= productData.isFeatured ? 'checked' : '' %>>
+                                        <span>Показувати товар у блоці "Наші Хіти" на головній</span>
+                                    </label>
+                                </div>
+                            </div>
 
-                        <div class="admin-form-group">
-                            <label for="colors">Кольори <small>(через кому)</small></label>
-                            <input type="text" id="colors" name="colors" placeholder="Білий, Червоний, Чорний" value="<%= productData.colors ? productData.colors.join(', ') : '' %>">
-                        </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="saveBtn">
+                                    <i class="fa-solid fa-save"></i> Зберегти зміни
+                                </button>
+                                <a href="/admin/products" class="btn btn-secondary">
+                                    <i class="fa-solid fa-rotate-left"></i> Скасувати
+                                </a>
+                            </div>
+                        </form>
 
-                        <div class="admin-form-group">
-                            <label for="care_instructions">Інструкції по догляду</label>
-                            <textarea id="care_instructions" name="care_instructions" rows="3"><%= productData.care_instructions || '' %></textarea>
+                        <div class="danger-zone">
+                            <h4 style="color: #b91c1c; margin-bottom: 8px; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> Небезпечна зона</h4>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Будьте обережні: видалення товару неможливо скасувати. Всі пов'язані файли будуть видалені з хмарного сховища.</p>
+                            <button type="button" id="deleteProductBtn" class="btn btn-danger btn-sm">
+                                <i class="fa-regular fa-trash-can"></i> Видалити товар назавжди
+                            </button>
                         </div>
-                        
-                        <div class="admin-form-group checkbox-group">
-                            <label>
-                                <input type="checkbox" name="isFeatured" <%= productData.isFeatured ? 'checked' : '' %>>
-                                <span>Показати в "Наші Хіти" на головній?</span>
-                            </label>
-                        </div>
-
-                        <div class="admin-form-group">
-                            <label for="sku">SKU (Артикул) <small>(необов'язково)</small></label>
-                            <input type="text" id="sku" name="sku" class="admin-form-control" value="<%= productData.sku || '' %>">
-                        </div>
-
-                        <hr>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Оновити товар</button>
-                            <a href="/admin/products" class="btn btn-secondary">До списку товарів</a>
-                        </div>
-                    </form>
-                    
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
-                        <button type="button" id="deleteProductBtn" class="btn btn-danger btn-sm">Видалити товар</button>
                     </div>
-                    
-                    <form method="POST" action="/admin/products/<%= productData._id %>/delete" id="deleteProductFormHidden" style="display: none;">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    </form>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fa-solid fa-circle-question" style="font-size: 40px; margin-bottom: 15px; color: var(--text-muted);"></i>
+                        <h3>Товар не знайдено</h3>
+                        <p>Можливо, він був видалений або посилання невірне.</p>
+                        <a href="/admin/products" class="btn btn-primary" style="margin-top: 20px;">Повернутися до списку</a>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальне вікно видалення -->
+    <div id="confirmationModal" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <button class="close-button" type="button">&times;</button>
+                <div class="modal-body text-center">
+                    <div class="warning-icon-wrapper" style="color: #ef4444; background: #fee2e2;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h3 style="font-size: 20px; margin-bottom: 10px;">Видалити цей товар?</h3>
+                    <p class="modal-subtext">Ви дійсно впевнені, що хочете видалити <strong><%= productData?.name %></strong>?</p>
                 </div>
-            <% } else { %>
-                <div class="admin-form-container">
-                    <p>Помилка: Дані про товар не знайдено.</p>
-                    <a href="/admin/products" class="btn btn-secondary">Повернутись до списку</a>
+                <div class="modal-footer">
+                    <button id="cancelActionBtn" class="btn btn-secondary" type="button">Скасувати</button>
+                    <button id="confirmDeleteBtn" class="btn btn-danger" type="button">Так, видалити</button>
                 </div>
-            <% } %>
-        </div>
-    </main>
-    
-    <div id="confirmationModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <p id="confirmationMessage">Ви впевнені?</p>
-            <button id="confirmActionBtn" class="btn btn-danger">Так, підтвердити</button>
-            <button id="cancelActionBtn" class="btn btn-secondary">Скасувати</button>
+            </div>
         </div>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('confirmationModal');
-        const confirmBtn = document.getElementById('confirmActionBtn');
-        const cancelBtn = document.getElementById('cancelActionBtn');
-        const confirmationMessage = document.getElementById('confirmationMessage');
-        const closeButton = modal?.querySelector('.close-button');
-        let actionToConfirm = null;
-
-        function showModal(message, onConfirm) {
-            if (!modal || !confirmationMessage) return;
-            confirmationMessage.textContent = message;
-            actionToConfirm = onConfirm;
-            modal.style.display = 'block';
-        }
-
-        function closeModal() {
-            if (!modal) return;
-            modal.style.display = 'none';
-            actionToConfirm = null;
-        }
-
-        confirmBtn?.addEventListener('click', () => {
-            if (typeof actionToConfirm === 'function') actionToConfirm();
-            closeModal();
-        });
-        cancelBtn?.addEventListener('click', closeModal);
-        closeButton?.addEventListener('click', closeModal);
-        window.addEventListener('click', (event) => { if (event.target == modal) closeModal(); });
-
-        const deleteBtn = document.getElementById('deleteProductBtn');
-        const deleteForm = document.getElementById('deleteProductFormHidden');
-        if (deleteBtn && deleteForm) {
-            deleteBtn.addEventListener('click', () => {
-                showModal('Ви впевнені, що хочете видалити цей товар? Цю дію не можна скасувати.', () => {
-                    deleteForm.submit();
-                });
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const productId = '<%= productData?._id %>';
+            const editForm = document.getElementById('editProductForm');
+            
+            // Мобільне меню
+            document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+                document.querySelector('.admin-sidebar').classList.toggle('active');
             });
-        }
-        
-        const newMainImageInput = document.getElementById('imageFiles');
-        const newMainImagePreviewContainer = document.getElementById('newImagePreviewContainerEdit');
 
-        if(newMainImageInput) {
-             newMainImageInput.addEventListener('change', function(event) {
-                if (!event.target.files) return;
+            // SEO Лічильник
+            const metaInput = document.getElementById('metaDescription');
+            const counter = document.getElementById('metaCounter');
+            const updateCounter = () => {
+                const len = metaInput.value.length;
+                counter.textContent = `${len} / 170 символів`;
+                counter.style.color = len > 170 ? '#ef4444' : 'var(--text-muted)';
+            };
+            metaInput?.addEventListener('input', updateCounter);
+            updateCounter();
+
+            // AI Генерація мета-опису
+            document.getElementById('generateMetaBtn')?.addEventListener('click', async function() {
+                const name = document.getElementById('name').value.trim();
+                const desc = document.getElementById('description').value.trim();
+                if(!name || !desc) return alert('Заповніть назву та опис товару!');
                 
-                newMainImagePreviewContainer.innerHTML = '';
-                const files = Array.from(event.target.files);
-
-                files.forEach(file => {
-                     const reader = new FileReader();
-                     reader.onload = (e) => {
-                         const item = document.createElement('div');
-                         item.className = 'image-preview-item';
-                         item.innerHTML = `<img src="${e.target.result}" alt="${file.name}"><span class="file-name-preview">${file.name}</span>`;
-                         newMainImagePreviewContainer.appendChild(item);
-                     }
-                     reader.readAsDataURL(file);
-                });
-             });
-        }
-        
-        const generateMetaBtnEdit = document.getElementById('generateMetaDescBtnEdit');
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        if (generateMetaBtnEdit) {
-            generateMetaBtnEdit.addEventListener('click', async function() {
-                const productName = document.getElementById('name').value;
-                const productDescription = document.getElementById('description').value;
-                const metaDescTextarea = document.getElementById('metaDescription');
-
-                if (!productName || !productDescription) {
-                    const notice = document.createElement('div');
-                    notice.className = 'alert alert-danger';
-                    notice.textContent = 'Для генерації потрібні назва та опис товару.';
-                    this.parentElement.insertAdjacentElement('afterend', notice);
-                    setTimeout(() => notice.remove(), 3000);
-                    return;
-                }
-
                 this.disabled = true;
-                this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Генеруємо...`;
+                const original = this.innerHTML;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
                 try {
-                    const response = await fetch('/admin/generate-meta-description', {
+                    const res = await fetch('/admin/generate-meta-description', {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'CSRF-Token': csrfToken
-                        },
-                        body: JSON.stringify({ productName, productDescription })
+                        headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
+                        body: JSON.stringify({ productName: name, productDescription: desc })
                     });
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.message || 'Помилка сервера');
+                    const data = await res.json();
+                    if(data.metaDescription) {
+                        metaInput.value = data.metaDescription;
+                        updateCounter();
+                        metaInput.style.borderColor = 'var(--brand-primary)';
+                        setTimeout(() => metaInput.style.borderColor = '', 1000);
+                    } else {
+                        alert('Не вдалося згенерувати опис. Спробуйте ще раз.');
                     }
-                    const data = await response.json();
-                    metaDescTextarea.value = data.metaDescription || '';
-                } catch (error) {
-                    console.error('Помилка генерації мета-опису:', error);
-                    const notice = document.createElement('div');
-                    notice.className = 'alert alert-danger';
-                    notice.textContent = `Помилка: ${error.message}`;
-                    this.parentElement.insertAdjacentElement('afterend', notice);
-                    setTimeout(() => notice.remove(), 3000);
+                } catch(e) { 
+                    console.error(e);
+                    alert('Помилка при запиті до AI.');
                 } finally {
                     this.disabled = false;
-                    this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: text-bottom;"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707ZM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707L7.293 4Zm-.646 2.472A.5.5 0 1 0 6 5.843V4.013a.5.5 0 1 0-1 0v1.829h-1.02a.5.5 0 1 0 0 1H5v1.829a.5.5 0 1 0 1 0V6.843h1.02a.5.5 0 0 0 .646-.371Z"/><path d="M.5 12.04A.5.5 0 0 0 0 12.5v1.167l1.829 1.828a.5.5 0 0 0 .707-.707L1.207 13.5h1.166a.5.5 0 0 0 .5-.5V12a.5.5 0 0 0-.5-.5H1.207l1.328-1.329a.5.5 0 0 0-.707-.707L.5 11.293V12.04Zm15 0a.5.5 0 0 0-.5-.5h-1.166l-1.329-1.329a.5.5 0 0 0-.707.707L13.5 12h-1.167a.5.5 0 0 0-.5.5v.5a.5.5 0 0 0 .5.5h1.166l1.329 1.329a.5.5 0 0 0 .707-.707L14.5 13.5v-.793a.5.5 0 0 0-.5-.5Z"/><path d="M11.469 8.242c.063.577.346 1.383.997 2.294.634.921 1.373 1.853 1.996 2.62.313.384.415.962.23 1.373-.186.412-.646.656-1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02.048-1.562.252-.541.65-1.334 1.043-2.062-.631-.842-1.374-1.747-2.012-2.538-.317-.395-.423-.965-.234-1.379.188-.413.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022-.044 1.564Zm-6.938 0c-.063.577-.346 1.383-.997 2.294-.634.921-1.373 1.853-1.996 2.62-.313.384-.415.962-.23 1.373.186.412.646.656 1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02-.048-1.562-.252-.541-.65-1.334-1.043-2.062.631-.842 1.374-1.747 2.012-2.538-.317-.395-.423-.965-.234-1.379-.188-.413-.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022.044 1.564Z"/><path d="M4.973 8.242a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6.054 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg> Згенерувати`;
+                    this.innerHTML = original;
                 }
             });
-        }
-    });
+
+            // Прев'ю нових фото
+            const imgInput = document.getElementById('imageFiles');
+            const imgPreview = document.getElementById('newImagePreview');
+            let selectedFiles = [];
+
+            imgInput?.addEventListener('change', function() {
+                const files = Array.from(this.files);
+                // Ліміт на 10 фото сумарно з новими
+                selectedFiles = [...selectedFiles, ...files].slice(0, 10);
+                renderPreviews();
+                this.value = '';
+            });
+
+            function renderPreviews() {
+                imgPreview.innerHTML = '';
+                selectedFiles.forEach((file, idx) => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const div = document.createElement('div');
+                        div.className = 'image-preview-item';
+                        div.innerHTML = `
+                            <img src="${e.target.result}">
+                            <button type="button" class="btn-remove-preview" data-idx="${idx}" title="Видалити">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                        div.querySelector('button').onclick = () => {
+                            selectedFiles.splice(idx, 1);
+                            renderPreviews();
+                        };
+                        imgPreview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Живе фото прев'ю
+            const liveInput = document.getElementById('livePhotoFile');
+            const livePreview = document.getElementById('livePhotoPreview');
+            liveInput?.addEventListener('change', function() {
+                livePreview.innerHTML = '';
+                if(!this.files[0]) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview-item';
+                    if(this.files[0].type.startsWith('video')) {
+                        div.innerHTML = `<video src="${e.target.result}" muted loop autoplay></video>`;
+                    } else {
+                        div.innerHTML = `<img src="${e.target.result}">`;
+                    }
+                    // Додаємо кнопку видалення прев'ю
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'btn-remove-preview';
+                    delBtn.innerHTML = '&times;';
+                    delBtn.onclick = () => {
+                        liveInput.value = '';
+                        livePreview.innerHTML = '';
+                    };
+                    div.appendChild(delBtn);
+                    livePreview.appendChild(div);
+                };
+                reader.readAsDataURL(this.files[0]);
+            });
+
+            // Збереження форми через AJAX (Fetch)
+            editForm?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveBtn');
+                saveBtn.disabled = true;
+                const originalHtml = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Збереження...';
+
+                const formData = new FormData(this);
+                // Очищаємо дефолтне значення з інпуту і додаємо наші selectedFiles
+                formData.delete('imageFiles');
+                selectedFiles.forEach(file => formData.append('imageFiles', file));
+
+                try {
+                    const res = await fetch(`/admin/products/${productId}?_method=PUT`, {
+                        method: 'POST', // POST + _method=PUT для multer
+                        body: formData
+                    });
+                    
+                    if(res.ok) {
+                        window.location.href = '/admin/products';
+                    } else {
+                        const errData = await res.json().catch(() => ({}));
+                        alert('Помилка при збереженні: ' + (errData.message || 'Спробуйте пізніше.'));
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalHtml;
+                    }
+                } catch(err) { 
+                    console.error(err);
+                    alert('Помилка підключення до сервера.');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHtml;
+                }
+            });
+
+            // Логіка модального вікна видалення
+            const modal = document.getElementById('confirmationModal');
+            document.getElementById('deleteProductBtn')?.addEventListener('click', () => {
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+            });
+
+            const closeM = () => {
+                modal.classList.remove('show');
+                setTimeout(() => modal.style.display = 'none', 300);
+            };
+            
+            modal?.querySelector('.close-button').addEventListener('click', closeM);
+            document.getElementById('cancelActionBtn')?.addEventListener('click', closeM);
+            window.addEventListener('click', (e) => { if (e.target === modal) closeM(); });
+
+            document.getElementById('confirmDeleteBtn')?.addEventListener('click', async function() {
+                this.disabled = true;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Видаляємо...';
+                
+                try {
+                    const res = await fetch(`/admin/products/${productId}/delete`, {
+                        method: 'POST',
+                        headers: { 'CSRF-Token': csrfToken }
+                    });
+                    if(res.ok) {
+                        window.location.href = '/admin/products';
+                    } else {
+                        alert('Не вдалося видалити товар.');
+                        this.disabled = false;
+                        this.innerHTML = 'Так, видалити';
+                    }
+                } catch(e) { 
+                    console.error(e);
+                    alert('Помилка видалення.');
+                    this.disabled = false;
+                    this.innerHTML = 'Так, видалити';
+                }
+            });
+        });
     </script>
 </body>
 </html>

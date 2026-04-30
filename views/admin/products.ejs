@@ -3,101 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= pageTitle %></title>
+    <title><%= pageTitle %> - Адмін-панель</title>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    
+    <!-- Підключення шрифтів та іконок -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/admin.css">
     <style>
-        /* Додаткові стилі для кращого вигляду таблиці товарів */
-        .product-list-table img {
-            max-width: 70px; /* Максимальна ширина мініатюри */
-            max-height: 70px; /* Максимальна висота мініатюри */
-            object-fit: cover; /* Зберігає пропорції, обрізаючи зайве */
-            border-radius: 4px;
+        .product-img-mini {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 8px;
             border: 1px solid var(--color-border-light);
+            box-shadow: var(--shadow-sm);
         }
-        .product-list-table .product-actions {
-            white-space: nowrap; /* Щоб кнопки не переносились */
+        .product-img-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background-color: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 20px;
+            border: 1px dashed var(--border-color, #cbd5e1);
         }
-        .product-list-table .product-actions .btn,
-        .product-list-table .product-actions form {
-            margin-bottom: 5px; /* Невеликий відступ знизу для кнопок, якщо вони стануть в стовпчик на малих екранах */
+        .product-info-cell {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-         @media (max-width: 768px) {
-            .product-list-table td[data-label="Фото"] img {
-                max-width: 50px;
-                max-height: 50px;
-            }
+        .product-name-link {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            display: block;
+            margin-bottom: 4px;
         }
+        .product-name-link:hover {
+            color: var(--brand-primary);
+        }
+        .product-category {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-success { background-color: #dcfce7; color: #15803d; }
+        .badge-warning { background-color: #fef9c3; color: #a16207; }
+        .badge-error { background-color: #fee2e2; color: #b91c1c; }
+        .badge-neutral { background-color: #f1f5f9; color: #475569; }
+        
+        .price-tag {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .action-btn.edit-btn:hover { background-color: #e0f2fe; color: #0284c7; }
     </style>
 </head>
 <body class="admin-body">
-    <header class="admin-header">
-        <div class="container">
-            <h1>Панель Адміністратора</h1>
-            <nav>
-                <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
-                <a href="/admin/products" class="active">Товари</a>
-                <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
-                <a href="/admin/blog/html-guide" class="<%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">HTML Інструкція</a> 
-                <a href="/admin/logout">Вийти</a>
-            </nav>
+    <!-- Бічна панель навігації (Sidebar) -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Замовлення</span>
+            </a>
+            <a href="/admin/products" class="nav-item active">
+                <i class="fa-solid fa-tags"></i>
+                <span>Товари</span>
+            </a>
+            <a href="/admin/blog" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+            <a href="/admin/blog/html-guide" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">
+                <i class="fa-solid fa-code"></i>
+                <span>HTML Інструкція</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
 
-    <main class="admin-main">
-        <div class="container">
-            <h1><%= pageTitle %></h1>
-            <a href="/admin/products/new" class="btn btn-primary" style="margin-bottom: 1.5rem; display: inline-block;">Додати новий товар</a>
-
-            <% if (products && products.length > 0) { %>
-                <div class="table-responsive-wrapper">
-                    <table class="product-list-table">
-                        <thead>
-                            <tr>
-                                <th>Фото</th>
-                                <th>Назва</th>
-                                <th>Ціна (грн)</th>
-                                <th>Категорія</th>
-                                <th>Статус</th>
-                                <th>Дії</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% products.forEach(product => { %>
-                                <tr>
-                                    <td data-label="Фото">
-                                        <% if (product.images && product.images.length > 0 && product.images[0] && product.images[0].thumb && product.images[0].thumb.url) { %>
-                                            <img src="<%= product.images[0].thumb.url %>" alt="<%= product.name %>">
-                                        <% } else { %>
-                                            <img src="/images/placeholder.png" alt="Фото відсутнє" style="width:50px; height:50px; object-fit:contain; background:#eee;">
-                                        <% } %>
-                                     </td>
-                                    <td data-label="Назва"><%= product.name %></td>
-                                    <td data-label="Ціна (грн)">
-                                        <%= product.price %>
-                                        <% if (typeof product.maxPrice === 'number' && product.maxPrice > product.price) { %>
-                                            - <%= product.maxPrice %>
-                                        <% } %>
-                                    </td>
-                                    <td data-label="Категорія"><%= product.category %></td>
-                                    <td data-label="Статус"><%= product.status %></td>
-                                    <td data-label="Дії" class="product-actions">
-                                        <a href="/admin/products/<%= product._id %>/edit" class="btn btn-warning btn-sm">Редагувати</a>
-                                        <% var safeName = product.name.replace(/"/g, '&quot;'); %>
-                                        <form action="/admin/products/<%= product._id %>/delete" method="POST" style="display: inline-block; margin-left: 5px;" onsubmit="return confirm('Ви впевнені, що хочете видалити товар «<%= safeName %>»?');">
-                                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                            <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
+    <!-- Основний контент -->
+    <div class="admin-content-wrapper">
+        <!-- Верхня панель (Topbar) -->
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="productSearchInput" placeholder="Пошук товарів за назвою...">
                 </div>
-            <% } else { %>
-                <p>Ще немає жодного товару. <a href="/admin/products/new">Додайте перший</a>.</p>
-            <% } %>
+            </div>
+            <div class="topbar-right">
+                <!-- Місце для додаткових елементів хедера -->
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container-fluid">
+                <!-- Хедер сторінки -->
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Керування асортиментом</h2>
+                        <p class="page-subtitle">Додавайте, редагуйте та видаляйте товари магазину</p>
+                    </div>
+                    <div class="header-actions">
+                        <a href="/admin/products/new" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> Додати товар
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Блок зі статистикою товарів -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: var(--brand-light); color: var(--brand-primary);">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-title">Всього товарів</p>
+                            <h3 class="stat-value"><%= products ? products.length : 0 %></h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon done">
+                            <i class="fa-solid fa-check-to-slot"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-title">В наявності</p>
+                            <h3 class="stat-value"><%= products ? products.filter(p => p.status === 'В наявності').length : 0 %></h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon processing">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-title">Під замовлення</p>
+                            <h3 class="stat-value"><%= products ? products.filter(p => p.status === 'Під замовлення').length : 0 %></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Таблиця товарів -->
+                <div class="card table-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Список товарів <span id="visibleProductCount" style="font-size: 0.8em; color: var(--text-muted); font-weight: 400; margin-left: 8px;"></span></h3>
+                        <div class="filter-group">
+                            <% 
+                                // Динамічно збираємо всі унікальні категорії для фільтра
+                                const categories = products ? [...new Set(products.map(p => p.category).filter(Boolean))] : [];
+                            %>
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="all">Усі категорії</option>
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat %>"><%= cat %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <% if (products && products.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="modern-table" id="productsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Товар</th>
+                                        <th>Категорія</th>
+                                        <th>Ціна (грн)</th>
+                                        <th>Статус</th>
+                                        <th class="text-right">Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% products.forEach((product, index) => { %>
+                                        <tr class="table-row-animate product-row" style="animation-delay: <%= index * 0.05 %>s;">
+                                            <td data-label="Товар">
+                                                <div class="product-info-cell">
+                                                    <% if (product.images && product.images.length > 0 && product.images[0] && product.images[0].thumb && product.images[0].thumb.url) { %>
+                                                        <img src="<%= product.images[0].thumb.url %>" alt="<%= product.name %>" class="product-img-mini" loading="lazy">
+                                                    <% } else { %>
+                                                        <div class="product-img-placeholder"><i class="fa-regular fa-image"></i></div>
+                                                    <% } %>
+                                                    <div>
+                                                        <a href="/product/<%= product._id %>" target="_blank" class="product-name-link" title="Переглянути на сайті"><%= product.name %></a>
+                                                        <% if (product.sku) { %>
+                                                            <span class="product-category" style="font-family: monospace;">SKU: <%= product.sku %></span>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td data-label="Категорія" class="product-category-cell">
+                                                <%= product.category || 'Без категорії' %>
+                                            </td>
+                                            <td data-label="Ціна (грн)">
+                                                <div class="price-tag">
+                                                    <%= product.price %> ₴
+                                                    <% if (typeof product.maxPrice === 'number' && product.maxPrice > product.price) { %>
+                                                        <span style="color: var(--text-muted); font-weight: normal;"> - <%= product.maxPrice %> ₴</span>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                            <td data-label="Статус">
+                                                <% 
+                                                    let statusClass = 'badge-neutral';
+                                                    if(product.status === 'В наявності') statusClass = 'badge-success';
+                                                    else if(product.status === 'Під замовлення') statusClass = 'badge-warning';
+                                                    else if(product.status === 'Немає в наявності') statusClass = 'badge-error';
+                                                %>
+                                                <span class="badge-status <%= statusClass %>"><%= product.status || 'Не вказано' %></span>
+                                            </td>
+                                            <td data-label="Дії" class="text-right actions-cell">
+                                                <a href="/admin/products/<%= product._id %>/edit" class="action-btn edit-btn" title="Редагувати">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                </a>
+                                                
+                                                <!-- Прихована форма для видалення -->
+                                                <form id="delete-form-<%= product._id %>" action="/admin/products/<%= product._id %>/delete" method="POST" style="display: none;">
+                                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                </form>
+                                                
+                                                <% var safeName = product.name.replace(/"/g, '&quot;'); %>
+                                                <button type="button" class="action-btn delete-btn trigger-delete" data-product-id="<%= product._id %>" data-product-name="<%= safeName %>" title="Видалити">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                            <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+                                <i class="fa-solid fa-search" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
+                                <p>За вашим запитом товарів не знайдено.</p>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-icon-wrapper">
+                                <i class="fa-solid fa-tags"></i>
+                            </div>
+                            <h3>Ще немає жодного товару</h3>
+                            <p>Почніть наповнювати магазин прямо зараз.</p>
+                            <a href="/admin/products/new" class="btn btn-primary" style="margin-top: 15px;">Додати перший товар</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальне вікно підтвердження видалення товару -->
+    <div id="confirmationModal" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <button class="close-button">&times;</button>
+                <div class="modal-body text-center">
+                    <div class="warning-icon-wrapper" style="color: #ef4444; background-color: #fee2e2;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h3 id="confirmationMessage">Видалити товар?</h3>
+                    <p class="modal-subtext" id="confirmationSubtext">Ця дія видалить товар з бази назавжди.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelActionBtn" class="btn btn-secondary">Скасувати</button>
+                    <button id="confirmActionBtn" class="btn btn-danger">Видалити назавжди</button>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Мобільне меню ---
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.admin-sidebar');
+            
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
+            // --- Пошук та Фільтрація ---
+            const searchInput = document.getElementById('productSearchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const productRows = document.querySelectorAll('.product-row');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const visibleProductCount = document.getElementById('visibleProductCount');
+            const productsTable = document.getElementById('productsTable');
+
+            const filterProducts = () => {
+                if (!productRows.length) return;
+                
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const filterCategory = categoryFilter.value;
+                let visibleCount = 0;
+
+                productRows.forEach(row => {
+                    const productName = row.querySelector('.product-name-link').textContent.toLowerCase();
+                    const productCategory = row.querySelector('.product-category-cell').textContent.trim();
+
+                    const matchesSearch = productName.includes(searchTerm);
+                    const matchesCategory = filterCategory === 'all' || productCategory === filterCategory;
+
+                    if (matchesSearch && matchesCategory) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (noResultsMessage && productsTable) {
+                    noResultsMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+                    productsTable.querySelector('thead').style.display = visibleCount === 0 ? 'none' : '';
+                }
+                
+                if (searchTerm !== '' || filterCategory !== 'all') {
+                    visibleProductCount.textContent = `(Знайдено: ${visibleCount})`;
+                } else {
+                    visibleProductCount.textContent = '';
+                }
+            };
+
+            if (searchInput) searchInput.addEventListener('input', filterProducts);
+            if (categoryFilter) categoryFilter.addEventListener('change', filterProducts);
+
+
+            // --- Логіка Модального Вікна Видалення ---
+            const modal = document.getElementById('confirmationModal');
+            if (!modal) return;
+            
+            const closeButton = modal.querySelector('.close-button');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            const cancelBtn = document.getElementById('cancelActionBtn');
+            const confirmationSubtext = document.getElementById('confirmationSubtext');
+            
+            let formToSubmitId = null; 
+
+            const showModal = (productId, productName) => {
+                formToSubmitId = `delete-form-${productId}`;
+                confirmationSubtext.innerHTML = `Ви впевнені, що хочете видалити товар <strong>«${productName}»</strong>? Цю дію неможливо скасувати.`;
+                
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+            };
+
+            const closeModal = () => {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    formToSubmitId = null; 
+                }, 300); 
+            };
+
+            // Слухачі на всі кнопки видалення (кошики)
+            const deleteButtons = document.querySelectorAll('.trigger-delete');
+            deleteButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const productId = btn.getAttribute('data-product-id');
+                    const productName = btn.getAttribute('data-product-name');
+                    showModal(productId, productName);
+                });
+            });
+
+            // Підтвердження у модальному вікні
+            if(confirmBtn) confirmBtn.addEventListener('click', () => {
+                if (formToSubmitId) {
+                    // Знаходимо приховану форму і відправляємо її
+                    const form = document.getElementById(formToSubmitId);
+                    if(form) {
+                        // Анімація на кнопці під час сабміту
+                        confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Видалення...';
+                        confirmBtn.disabled = true;
+                        form.submit();
+                    }
+                }
+            });
+
+            if(cancelBtn) cancelBtn.addEventListener('click', closeModal);
+            if(closeButton) closeButton.addEventListener('click', closeModal);
+            window.addEventListener('click', (event) => { 
+                if (event.target == modal) closeModal();
+            });
+
+            // Анімація появи рядків при завантаженні (каскадна)
+            const rows = document.querySelectorAll('.table-row-animate');
+            rows.forEach((row, index) => {
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50 * index);
+            });
+        });
+    </script>
 </body>
 </html>

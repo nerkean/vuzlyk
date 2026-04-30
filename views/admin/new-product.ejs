@@ -3,185 +3,508 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= pageTitle %></title>
-            <meta name="csrf-token" content="<%= csrfToken %>">
+    <title><%= pageTitle %> - Адмін-панель</title>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    
+    <!-- Підключення шрифтів та іконок -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/admin.css">
+    
+    <style>
+        /* Стилі специфічні для форми товару */
+        .admin-form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 30px 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+        }
+        .form-section:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-section-title i {
+            color: var(--brand-primary);
+        }
+
+        .admin-form-group { margin-bottom: 20px; }
+        
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        
+        .admin-form-group label small {
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-left: 5px;
+        }
+        
+        .admin-form-group .required { color: #ef4444; margin-left: 3px; }
+
+        .admin-form-control, 
+        .admin-form-group input[type="text"], 
+        .admin-form-group input[type="number"], 
+        .admin-form-group textarea, 
+        .admin-form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color, #cbd5e1);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-primary);
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .admin-form-control:focus, 
+        .admin-form-group input:focus, 
+        .admin-form-group textarea:focus, 
+        .admin-form-group select:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(185, 147, 108, 0.15);
+        }
+
+        .admin-form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .admin-form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* Стилі для файлових інпутів */
+        .file-upload-wrapper {
+            border: 2px dashed var(--border-color, #cbd5e1);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .file-upload-wrapper:hover {
+            border-color: var(--brand-primary);
+            background-color: #fff;
+        }
+        .file-upload-wrapper input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            cursor: pointer;
+        }
+        .file-upload-content i {
+            font-size: 30px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .file-upload-content p {
+            margin: 0 0 5px 0;
+            font-weight: 500;
+        }
+        .file-upload-content small {
+            color: var(--text-secondary);
+        }
+
+        /* Прев'ю зображень */
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color, #e2e8f0);
+            overflow: hidden;
+            background: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+        .image-preview-item img, .image-preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .file-name-preview {
+            display: none; /* Приховуємо довгі імена файлів для чистоти UI, залишаємо тільки картинку */
+        }
+        .btn-remove-preview {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .btn-remove-preview:hover {
+            background: rgb(185, 28, 28);
+        }
+
+        /* Checkbox Group */
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color, #e2e8f0);
+            transition: all 0.2s;
+        }
+        .checkbox-group label:hover {
+            background: #f1f5f9;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand-primary);
+        }
+
+        /* Actions */
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* SEO Input Group */
+        .seo-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .seo-input-group textarea {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .admin-form-container { padding: 20px; }
+            .form-row { flex-direction: column; gap: 20px; }
+            .seo-input-group { flex-direction: column; }
+            .seo-input-group .btn { width: 100%; }
+            .form-actions { flex-direction: column; }
+            .form-actions .btn { width: 100%; text-align: center; justify-content: center; }
+        }
+    </style>
 </head>
 <body class="admin-body">
 
-    <header class="admin-header">
-        <div class="container">
-            <h1>Панель Адміністратора</h1>
-<nav>
-    <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
-    <a href="/admin/products" class="<%= typeof pageName !== 'undefined' && pageName === 'products' ? 'active' : '' %>">Товари</a>
-    <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
-    <a href="/admin/blog/html-guide" class="<%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">HTML Інструкція</a> 
-    <a href="/admin/logout">Вийти</a>
-</nav>
+    <!-- Бічна панель навігації (Sidebar) -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Замовлення</span>
+            </a>
+            <a href="/admin/products" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'products' || typeof pageName === 'undefined' ? 'active' : '' %>">
+                <i class="fa-solid fa-tags"></i>
+                <span>Товари</span>
+            </a>
+            <a href="/admin/blog" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+            <a href="/admin/blog/html-guide" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">
+                <i class="fa-solid fa-code"></i>
+                <span>HTML Інструкція</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
 
-    <main class="admin-main">
-        <div class="container">
-            <h1><%= pageTitle %></h1>
-            <hr style="margin-bottom: 25px;">
-
-            <%
-            let errorMessage = null;
-            if (locals.error) {
-                if (locals.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
-                else if (locals.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
-                else if (locals.error === 'file_type') errorMessage = 'Дозволено завантажувати лише файли зображень (jpg, jpeg, png, gif, webp).';
-                else if (locals.error === 'no_image') errorMessage = 'Будь ласка, завантажте хоча б одне зображення товару.';
-                else errorMessage = locals.error;
-            } else if (typeof query !== 'undefined' && query.error) {
-                if (query.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
-                else if (query.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
-                else errorMessage = 'Сталася помилка. Спробуйте ще раз.';
-            }
-            %>
-            <% if (errorMessage) { %>
-                <div class="error-message" style="margin-bottom: 20px; text-align: center;">
-                    <%= errorMessage %>
+    <div class="admin-content-wrapper">
+        <!-- Верхня панель (Topbar) -->
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div style="font-weight: 500; color: var(--text-secondary);">
+                    <a href="/admin/products" style="color: inherit; text-decoration: none;">Товари</a> 
+                    <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin: 0 8px;"></i> 
+                    Створення товару
                 </div>
-            <% } %>
-
-            <div class="admin-form-container">
-                <form method="POST" action="/admin/products" enctype="multipart/form-data" id="newProductForm">
-<input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <div class="admin-form-group">
-                        <label for="name">Назва товару <span style="color:red;">*</span></label>
-                        <input type="text" id="name" name="name" required value="<%= locals.formData?.name || '' %>">
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label for="description">Опис <span style="color:red;">*</span></label>
-                        <textarea id="description" name="description" rows="5" required><%= locals.formData?.description || '' %></textarea>
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label for="metaDescription">Meta Опис (для SEO)</label>
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                            <textarea id="metaDescription" name="metaDescription" rows="3" maxlength="170" placeholder="Короткий опис для пошуку Google (до 170 симв.)" style="flex-grow: 1;"><%= locals.formData?.metaDescription || '' %></textarea>
-                            <button type="button" id="generateMetaDescBtn" class="btn btn-secondary btn-sm" style="flex-shrink: 0; padding: 0.5rem 0.8rem; line-height: 1.5;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: text-bottom;">
-                                    <path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707ZM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707L7.293 4Zm-.646 2.472A.5.5 0 1 0 6 5.843V4.013a.5.5 0 1 0-1 0v1.829h-1.02a.5.5 0 1 0 0 1H5v1.829a.5.5 0 1 0 1 0V6.843h1.02a.5.5 0 0 0 .646-.371Z"/>
-                                    <path d="M.5 12.04A.5.5 0 0 0 0 12.5v1.167l1.829 1.828a.5.5 0 0 0 .707-.707L1.207 13.5h1.166a.5.5 0 0 0 .5-.5V12a.5.5 0 0 0-.5-.5H1.207l1.328-1.329a.5.5 0 0 0-.707-.707L.5 11.293V12.04Zm15 0a.5.5 0 0 0-.5-.5h-1.166l-1.329-1.329a.5.5 0 0 0-.707.707L13.5 12h-1.167a.5.5 0 0 0-.5.5v.5a.5.5 0 0 0 .5.5h1.166l1.329 1.329a.5.5 0 0 0 .707-.707L14.5 13.5v-.793a.5.5 0 0 0-.5-.5Z"/>
-                                    <path d="M11.469 8.242c.063.577.346 1.383.997 2.294.634.921 1.373 1.853 1.996 2.62.313.384.415.962.23 1.373-.186.412-.646.656-1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02.048-1.562.252-.541.65-1.334 1.043-2.062-.631-.842-1.374-1.747-2.012-2.538-.317-.395-.423-.965-.234-1.379.188-.413.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022-.044 1.564Zm-6.938 0c-.063.577-.346 1.383-.997 2.294-.634.921-1.373 1.853-1.996 2.62-.313.384-.415.962-.23 1.373.186.412.646.656 1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02-.048-1.562-.252-.541-.65-1.334-1.043-2.062.631-.842 1.374-1.747 2.012-2.538.317-.395-.423-.965-.234-1.379-.188-.413-.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022.044 1.564Z"/>
-                                    <path d="M4.973 8.242a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6.054 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/>
-                                  </svg>
-                                Згенерувати
-                            </button>
-                        </div>
-                        <small>Цей текст буде показано в результатах пошуку. Має бути коротким і привабливим.</small>
-                        <div id="metaDescCounter" style="font-size: 0.8em; text-align: right; color: #6c757d; margin-top: 3px;">0 / 170</div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="admin-form-group">
-                            <label for="price">Мін. ціна (грн) <span style="color:red;">*</span></label>
-                            <input type="number" id="price" name="price" required min="0" step="0.01" value="<%= locals.formData?.price || '' %>">
-                        </div>
-                        <div class="admin-form-group">
-                            <label for="maxPrice">Макс. ціна (грн) <small>(необов'язково)</small></label>
-                            <input type="number" id="maxPrice" name="maxPrice" min="0" step="0.01" value="<%= locals.formData?.maxPrice || '' %>">
-                            <small>Якщо пусто або 0, ціна буде фіксована.</small>
-                        </div>
-                    </div>
-
-<div class="admin-form-group">
-    <label for="category">Категорія<span class="required">*</span></label>
-    <select name="category" id="category" class="admin-form-control">
-        
-        <option value="Вишивка" <%= (typeof productData !== 'undefined' && productData.category === 'Вишивка') || (typeof formData !== 'undefined' && formData.category === 'Вишивка') ? 'selected' : '' %>>
-            Вишивка
-        </option>
-        
-        <option value="Аксесуари" <%= (typeof productData !== 'undefined' && productData.category === 'Аксесуари') || (typeof formData !== 'undefined' && formData.category === 'Аксесуари') ? 'selected' : '' %>>
-            Аксесуари
-        </option>
-
-    </select>
-</div>
-
-                    <div class="admin-form-group">
-                        <label for="status">Статус товару <span style="color:red;">*</span></label>
-                        <select id="status" name="status" required>
-                           <option value="Під замовлення" <%= (locals.formData?.status === 'Під замовлення' || !locals.formData?.status) ? 'selected' : '' %>>Під замовлення</option>
-                           <option value="В наявності" <%= (locals.formData?.status === 'В наявності') ? 'selected' : '' %>>В наявності</option>
-                        </select>
-                    </div>
-                    <div class="admin-form-group">
-                        <label for="creation_time_info">Термін виготовлення <small>(напр., 'до 10 роб. днів')</small> <span style="color:red;">*</span></label>
-                        <input type="text" id="creation_time_info" name="creation_time_info" required placeholder="Наприклад: 5-7 робочих днів" value="<%= locals.formData?.creation_time_info || '' %>">
-                    </div>
-                    
-                    <div class="admin-form-group">
-                        <label for="imageFiles">Зображення товару <small>(мін. 1, макс. 10)</small> <span style="color:red;">*</span></label>
-                        <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 5px;">Натисніть кнопку нижче, щоб вибрати файли. Ви можете додавати файли декілька разів.</p>
-                        <input type="file" id="imageFiles" name="imageFiles" multiple required accept="image/png, image/jpeg, image/jpg, image/gif, image/webp">
-                        <small>Дозволені типи: png, jpg, jpeg, gif, webp. Макс. розмір: 10MB.</small>
-                        <div class="image-preview-container" id="imagePreviewContainerNew">
-                            <%# Сюди JavaScript буде додавати мініатюри %>
-                        </div>
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label for="livePhotoFile">"Живе" фото (GIF/MP4, необов'язково)</label>
-                        <input type="file" id="livePhotoFile" name="livePhotoFile" accept="image/gif,video/mp4,video/webm">
-                        <small>Завантажте GIF або коротке відео (MP4, WebM) для анімації при наведенні. Макс. розмір: 5MB.</small>
-                        <div class="image-preview-container" id="livePhotoPreviewContainer" style="margin-top: 10px; min-height: 50px;">
-                            <%# Сюди JavaScript буде додавати мініатюру для livePhotoFile %>
-                        </div>
-                    </div>
-                    <div class="admin-form-group">
-                        <label for="tags">Теги <small>(через кому)</small></label>
-                        <input type="text" id="tags" name="tags" placeholder="квіти, традиційний, подарунок" value="<%= locals.formData?.tags ? (Array.isArray(locals.formData.tags) ? locals.formData.tags.join(', ') : locals.formData.tags) : '' %>">
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label for="materials">Матеріали <small>(через кому)</small></label>
-                        <input type="text" id="materials" name="materials" placeholder="Льон 100%, Бавовна" value="<%= locals.formData?.materials ? (Array.isArray(locals.formData.materials) ? locals.formData.materials.join(', ') : locals.formData.materials) : '' %>">
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label for="colors">Кольори <small>(через кому)</small></label>
-                        <input type="text" id="colors" name="colors" placeholder="Білий, Червоний, Чорний" value="<%= locals.formData?.colors ? (Array.isArray(locals.formData.colors) ? locals.formData.colors.join(', ') : locals.formData.colors) : '' %>">
-                    </div>
-
-                    <div class="admin-form-group">
-                        <label for="care_instructions">Інструкції по догляду</label>
-                        <textarea id="care_instructions" name="care_instructions" rows="3"><%= locals.formData?.care_instructions || '' %></textarea>
-                    </div>
-
-                    <div class="admin-form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" name="isFeatured" <%= locals.formData?.isFeatured ? 'checked' : '' %>>
-                            <span>Показати в "Наші Хіти" на головній?</span>
-                        </label>
-                    </div>
-
-                    
- <div class="admin-form-group">
-    <label for="sku">SKU (Артикул) <small>(необов'язково, генерується автоматично, якщо порожньо)</small></label>
-    <input type="text" id="sku" name="sku" class="admin-form-control" value="<%= typeof formData !== 'undefined' ? formData.sku : '' %>">
-</div>
-
-                    <hr>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Зберегти товар</button>
-                        <a href="/admin/products" class="btn btn-secondary">Скасувати</a>
-                    </div>
-                </form>
             </div>
-        </div>
-    </main>
+        </header>
+
+        <main class="admin-main">
+            <div class="container-fluid">
+                <div class="page-header" style="margin-bottom: 20px;">
+                    <div>
+                        <h2 class="page-title"><%= pageTitle %></h2>
+                    </div>
+                </div>
+
+                <%
+                let errorMessage = null;
+                if (locals.error) {
+                    if (locals.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
+                    else if (locals.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
+                    else if (locals.error === 'file_type') errorMessage = 'Дозволено завантажувати лише файли зображень (jpg, jpeg, png, gif, webp).';
+                    else if (locals.error === 'no_image') errorMessage = 'Будь ласка, завантажте хоча б одне зображення товару.';
+                    else errorMessage = locals.error;
+                } else if (typeof query !== 'undefined' && query.error) {
+                    if (query.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
+                    else if (query.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
+                    else errorMessage = 'Сталася помилка. Спробуйте ще раз.';
+                }
+                %>
+                <% if (errorMessage) { %>
+                    <div class="error-message">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span><%= errorMessage %></span>
+                    </div>
+                <% } %>
+
+                <div class="admin-form-container">
+                    <form method="POST" action="/admin/products" enctype="multipart/form-data" id="newProductForm">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        
+                        <!-- ОСНОВНА ІНФОРМАЦІЯ -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-circle-info"></i> Основна інформація</h3>
+                            
+                            <div class="admin-form-group">
+                                <label for="name">Назва товару <span class="required">*</span></label>
+                                <input type="text" id="name" name="name" required value="<%= locals.formData?.name || '' %>" placeholder="Наприклад: Вишиванка жіноча 'Червона рута'">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="description">Опис товару <span class="required">*</span></label>
+                                <textarea id="description" name="description" rows="5" required placeholder="Детальний опис товару, його особливостей та переваг..."><%= locals.formData?.description || '' %></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="admin-form-group">
+                                    <label for="category">Категорія <span class="required">*</span></label>
+                                    <select name="category" id="category" class="admin-form-control">
+                                        <option value="Вишивка" <%= (typeof formData !== 'undefined' && formData.category === 'Вишивка') ? 'selected' : '' %>>Вишивка</option>
+                                        <option value="Аксесуари" <%= (typeof formData !== 'undefined' && formData.category === 'Аксесуари') ? 'selected' : '' %>>Аксесуари</option>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="sku">Артикул (SKU) <small>(необов'язково)</small></label>
+                                    <input type="text" id="sku" name="sku" class="admin-form-control" value="<%= typeof formData !== 'undefined' ? formData.sku : '' %>" placeholder="Напр: VSH-001">
+                                    <small style="display:block; margin-top:4px;">Генерується автоматично, якщо порожньо</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ЦІНА ТА СТАТУС -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-tag"></i> Ціна та наявність</h3>
+                            
+                            <div class="form-row" style="margin-bottom: 20px;">
+                                <div class="admin-form-group">
+                                    <label for="price">Основна ціна (грн) <span class="required">*</span></label>
+                                    <input type="number" id="price" name="price" required min="0" step="0.01" value="<%= locals.formData?.price || '' %>" placeholder="0.00">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="maxPrice">Максимальна ціна (грн) <small>(якщо є діапазон)</small></label>
+                                    <input type="number" id="maxPrice" name="maxPrice" min="0" step="0.01" value="<%= locals.formData?.maxPrice || '' %>" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="admin-form-group">
+                                    <label for="status">Статус товару <span class="required">*</span></label>
+                                    <select id="status" name="status" required class="admin-form-control">
+                                        <option value="Під замовлення" <%= (locals.formData?.status === 'Під замовлення' || !locals.formData?.status) ? 'selected' : '' %>>Під замовлення</option>
+                                        <option value="В наявності" <%= (locals.formData?.status === 'В наявності') ? 'selected' : '' %>>В наявності</option>
+                                        <option value="Немає в наявності" <%= (locals.formData?.status === 'Немає в наявності') ? 'selected' : '' %>>Немає в наявності</option>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="creation_time_info">Термін виготовлення / доставки <span class="required">*</span></label>
+                                    <input type="text" id="creation_time_info" name="creation_time_info" required placeholder="Наприклад: 5-7 робочих днів" value="<%= locals.formData?.creation_time_info || '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- МЕДІА (ФОТО) -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-regular fa-images"></i> Медіафайли</h3>
+                            
+                            <div class="admin-form-group">
+                                <label>Зображення товару <span class="required">*</span> <small>(від 1 до 10 файлів)</small></label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="imageFiles" name="imageFiles" multiple required accept="image/png, image/jpeg, image/jpg, image/gif, image/webp">
+                                    <div class="file-upload-content">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        <p>Натисніть або перетягніть файли сюди</p>
+                                        <small>Дозволені формати: JPG, PNG, WEBP (до 10MB). Можна додавати частинами.</small>
+                                    </div>
+                                </div>
+                                <div class="image-preview-container" id="imagePreviewContainerNew"></div>
+                            </div>
+
+                            <div class="admin-form-group" style="margin-top: 30px;">
+                                <label for="livePhotoFile">"Живе" фото або відео (GIF/MP4) <small>(необов'язково)</small></label>
+                                <div class="file-upload-wrapper" style="padding: 15px;">
+                                    <input type="file" id="livePhotoFile" name="livePhotoFile" accept="image/gif,video/mp4,video/webm">
+                                    <div class="file-upload-content">
+                                        <i class="fa-solid fa-film"></i>
+                                        <p style="font-size: 14px;">Завантажити анімацію при наведенні</p>
+                                        <small>GIF, MP4, WebM до 5MB</small>
+                                    </div>
+                                </div>
+                                <div class="image-preview-container" id="livePhotoPreviewContainer"></div>
+                            </div>
+                        </div>
+
+                        <!-- ХАРАКТЕРИСТИКИ -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-list-ul"></i> Характеристики</h3>
+                            
+                            <div class="form-row" style="margin-bottom: 20px;">
+                                <div class="admin-form-group">
+                                    <label for="materials">Матеріали <small>(через кому)</small></label>
+                                    <input type="text" id="materials" name="materials" placeholder="Напр: Льон 100%, Бавовна" value="<%= locals.formData?.materials ? (Array.isArray(locals.formData.materials) ? locals.formData.materials.join(', ') : locals.formData.materials) : '' %>">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="colors">Кольори <small>(через кому)</small></label>
+                                    <input type="text" id="colors" name="colors" placeholder="Напр: Білий, Червоний з чорним" value="<%= locals.formData?.colors ? (Array.isArray(locals.formData.colors) ? locals.formData.colors.join(', ') : locals.formData.colors) : '' %>">
+                                </div>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="care_instructions">Інструкції по догляду</label>
+                                <textarea id="care_instructions" name="care_instructions" rows="2" placeholder="Напр: Делікатне прання при 30 градусах..."><%= locals.formData?.care_instructions || '' %></textarea>
+                            </div>
+                            
+                            <div class="admin-form-group">
+                                <label for="tags">Теги для пошуку <small>(через кому)</small></label>
+                                <input type="text" id="tags" name="tags" placeholder="Напр: вишиванка, жіноча, подарунок" value="<%= locals.formData?.tags ? (Array.isArray(locals.formData.tags) ? locals.formData.tags.join(', ') : locals.formData.tags) : '' %>">
+                            </div>
+                        </div>
+
+                        <!-- SEO ТА НАЛАШТУВАННЯ -->
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO та відображення</h3>
+                            
+                            <div class="admin-form-group">
+                                <label for="metaDescription">Meta Опис (для Google)</label>
+                                <div class="seo-input-group">
+                                    <textarea id="metaDescription" name="metaDescription" rows="2" maxlength="170" class="admin-form-control" placeholder="Короткий опис для результатів пошуку (до 170 символів)..."><%= locals.formData?.metaDescription || '' %></textarea>
+                                    <button type="button" id="generateMetaDescBtn" class="btn btn-secondary">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Згенерувати AI
+                                    </button>
+                                </div>
+                                <div id="metaDescCounter" style="font-size: 12px; text-align: left; color: var(--text-muted); margin-top: 5px;">0 / 170 символів</div>
+                            </div>
+
+                            <div class="admin-form-group checkbox-group" style="margin-top: 20px;">
+                                <label>
+                                    <input type="checkbox" name="isFeatured" <%= locals.formData?.isFeatured ? 'checked' : '' %>>
+                                    <span>Показувати товар у блоці "Наші Хіти" на головній сторінці</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-size: 16px;">
+                                <i class="fa-solid fa-save"></i> Зберегти товар
+                            </button>
+                            <a href="/admin/products" class="btn btn-secondary" style="padding: 12px 24px; font-size: 16px;">
+                                Скасувати
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Мобільне меню
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            // --- SEO Meta Description Логіка ---
             const metaDescTextarea = document.getElementById('metaDescription');
             const metaDescCounter = document.getElementById('metaDescCounter');
             const metaDescMaxLength = 170; 
@@ -189,13 +512,13 @@
             function updateMetaCounter() {
                 if (!metaDescTextarea || !metaDescCounter) return;
                 const currentLength = metaDescTextarea.value.length;
-                metaDescCounter.textContent = `${currentLength} / ${metaDescMaxLength}`;
+                metaDescCounter.textContent = `${currentLength} / ${metaDescMaxLength} символів`;
                 if (currentLength > metaDescMaxLength) {
-                    metaDescCounter.style.color = 'red';
+                    metaDescCounter.style.color = '#ef4444'; // red
                 } else if (currentLength > metaDescMaxLength - 20) { 
-                    metaDescCounter.style.color = 'orange';
+                    metaDescCounter.style.color = '#f59e0b'; // orange
                 } else {
-                    metaDescCounter.style.color = '#6c757d';
+                    metaDescCounter.style.color = 'var(--text-muted)';
                 }
             }
 
@@ -204,6 +527,7 @@
                 updateMetaCounter(); 
             }
 
+            // --- Зображення: Множинне завантаження та прев'ю ---
             const imageInput = document.getElementById('imageFiles');
             const previewContainer = document.getElementById('imagePreviewContainerNew'); 
             const productForm = document.getElementById('newProductForm'); 
@@ -222,40 +546,24 @@
                         const img = document.createElement('img');
                         img.src = e.target.result;
                         
-                        const fileNameSpan = document.createElement('span');
-                        fileNameSpan.classList.add('file-name-preview');
-                        fileNameSpan.textContent = file.name.length > 15 ? file.name.substring(0,12) + '...' : file.name;
-
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button'; 
-                        removeBtn.textContent = '×'; 
+                        removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>'; 
                         removeBtn.dataset.index = index;
                         removeBtn.classList.add('btn-remove-preview'); 
-                        removeBtn.style.position = 'absolute';
-                        removeBtn.style.top = '2px'; 
-                        removeBtn.style.right = '2px'; 
-                        removeBtn.style.background = 'rgba(220, 53, 69, 0.7)';
-                        removeBtn.style.color = 'white';
-                        removeBtn.style.border = '1px solid rgba(0,0,0,0.2)';
-                        removeBtn.style.borderRadius = '50%';
-                        removeBtn.style.width = '20px';
-                        removeBtn.style.height = '20px';
-                        removeBtn.style.fontSize = '12px';
-                        removeBtn.style.lineHeight = '18px'; 
-                        removeBtn.style.textAlign = 'center';
-                        removeBtn.style.cursor = 'pointer';
-                        removeBtn.style.padding = '0';
+                        removeBtn.title = 'Видалити фото';
                 
                         removeBtn.addEventListener('click', handleRemoveFile);
                 
                         previewItem.appendChild(img);
-                        previewItem.appendChild(fileNameSpan);
                         previewItem.appendChild(removeBtn); 
                         previewContainer.appendChild(previewItem);
                     }
                     reader.readAsDataURL(file);
                 });
-                imageInput.required = selectedFiles.length === 0;
+                
+                // Оновлюємо статус required
+                if (imageInput) imageInput.required = selectedFiles.length === 0;
             }
     
             if (imageInput) {
@@ -265,73 +573,27 @@
                         const currentTotal = selectedFiles.length + filesToAdd.length;
             
                         if (currentTotal > MAX_FILES) {
-                            alert(`Ви можете завантажити максимум ${MAX_FILES} зображень. Ви вибрали ${filesToAdd.length}, вже є ${selectedFiles.length}.`);
+                            alert(`Ви можете завантажити максимум ${MAX_FILES} зображень. Ви намагаєтесь додати ${currentTotal}.`);
                             event.target.value = null; 
                             return;
                         }
                         selectedFiles.push(...filesToAdd);
                         updatePreview();
-                        event.target.value = null; 
+                        event.target.value = null; // Очищуємо інпут, щоб можна було додати ті ж файли ще раз (якщо треба)
                     }
                 });
             }
     
             function handleRemoveFile(event) {
-                const indexToRemove = parseInt(event.target.dataset.index, 10);
+                const btn = event.currentTarget; // Використовуємо currentTarget через іконку всередині
+                const indexToRemove = parseInt(btn.dataset.index, 10);
                 if (!isNaN(indexToRemove) && indexToRemove >= 0 && indexToRemove < selectedFiles.length) {
                     selectedFiles.splice(indexToRemove, 1);
                     updatePreview();
                 }
             }
-    
-            const generateMetaBtn = document.getElementById('generateMetaDescBtn');
-            const productNameInput = document.getElementById('name');
-            const productDescriptionTextarea = document.getElementById('description');
 
-           if (generateMetaBtn && productNameInput && productDescriptionTextarea && metaDescTextarea) {
-            generateMetaBtn.addEventListener('click', async function() {
-                const productName = productNameInput.value.trim();
-                const productDescription = productDescriptionTextarea.value.trim();
-
-                if (!productName || !productDescription) {
-                    alert('Будь ласка, введіть назву та опис товару для генерації мета-опису.');
-                    return;
-                }
-                
-                this.disabled = true;
-                this.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Генеруємо...`;
-
-                try {
-                    const response = await fetch('/admin/generate-meta-description', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            // ✅ ШАГ 2: Добавляем токен в заголовок запроса
-                            'CSRF-Token': csrfToken 
-                        },
-                        body: JSON.stringify({ productName: productName, productDescription: productDescription })
-                    });
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.message || `Помилка сервера: ${response.status}`);
-                    }
-                    const data = await response.json();
-                    if (data.metaDescription) {
-                        metaDescTextarea.value = data.metaDescription;
-                        updateMetaCounter(); 
-                    } else {
-                        alert('Не вдалося згенерувати мета-опис.');
-                    }
-                } catch (error) {
-                    console.error('Помилка генерації мета-опису:', error);
-                    alert(`Помилка: ${error.message}`);
-                } finally {
-                    this.disabled = false;
-                    this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-magic" viewBox="0 0 16 16" style="margin-right: 5px; vertical-align: text-bottom;"><path d="M9.5 2.672a.5.5 0 1 0 1 0V.843a.5.5 0 0 0-1 0v1.829Zm4.5.035A.5.5 0 0 0 13.293 2L12 3.293a.5.5 0 1 0 .707.707L14 2.707ZM7.293 4A.5.5 0 1 0 8 3.293L6.707 2A.5.5 0 0 0 6 2.707L7.293 4Zm-.646 2.472A.5.5 0 1 0 6 5.843V4.013a.5.5 0 1 0-1 0v1.829h-1.02a.5.5 0 1 0 0 1H5v1.829a.5.5 0 1 0 1 0V6.843h1.02a.5.5 0 0 0 .646-.371Z"/><path d="M.5 12.04A.5.5 0 0 0 0 12.5v1.167l1.829 1.828a.5.5 0 0 0 .707-.707L1.207 13.5h1.166a.5.5 0 0 0 .5-.5V12a.5.5 0 0 0-.5-.5H1.207l1.328-1.329a.5.5 0 0 0-.707-.707L.5 11.293V12.04Zm15 0a.5.5 0 0 0-.5-.5h-1.166l-1.329-1.329a.5.5 0 0 0-.707.707L13.5 12h-1.167a.5.5 0 0 0-.5.5v.5a.5.5 0 0 0 .5.5h1.166l1.329 1.329a.5.5 0 0 0 .707-.707L14.5 13.5v-.793a.5.5 0 0 0-.5-.5Z"/><path d="M11.469 8.242c.063.577.346 1.383.997 2.294.634.921 1.373 1.853 1.996 2.62.313.384.415.962.23 1.373-.186.412-.646.656-1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02.048-1.562.252-.541.65-1.334 1.043-2.062-.631-.842-1.374-1.747-2.012-2.538-.317-.395-.423-.965-.234-1.379.188-.413.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022-.044 1.564Zm-6.938 0c-.063.577-.346 1.383-.997 2.294-.634.921-1.373 1.853-1.996 2.62-.313.384-.415.962-.23 1.373.186.412.646.656 1.125.568-.479-.088-.894-.422-1.114-.833-.21-.396-.203-1.02-.048-1.562-.252-.541-.65-1.334-1.043-2.062.631-.842 1.374-1.747 2.012-2.538.317-.395-.423-.965-.234-1.379-.188-.413-.648-.66-1.128-.571-.48.088-.892.423-1.11.836-.211.396-.206 1.022.044 1.564Z"/><path d="M4.973 8.242a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6.054 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg> Згенерувати`;
-                }
-            });
-        }
-
+            // --- Live Photo (Живе фото) ---
             const livePhotoInput = document.getElementById('livePhotoFile');
             const livePhotoPreviewContainer = document.getElementById('livePhotoPreviewContainer');
 
@@ -341,6 +603,7 @@
                     if (this.files && this.files[0]) {
                         const file = this.files[0];
                         const reader = new FileReader();
+                        
                         reader.onload = function(e) {
                             const previewItem = document.createElement('div');
                             previewItem.classList.add('image-preview-item'); 
@@ -348,111 +611,167 @@
                             let mediaElement;
                             if (file.type.startsWith('image/gif')) {
                                 mediaElement = document.createElement('img');
-                                mediaElement.alt = "Предпросмотр GIF";
                             } else if (file.type.startsWith('video/')) {
                                 mediaElement = document.createElement('video');
                                 mediaElement.autoplay = true;
                                 mediaElement.loop = true;
                                 mediaElement.muted = true; 
-                                mediaElement.alt = "Предпросмотр відео";
                                 mediaElement.setAttribute('playsinline', ''); 
                             } else {
-                                livePhotoPreviewContainer.textContent = 'Непідтримуваний тип файлу для "живого" фото.';
+                                livePhotoPreviewContainer.textContent = 'Непідтримуваний тип файлу.';
                                 return;
                             }
                             
                             mediaElement.src = e.target.result;
-                            mediaElement.style.maxWidth = '100px'; 
-                            mediaElement.style.maxHeight = '100px';
-                            mediaElement.style.objectFit = 'contain';
-
-                            const fileNameSpan = document.createElement('span');
-                            fileNameSpan.classList.add('file-name-preview');
-                            fileNameSpan.textContent = file.name.length > 15 ? file.name.substring(0,12) + '...' : file.name;
-
                             previewItem.appendChild(mediaElement);
-                            previewItem.appendChild(fileNameSpan);
+                            
+                            // Додаємо кнопку видалення
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button'; 
+                            removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>'; 
+                            removeBtn.classList.add('btn-remove-preview'); 
+                            removeBtn.onclick = function() {
+                                livePhotoInput.value = null;
+                                livePhotoPreviewContainer.innerHTML = '';
+                            };
+                            previewItem.appendChild(removeBtn);
+
                             livePhotoPreviewContainer.appendChild(previewItem);
                         }
                         reader.readAsDataURL(file);
                     }
                 });
             }
-            
-if (productForm) {
-            productForm.addEventListener('submit', async function(event) {
-                // 1. Зупиняємо стандартну відправку
-                event.preventDefault(); 
-            
-                // 2. Валідація на клієнті
-                if (selectedFiles.length === 0) {
-                    alert('Будь ласка, завантажте хоча б одне основне зображення товару.');
-                    return;
-                }
+    
+            // --- Генерація Мета-опису через AI ---
+            const generateMetaBtn = document.getElementById('generateMetaDescBtn');
+            const productNameInput = document.getElementById('name');
+            const productDescriptionTextarea = document.getElementById('description');
 
-                const submitButton = this.querySelector('button[type="submit"]');
-                submitButton.disabled = true;
-                submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Збереження...`;
+            if (generateMetaBtn && productNameInput && productDescriptionTextarea && metaDescTextarea) {
+                generateMetaBtn.addEventListener('click', async function() {
+                    const productName = productNameInput.value.trim();
+                    const productDescription = productDescriptionTextarea.value.trim();
 
-                // 3. Створюємо НОВИЙ об'єкт FormData
-                const formData = new FormData();
-
-                // 4. Додаємо всі текстові поля та токен у FormData
-                const formElements = this.elements;
-                for (let i = 0; i < formElements.length; i++) {
-                    const element = formElements[i];
-                    if (element.name && element.type !== 'file' && element.type !== 'submit' && element.type !== 'button') {
-                        if (element.type === 'checkbox') {
-                            if (element.checked) {
-                                formData.append(element.name, 'on');
-                            }
-                        } else {
-                            formData.append(element.name, element.value);
-                        }
+                    if (!productName || !productDescription) {
+                        alert('Будь ласка, введіть назву та опис товару для генерації мета-опису.');
+                        return;
                     }
-                }
+                    
+                    const originalBtnContent = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Генеруємо...`;
 
-                // 5. Додаємо файли з нашого масиву selectedFiles
-                selectedFiles.forEach(file => {
-                    formData.append('imageFiles', file);
+                    try {
+                        const response = await fetch('/admin/generate-meta-description', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'CSRF-Token': csrfToken 
+                            },
+                            body: JSON.stringify({ productName: productName, productDescription: productDescription })
+                        });
+                        
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.message || `Помилка сервера: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        if (data.metaDescription) {
+                            metaDescTextarea.value = data.metaDescription;
+                            updateMetaCounter(); 
+                            
+                            // Анімація успіху поля
+                            metaDescTextarea.style.borderColor = '#10b981';
+                            metaDescTextarea.style.backgroundColor = '#ecfdf5';
+                            setTimeout(() => {
+                                metaDescTextarea.style.borderColor = '';
+                                metaDescTextarea.style.backgroundColor = '';
+                            }, 1500);
+                        } else {
+                            alert('Не вдалося згенерувати мета-опис.');
+                        }
+                    } catch (error) {
+                        console.error('Помилка генерації мета-опису:', error);
+                        alert(`Помилка: ${error.message}`);
+                    } finally {
+                        this.disabled = false;
+                        this.innerHTML = originalBtnContent;
+                    }
                 });
+            }
+            
+            // --- Відправка форми (перехоплення для кастомних зображень) ---
+            if (productForm) {
+                productForm.addEventListener('submit', async function(event) {
+                    event.preventDefault(); 
                 
-                // 6. Додаємо "живе" фото, якщо воно є
-                if (livePhotoInput.files[0]) {
-                    formData.append('livePhotoFile', livePhotoInput.files[0]);
-                }
-
-                try {
-                    // 7. Відправляємо зібраний FormData на сервер
-                    const response = await fetch('/admin/products', {
-                        method: 'POST',
-                        body: formData
-                        // Заголовки тут не потрібні, браузер сам встановить Content-Type: multipart/form-data
-                    });
-
-                    if (response.ok) {
-                        window.location.href = '/admin/products';
-                    } else {
-                        // Якщо сервер повернув помилку
-                        const errorData = await response.json().catch(() => ({ error: 'Не вдалося обробити відповідь сервера.' }));
-                        // Шукаємо помилку валідації CSRF
-                        if (response.status === 403 || (errorData.message && errorData.message.includes('csrf'))) {
-                             alert('Помилка безпеки. Спробуйте оновити сторінку і відправити форму ще раз.');
-                        } else {
-                             alert(`Помилка: ${errorData.error || response.statusText}`);
-                        }
-                        submitButton.disabled = false;
-                        submitButton.textContent = 'Зберегти товар';
+                    if (selectedFiles.length === 0) {
+                        alert('Будь ласка, додайте хоча б одне зображення товару.');
+                        
+                        // Скролимо до поля завантаження
+                        document.querySelector('.file-upload-wrapper').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
                     }
-                } catch (error) {
-                    console.error('Помилка при відправці форми:', error);
-                    alert('Помилка мережі. Перевірте консоль.');
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Зберегти товар';
-                }
-            });
-        }
-    });
+
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    const originalBtnContent = submitButton.innerHTML;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Збереження...`;
+
+                    const formData = new FormData();
+
+                    // Збираємо текстові дані
+                    const formElements = this.elements;
+                    for (let i = 0; i < formElements.length; i++) {
+                        const element = formElements[i];
+                        if (element.name && element.type !== 'file' && element.type !== 'submit' && element.type !== 'button') {
+                            if (element.type === 'checkbox') {
+                                if (element.checked) formData.append(element.name, 'on');
+                            } else {
+                                formData.append(element.name, element.value);
+                            }
+                        }
+                    }
+
+                    // Додаємо вибрані файли зображень
+                    selectedFiles.forEach(file => {
+                        formData.append('imageFiles', file);
+                    });
+                    
+                    // Додаємо живе фото
+                    if (livePhotoInput.files[0]) {
+                        formData.append('livePhotoFile', livePhotoInput.files[0]);
+                    }
+
+                    try {
+                        const response = await fetch('/admin/products', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            window.location.href = '/admin/products';
+                        } else {
+                            const errorData = await response.json().catch(() => ({ error: 'Помилка сервера.' }));
+                            if (response.status === 403 || (errorData.message && errorData.message.includes('csrf'))) {
+                                 alert('Помилка безпеки сесії. Будь ласка, оновіть сторінку.');
+                            } else {
+                                 alert(`Помилка збереження: ${errorData.error || errorData.message || response.statusText}`);
+                            }
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalBtnContent;
+                        }
+                    } catch (error) {
+                        console.error('Помилка при відправці форми:', error);
+                        alert('Помилка підключення до сервера.');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalBtnContent;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>

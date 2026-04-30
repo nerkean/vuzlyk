@@ -3,264 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= pageTitle %></title>
+    <title><%= pageTitle || 'HTML Інструкція' %> - Адмін-панель</title>
+    
+    <!-- Підключення шрифтів та іконок -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/admin.css">
+    
     <style>
-        .guide-container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 25px;
-            background-color: #fff;
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius-main);
-            box-shadow: var(--box-shadow-light);
+        /* Стилі спеціально для сторінки документації */
+        .guide-wrapper {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--bg-surface, #ffffff);
+            border-radius: var(--radius-lg, 16px);
+            box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+            padding: 40px 50px;
+            color: var(--text-primary, #1e293b);
+            font-family: var(--font-body, 'Roboto', sans-serif);
+            line-height: 1.7;
         }
-        .guide-container h1 {
-            font-size: 1.8em;
-            color: var(--color-accent-dark);
-            border-bottom: 2px solid var(--color-accent-light);
-            padding-bottom: 10px;
-            margin-bottom: 25px;
+
+        .guide-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
         }
-        .guide-container h2 {
-            font-size: 1.5em;
-            color: var(--color-text);
+
+        .guide-header .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background: rgba(185, 147, 108, 0.1);
+            color: var(--brand-primary, #b9936c);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 20px;
+        }
+
+        .guide-header h1 {
+            font-family: var(--font-heading, 'Montserrat', sans-serif);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .guide-header p {
+            color: var(--text-secondary, #64748b);
+            font-size: 16px;
+            margin: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .guide-section {
+            margin-bottom: 40px;
+        }
+
+        .guide-section h2 {
+            font-family: var(--font-heading, 'Montserrat', sans-serif);
+            font-size: 22px;
+            color: var(--text-primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .guide-section h2 i {
+            color: var(--brand-primary, #b9936c);
+            font-size: 18px;
+        }
+
+        .guide-section h3 {
+            font-size: 18px;
+            color: var(--text-primary);
             margin-top: 30px;
             margin-bottom: 15px;
-            border-bottom: 1px dashed var(--color-border);
-            padding-bottom: 8px;
+            font-weight: 600;
         }
-        .guide-container h3 {
-            font-size: 1.25em;
-            color: var(--color-text-light);
-            margin-top: 20px;
-            margin-bottom: 10px;
+
+        .guide-wrapper p, .guide-wrapper li {
+            font-size: 15px;
+            color: var(--text-secondary, #475569);
+            margin-bottom: 12px;
         }
-        .guide-container p, .guide-container li {
-            font-size: 1em;
-            line-height: 1.7;
-            color: var(--color-text-light);
-            margin-bottom: 10px;
-        }
-        .guide-container strong {
-            color: var(--color-text);
-        }
-        .guide-container code, .guide-container pre {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 2px 5px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.95em;
-        }
-        .guide-container pre {
-            padding: 15px;
-            overflow-x: auto;
-            margin-bottom: 15px;
-        }
-        .guide-container .example-output {
-            border: 1px dashed var(--color-accent-light);
-            padding: 15px;
-            margin-top: 10px;
+
+        .guide-wrapper ul, .guide-wrapper ol {
+            padding-left: 20px;
             margin-bottom: 20px;
+        }
+
+        .guide-wrapper li {
+            margin-bottom: 8px;
+        }
+
+        .guide-wrapper strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Стилі для коду */
+        code.inline-code {
+            font-family: 'Fira Code', monospace;
+            background-color: #f1f5f9;
+            color: #db2777; /* Рожевий відтінок для виділення тегів */
+            padding: 2px 6px;
             border-radius: 4px;
-            background-color: #fffaf5;
+            font-size: 0.9em;
+            font-weight: 500;
         }
-        .guide-container .example-output p, .guide-container .example-output li {
-            margin-bottom: 5px;
+
+        .code-block-wrapper {
+            position: relative;
+            margin: 15px 0 25px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #1e293b; /* Темний фон для коду */
         }
-        .guide-container .example-output p:last-child, .guide-container .example-output li:last-child {
+        
+        .code-block-header {
+            background-color: #0f172a;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .mac-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .mac-dot.red { background-color: #ef4444; }
+        .mac-dot.yellow { background-color: #eab308; }
+        .mac-dot.green { background-color: #22c55e; }
+        
+        .code-block-label {
+            color: #94a3b8;
+            font-size: 12px;
+            font-family: 'Fira Code', monospace;
+            margin-left: auto;
+        }
+
+        pre.code-block {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        pre.code-block code {
+            font-family: 'Fira Code', monospace;
+            color: #e2e8f0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Стилі для блоку результату (Preview) */
+        .example-output-wrapper {
+            margin: 15px 0 25px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .example-output-header {
+            background-color: #f8fafc;
+            padding: 8px 15px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted, #64748b);
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .example-output {
+            padding: 20px;
+            background-color: #ffffff;
+            font-family: var(--font-body, 'Roboto', sans-serif);
+            color: var(--text-primary);
+        }
+        
+        .example-output p:last-child, 
+        .example-output ul:last-child, 
+        .example-output ol:last-child {
             margin-bottom: 0;
         }
-        .guide-container ul, .guide-container ol {
-            padding-left: 25px;
-            margin-bottom: 15px;
+
+        /* Спеціальні елементи всередині example-output для реалістичності */
+        .example-output blockquote {
+            border-left: 4px solid var(--brand-primary, #b9936c);
+            padding-left: 15px;
+            margin-left: 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
         }
-        .guide-container hr {
+        
+        .example-output a {
+            color: var(--brand-primary, #b9936c);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* Попередження */
+        .guide-alert {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
             margin: 25px 0;
+        }
+        
+        .guide-alert.info {
+            background-color: #f0fdfa;
+            border-color: #99f6e4;
+        }
+
+        .guide-alert-icon {
+            font-size: 24px;
+            color: #d97706;
+            flex-shrink: 0;
+        }
+        
+        .guide-alert.info .guide-alert-icon {
+            color: #0d9488;
+        }
+
+        .guide-alert-content h4 {
+            margin: 0 0 5px 0;
+            color: #92400e;
+            font-size: 16px;
+        }
+        
+        .guide-alert.info .guide-alert-content h4 {
+            color: #115e59;
+        }
+
+        .guide-alert-content p {
+            margin: 0;
+            color: #b45309;
+            font-size: 14px;
+        }
+        
+        .guide-alert.info .guide-alert-content p {
+            color: #0f766e;
+        }
+
+        hr.guide-divider {
+            margin: 40px 0;
             border: 0;
-            border-top: 1px solid var(--color-border);
+            border-top: 1px dashed var(--border-color, #cbd5e1);
         }
-        .important-note {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffeeba;
-            padding: 10px 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-        }
-        .important-note strong {
-            color: #856404;
+
+        @media (max-width: 768px) {
+            .guide-wrapper { padding: 25px; }
+            .guide-header h1 { font-size: 24px; }
+            .guide-alert { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
 <body class="admin-body">
 
-    <header class="admin-header">
-        <div class="container">
-            <h1>Панель Адміністратора</h1>
-            <nav>
-                <a href="/admin/orders" class="<%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">Замовлення</a>
-                <a href="/admin/products" class="<%= typeof pageName !== 'undefined' && pageName === 'products' ? 'active' : '' %>">Товари</a>
-                <a href="/admin/blog" class="<%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">Блог</a>
-                <a href="/admin/blog/html-guide" class="active">HTML Інструкція</a>
-                <a href="/admin/logout">Вийти</a>
-            </nav>
+    <!-- Бічна панель навігації (Sidebar) -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
         </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Замовлення</span>
+            </a>
+            <a href="/admin/products" class="nav-item">
+                <i class="fa-solid fa-tags"></i>
+                <span>Товари</span>
+            </a>
+            <a href="/admin/blog" class="nav-item">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+            <!-- Активний пункт -->
+            <a href="/admin/blog/html-guide" class="nav-item active">
+                <i class="fa-solid fa-code"></i>
+                <span>HTML Інструкція</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
 
-    <main class="admin-main">
-        <div class="container">
-            <div class="guide-container">
-                <h1>Інструкція з використання HTML-тегів для статей блогу</h1>
-
-                <p>Ця невеличка інструкція допоможе тобі форматувати текст статей у блозі, щоб вони виглядали гарно та читабельно. HTML-теги – це спеціальні команди, які вказують браузеру, як відображати текст.</p>
-
-                <p><strong>Основні принципи:</strong></p>
-                <ul>
-                    <li>Більшість тегів є парними: є тег, що відкривається (наприклад, <code>&lt;p&gt;</code>) і тег, що закривається (наприклад, <code>&lt;/p&gt;</code>). Текст, який потрібно відформатувати, розміщується між ними.</li>
-                    <li>Текстовий редактор в адмін-панелі (поле "Повний текст статті") дозволяє вводити ці теги.</li>
-                </ul>
-
-                <h2>Основні теги для тексту:</h2>
-
-                <h3>1. Абзаци: <code>&lt;p&gt;</code></h3>
-                <p>Кожен новий абзац тексту має починатися з тега <code>&lt;p&gt;</code> і закінчуватися тегом <code>&lt;/p&gt;</code>. Це найважливіший тег для основного тексту.</p>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;p&gt;Це перший абзац вашої статті. Тут ви можете розповісти щось цікаве про історію вишивки або поділитися своїми думками.&lt;/p&gt;
-&lt;p&gt;А це вже другий абзац. Не забувайте розділяти думки на абзаци для кращої читабельності.&lt;/p&gt;</code></pre>
-                <p><strong>Як це виглядає:</strong></p>
-                <div class="example-output">
-                    <p>Це перший абзац вашої статті. Тут ви можете розповісти щось цікаве про історію вишивки або поділитися своїми думками.</p>
-                    <p>А це вже другий абзац. Не забувайте розділяти думки на абзаци для кращої читабельності.</p>
+    <div class="admin-content-wrapper">
+        <!-- Верхня панель (Topbar) -->
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div style="font-weight: 500; color: var(--text-secondary);">
+                    Налаштування
+                    <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin: 0 8px;"></i> 
+                    Інструкція з HTML
                 </div>
-                <div class="important-note">
-                    <p><strong>Важливо для буквиці!</strong> Щоб перша літера статті була великою (буквиця), найперший текст у статті має починатися саме з тега <code>&lt;p&gt;</code>.</p>
-                </div>
-
-                <h3>2. Заголовки: <code>&lt;h2&gt;</code>, <code>&lt;h3&gt;</code>, <code>&lt;h4&gt;</code></h3>
-                <p>Для структурування тексту та виділення підтем використовуються заголовки. Не використовуйте <code>&lt;h1&gt;</code> всередині статті, оскільки він вже використовується для головного заголовка сторінки.</p>
-                <ul>
-                    <li><code>&lt;h2&gt;Назва розділу&lt;/h2&gt;</code> - для основних розділів статті.</li>
-                    <li><code>&lt;h3&gt;Підрозділ&lt;/h3&gt;</code> - для підрозділів всередині <code>&lt;h2&gt;</code>.</li>
-                    <li><code>&lt;h4&gt;Менший підрозділ&lt;/h4&gt;</code> - якщо потрібен ще менший рівень.</li>
-                </ul>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;h2&gt;Історія української вишиванки&lt;/h2&gt;
-&lt;p&gt;Текст про історію...&lt;/p&gt;
-&lt;h3&gt;Символіка орнаментів&lt;/h3&gt;
-&lt;p&gt;Текст про символи...&lt;/p&gt;
-&lt;h4&gt;Червоний колір в вишивці&lt;/h4&gt;
-&lt;p&gt;Детальніше про червоний колір...&lt;/p&gt;</code></pre>
-
-                <h3>3. Виділення тексту:</h3>
-                <ul>
-                    <li><strong>Жирний текст:</strong> <code>&lt;strong&gt;Важливий текст&lt;/strong&gt;</code> або <code>&lt;b&gt;Текст жирним&lt;/b&gt;</code>
-                        <div class="example-output"><strong>Важливий текст</strong></div>
-                    </li>
-                    <li><em>Курсив (похилий текст):</em> <code>&lt;em&gt;Текст курсивом&lt;/em&gt;</code> або <code>&lt;i&gt;Текст курсивом&lt;/i&gt;</code>
-                        <div class="example-output"><em>Текст курсивом</em></div>
-                    </li>
-                </ul>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;p&gt;Це &lt;strong&gt;дуже важлива&lt;/strong&gt; думка, а це слово написано &lt;em&gt;курсивом&lt;/em&gt;.&lt;/p&gt;</code></pre>
-
-                <h3>4. Списки:</h3>
-                <h4>Нумеровані списки: <code>&lt;ol&gt;</code> та <code>&lt;li&gt;</code></h4>
-                <p>Для створення списку, де важливий порядок пунктів.</p>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;ol&gt;
-    &lt;li&gt;Перший крок&lt;/li&gt;
-    &lt;li&gt;Другий крок&lt;/li&gt;
-    &lt;li&gt;Третій крок&lt;/li&gt;
-&lt;/ol&gt;</code></pre>
-                <p><strong>Як це виглядає:</strong></p>
-                <div class="example-output">
-                    <ol>
-                        <li>Перший крок</li>
-                        <li>Другий крок</li>
-                        <li>Третій крок</li>
-                    </ol>
-                </div>
-
-                <h4>Марковані списки: <code>&lt;ul&gt;</code> та <code>&lt;li&gt;</code></h4>
-                <p>Для створення списку, де порядок не важливий.</p>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;ul&gt;
-    &lt;li&gt;Льон&lt;/li&gt;
-    &lt;li&gt;Бавовняні нитки&lt;/li&gt;
-    &lt;li&gt;Голка та ножиці&lt;/li&gt;
-&lt;/ul&gt;</code></pre>
-                <p><strong>Як це виглядає:</strong></p>
-                <div class="example-output">
-                    <ul>
-                        <li>Льон</li>
-                        <li>Бавовняні нитки</li>
-                        <li>Голка та ножиці</li>
-                    </ul>
-                </div>
-
-                <h3>5. Посилання: <code>&lt;a&gt;</code></h3>
-                <p>Для створення посилань на інші сторінки сайту або зовнішні ресурси.</p>
-                <p><strong>Атрибути:</strong></p>
-                <ul>
-                    <li><code>href="URL-адреса"</code> - вказує, куди веде посилання.</li>
-                    <li><code>target="_blank"</code> - (необов'язково) відкриває посилання в новій вкладці браузера. Рекомендується для зовнішніх посилань.</li>
-                    <li><code>rel="noopener noreferrer"</code> - (необов'язково, але рекомендується для <code>target="_blank"</code>) для безпеки.</li>
-                </ul>
-                <p><strong>Приклад посилання на іншу сторінку вашого сайту:</strong></p>
-                <pre><code>&lt;p&gt;Дізнайтеся більше про наші &lt;a href="/catalog"&gt;вишиванки в каталозі&lt;/a&gt;.&lt;/p&gt;</code></pre>
-                <p><strong>Приклад посилання на зовнішній сайт (відкриється в новій вкладці):</strong></p>
-                <pre><code>&lt;p&gt;Цікава стаття про &lt;a href="https://інший-сайт.com/стаття" target="_blank" rel="noopener noreferrer"&gt;історію вишивки&lt;/a&gt;.&lt;/p&gt;</code></pre>
-
-                <h3>6. Цитати: <code>&lt;blockquote&gt;</code></h3>
-                <p>Для виділення цитат або важливих висловлювань.</p>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;blockquote&gt;
-    &lt;p&gt;"Вишивка – це молитва без слів."&lt;/p&gt;
-&lt;/blockquote&gt;</code></pre>
-                <p><strong>Як це виглядає (стилі можуть відрізнятися):</strong></p>
-                <div class="example-output">
-                    <blockquote>
-                        <p>"Вишивка – це молитва без слів."</p>
-                    </blockquote>
-                </div>
-
-                <h3>7. Горизонтальна лінія: <code>&lt;hr&gt;</code></h3>
-                <p>Для візуального розділення секцій тексту.</p>
-                <p><strong>Приклад:</strong></p>
-                <pre><code>&lt;p&gt;Текст першої частини.&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;Текст другої частини.&lt;/p&gt;</code></pre>
-                 <div class="example-output">
-                    <p>Текст першої частини.</p>
-                    <hr style="margin: 10px 0;">
-                    <p>Текст другої частини.</p>
-                </div>
-
-
-                <h2>Як це все поєднувати:</h2>
-                <p>Ви можете комбінувати ці теги. Наприклад, всередині абзацу <code>&lt;p&gt;</code> може бути <strong>жирний текст</strong> <code>&lt;strong&gt;</code> або <em>курсив</em> <code>&lt;em&gt;</code>, а також посилання <code>&lt;a&gt;</code>.</p>
-                <p><strong>Приклад складнішого форматування:</strong></p>
-                <pre><code>&lt;h2&gt;Техніки вишивки хрестиком&lt;/h2&gt;
-&lt;p&gt;Вишивка хрестиком – одна з найпопулярніших технік. Вона дозволяє створювати як прості, так і &lt;strong&gt;дуже складні&lt;/strong&gt; візерунки. Існує кілька основних видів хрестика:&lt;/p&gt;
-&lt;ul&gt;
-    &lt;li&gt;Простий хрестик&lt;/li&gt;
-    &lt;li&gt;Напівхрестик&lt;/li&gt;
-    &lt;li&gt;Подвійний хрестик (болгарський)&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Детальніше про кожну техніку можна прочитати в &lt;a href="/blog/tekhniky-vyshyvky" title="Стаття про техніки вишивки"&gt;нашій спеціальній статті&lt;/a&gt;.&lt;/p&gt;</code></pre>
-
-                <h2>Поради:</h2>
-                <ul>
-                    <li>Після збереження статті завжди переглядайте її на сайті, щоб переконатися, що все відображається правильно.</li>
-                    <li>Спробуйте різні теги на чернетці статті.</li>
-                    <li>Не перевантажуйте текст занадто великою кількістю різних форматувань. Головне – читабельність.</li>
-                </ul>
-                <p>Сподіваюся, ця інструкція буде корисною.</p>
             </div>
-        </div>
-    </main>
+        </header>
 
+        <main class="admin-main">
+            <div class="container-fluid">
+                
+                <div class="guide-wrapper">
+                    
+                    <div class="guide-header">
+                        <div class="icon-wrapper">
+                            <i class="fa-solid fa-file-code"></i>
+                        </div>
+                        <h1>Форматування статей блогу</h1>
+                        <p>Ця інструкція допоможе вам використовувати HTML-теги для того, щоб ваші статті виглядали професійно, структуровано та легко читалися користувачами.</p>
+                    </div>
+
+                    <div class="guide-alert info">
+                        <div class="guide-alert-icon">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div class="guide-alert-content">
+                            <h4>Базовий принцип</h4>
+                            <p>Більшість тегів є парними. Вони складаються з відкриваючого тегу (наприклад, <code class="inline-code">&lt;p&gt;</code>) та закриваючого (наприклад, <code class="inline-code">&lt;/p&gt;</code>). Весь текст, який ви хочете відформатувати, має знаходитися між ними.</p>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <h2><i class="fa-solid fa-paragraph"></i> 1. Абзаци тексту</h2>
+                        <p>Кожен новий абзац у вашій статті має огортатися тегами <code class="inline-code">&lt;p&gt;</code> та <code class="inline-code">&lt;/p&gt;</code>. Це основа будь-якого тексту.</p>
+                        
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                                <div class="code-block-label">HTML</div>
+                            </div>
+                            <pre class="code-block"><code>&lt;p&gt;Це перший абзац вашої статті. Тут ви можете розповісти щось цікаве про історію вишивки або поділитися своїми думками.&lt;/p&gt;
+
+&lt;p&gt;А це вже другий абзац. Не забувайте розділяти довгі думки на короткі абзаци для кращої читабельності.&lt;/p&gt;</code></pre>
+                        </div>
+
+                        <div class="example-output-wrapper">
+                            <div class="example-output-header">Як це виглядатиме на сайті</div>
+                            <div class="example-output">
+                                <p>Це перший абзац вашої статті. Тут ви можете розповісти щось цікаве про історію вишивки або поділитися своїми думками.</p>
+                                <p>А це вже другий абзац. Не забувайте розділяти довгі думки на короткі абзаци для кращої читабельності.</p>
+                            </div>
+                        </div>
+
+                        <div class="guide-alert">
+                            <div class="guide-alert-icon">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="guide-alert-content">
+                                <h4>Важливо для буквиці!</h4>
+                                <p>Щоб перша літера вашої статті була великою і гарно виділеною (стиль "буквиця"), <strong>найперший блок тексту у статті має починатися саме з тега <code class="inline-code">&lt;p&gt;</code></strong>, а не з заголовка чи картинки.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="guide-divider">
+
+                    <div class="guide-section">
+                        <h2><i class="fa-solid fa-heading"></i> 2. Заголовки та підзаголовки</h2>
+                        <p>Для структурування тексту використовуйте заголовки. <strong>Не використовуйте</strong> <code class="inline-code">&lt;h1&gt;</code>, оскільки він автоматично присвоюється головній назві вашої статті.</p>
+                        <ul>
+                            <li><code class="inline-code">&lt;h2&gt;Назва розділу&lt;/h2&gt;</code> - для основних великих розділів статті.</li>
+                            <li><code class="inline-code">&lt;h3&gt;Підрозділ&lt;/h3&gt;</code> - для підрозділів всередині <code class="inline-code">&lt;h2&gt;</code>.</li>
+                        </ul>
+
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                                <div class="code-block-label">HTML</div>
+                            </div>
+                            <pre class="code-block"><code>&lt;h2&gt;Історія української вишиванки&lt;/h2&gt;
+&lt;p&gt;Основний текст про історію виникнення...&lt;/p&gt;
+
+&lt;h3&gt;Символіка кольорів&lt;/h3&gt;
+&lt;p&gt;Текст про значення червоного та чорного...&lt;/p&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <hr class="guide-divider">
+
+                    <div class="guide-section">
+                        <h2><i class="fa-solid fa-bold"></i> 3. Виділення тексту</h2>
+                        <p>Щоб акцентувати увагу читача на важливих словах, використовуйте теги для жирного шрифту та курсиву.</p>
+                        
+                        <ul>
+                            <li><strong>Жирний текст:</strong> <code class="inline-code">&lt;strong&gt;Текст&lt;/strong&gt;</code></li>
+                            <li><em>Курсив:</em> <code class="inline-code">&lt;em&gt;Текст&lt;/em&gt;</code></li>
+                        </ul>
+
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                            </div>
+                            <pre class="code-block"><code>&lt;p&gt;Льон є &lt;strong&gt;найкращим&lt;/strong&gt; матеріалом для літа, оскільки він &lt;em&gt;чудово дихає&lt;/em&gt;.&lt;/p&gt;</code></pre>
+                        </div>
+                        
+                        <div class="example-output-wrapper">
+                            <div class="example-output-header">Результат</div>
+                            <div class="example-output">
+                                <p>Льон є <strong>найкращим</strong> матеріалом для літа, оскільки він <em>чудово дихає</em>.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="guide-divider">
+
+                    <div class="guide-section">
+                        <h2><i class="fa-solid fa-list-ul"></i> 4. Списки (марковані та нумеровані)</h2>
+                        
+                        <h3>Марковані списки (крапочки)</h3>
+                        <p>Використовуються, коли порядок пунктів не має значення. Огортайте весь список у <code class="inline-code">&lt;ul&gt;</code>, а кожен пункт у <code class="inline-code">&lt;li&gt;</code>.</p>
+                        
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                            </div>
+                            <pre class="code-block"><code>&lt;p&gt;Для роботи вам знадобиться:&lt;/p&gt;
+&lt;ul&gt;
+    &lt;li&gt;Натуральний льон&lt;/li&gt;
+    &lt;li&gt;Бавовняні нитки муліне&lt;/li&gt;
+    &lt;li&gt;Голка з тупим кінцем&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                        </div>
+
+                        <h3>Нумеровані списки (цифри)</h3>
+                        <p>Огортайте весь список у <code class="inline-code">&lt;ol&gt;</code>.</p>
+                        
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                            </div>
+                            <pre class="code-block"><code>&lt;p&gt;Кроки оформлення замовлення:&lt;/p&gt;
+&lt;ol&gt;
+    &lt;li&gt;Оберіть товар у каталозі&lt;/li&gt;
+    &lt;li&gt;Вкажіть ваші мірки&lt;/li&gt;
+    &lt;li&gt;Очікуйте на доставку&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <hr class="guide-divider">
+
+                    <div class="guide-section">
+                        <h2><i class="fa-solid fa-link"></i> 5. Посилання</h2>
+                        <p>Щоб зробити слово клікабельним, використовуйте тег <code class="inline-code">&lt;a&gt;</code>. В атрибуті <code class="inline-code">href=""</code> вказується куди веде посилання.</p>
+                        
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                            </div>
+                            <pre class="code-block"><code>&lt;p&gt;Перегляньте нашу нову колекцію у &lt;a href="/catalog"&gt;каталозі товарів&lt;/a&gt;.&lt;/p&gt;
+
+&lt;!-- Якщо посилання веде на інший сайт, додайте target="_blank" --&gt;
+&lt;p&gt;Читати більше у &lt;a href="https://uk.wikipedia.org/" target="_blank"&gt;Вікіпедії&lt;/a&gt;.&lt;/p&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <hr class="guide-divider">
+
+                    <div class="guide-section">
+                        <h2><i class="fa-solid fa-quote-right"></i> 6. Цитати</h2>
+                        <p>Для виділення цитат, відгуків або важливих висловлювань використовуйте тег <code class="inline-code">&lt;blockquote&gt;</code>.</p>
+                        
+                        <div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <div class="mac-dot red"></div><div class="mac-dot yellow"></div><div class="mac-dot green"></div>
+                            </div>
+                            <pre class="code-block"><code>&lt;blockquote&gt;
+    &lt;p&gt;"Вишиванка — це генетичний код нації, який передається крізь покоління."&lt;/p&gt;
+&lt;/blockquote&gt;</code></pre>
+                        </div>
+                        
+                        <div class="example-output-wrapper">
+                            <div class="example-output-header">Результат (стиль залежить від фронтенду)</div>
+                            <div class="example-output">
+                                <blockquote>
+                                    <p>"Вишиванка — це генетичний код нації, який передається крізь покоління."</p>
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Мобільне меню
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
