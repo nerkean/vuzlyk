@@ -438,7 +438,7 @@ app.get('/product/:id', csrfProtection, async (req, res, next) => {
         "name": product.name,
         "description": descriptionForJsonLd,
         "image": product.images?.map(imgSet => new URL(imgSet.large.url, baseUrl).href) || [],
-        "sku": product.sku || `VUZLYK-${product._id}`, 
+        "sku": product._id.toString(), // <-- ИСПРАВЛЕНО: отдаем чистый MongoDB ID
         "brand": {
           "@type": "Organization",
           "name": "Вузлик до вузлика",
@@ -450,7 +450,8 @@ app.get('/product/:id', csrfProtection, async (req, res, next) => {
           "priceCurrency": res.locals.selectedCurrency || "UAH",
           "price": (product.price * (res.locals.exchangeRates[res.locals.selectedCurrency || "UAH"] || 1)).toFixed(2),
           "availability": product.status === 'В наявності' ? "https://schema.org/InStock" : "https://schema.org/PreOrder",
-          "itemCondition": "https://schema.org/NewCondition"
+          "itemCondition": "https://schema.org/NewCondition",
+          "sku": product._id.toString() // <-- ДОБАВЛЕНО: дублируем чистый ID в offers для Google
         }
       };
 

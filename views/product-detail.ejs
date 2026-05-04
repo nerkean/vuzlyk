@@ -87,7 +87,16 @@
 <body>
     <%- include('partials/header') %>
 
-    <% if (typeof productLD !== 'undefined' && productLD) { %>
+    <% 
+    if (typeof productLD !== 'undefined' && productLD) { 
+        if (product && product._id) {
+            productLD.sku = product._id.toString();
+            
+            if (productLD.offers) {
+                productLD.offers.sku = product._id.toString();
+            }
+        }
+    %>
     <script type="application/ld+json">
         <%- JSON.stringify(productLD, null, 2) %>
     </script>
