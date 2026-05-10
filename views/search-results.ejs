@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результати пошуку: "<%= query %>" | Вузлик до вузлика</title>
+    
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/search-results.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" />
+</head>
+<body class="search-page-body">
+    <%- include('partials/header') %>
+
+    <main class="search-page-main">
+        <div class="sr-ambient-bg">
+            <div class="sr-blob sr-blob-1"></div>
+            <div class="sr-blob sr-blob-2"></div>
+            <div class="sr-blob sr-blob-3"></div>
+        </div>
+
+        <div class="container sr-container">
+
+            <header class="sr-header glass-panel" data-aos="fade-down">
+                <h1 class="sr-title text-gradient">Результати пошуку</h1>
+                <p class="sr-query-info">
+                    Ви шукали: <span class="sr-query-highlight">"<%= query %>"</span>
+                </p>
+                <div class="sr-total-badge">
+                    Знайдено збігів: <span class="sr-count"><%= (typeof products !== 'undefined' ? products.length : 0) + (typeof posts !== 'undefined' ? posts.length : 0) %></span>
+                </div>
+            </header>
+
+            <% if (typeof products !== 'undefined' && products.length > 0) { %>
+                <section class="sr-section" data-aos="fade-up">
+                    <h2 class="sr-section-title">Товари <span class="badge"><%= products.length %></span></h2>
+                    
+                    <div class="sr-grid products-grid">
+                        <% products.forEach(product => { %>
+                            <article class="sr-card product-card glass-panel">
+                                <a href="/product/<%= product._id %>" class="sr-card-link">
+                                    <div class="sr-card-image-wrap">
+                                        <% 
+                                            let imgSrc = '/images/placeholder.png';
+                                            if (product.images && product.images.length > 0) {
+                                                const imgSet = product.images[0];
+                                                if (imgSet.medium && imgSet.medium.url) imgSrc = imgSet.medium.url;
+                                                else if (imgSet.large && imgSet.large.url) imgSrc = imgSet.large.url;
+                                            }
+                                        %>
+                                        <img src="<%= imgSrc %>" alt="<%= product.name %>" loading="lazy">
+                                        
+                                        <% if (product.status === 'В наявності') { %>
+                                            <span class="sr-status-badge instock">В наявності</span>
+                                        <% } else if (product.status === 'Під замовлення') { %>
+                                            <span class="sr-status-badge preorder">Під замовлення</span>
+                                        <% } %>
+                                    </div>
+                                    <div class="sr-card-content">
+                                        <% if (product.category) { %>
+                                            <div class="sr-card-category"><%= product.category %></div>
+                                        <% } %>
+                                        <h3 class="sr-card-title"><%= product.name %></h3>
+                                        <div class="sr-card-price">
+                                            <% if (product.price !== undefined) { %>
+                                                <%= typeof formatPrice !== 'undefined' ? formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) : product.price + ' грн' %>
+                                            <% } else { %>
+                                                Ціну уточнюйте
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </a>
+                            </article>
+                        <% }) %>
+                    </div>
+                </section>
+            <% } %>
+
+            <% if (typeof posts !== 'undefined' && posts.length > 0) { %>
+                <section class="sr-section" data-aos="fade-up" data-aos-delay="100">
+                    <h2 class="sr-section-title">Статті в блозі <span class="badge"><%= posts.length %></span></h2>
+                    
+                    <div class="sr-grid blog-grid">
+                        <% posts.forEach(post => { %>
+                            <article class="sr-card blog-card glass-panel">
+                                <a href="/blog/<%= post.slug %>" class="sr-card-link">
+                                    <div class="sr-card-image-wrap">
+                                        <% 
+                                            let postImg = '/images/placeholder.png';
+                                            if (post.image && post.image.url) postImg = post.image.url;
+                                        %>
+                                        <img src="<%= postImg %>" alt="<%= post.title %>" loading="lazy">
+                                    </div>
+                                    <div class="sr-card-content">
+                                        <div class="sr-card-meta">
+                                            <% if (post.createdAt) { %>
+                                                <span><i class="fa-regular fa-calendar"></i> <%= new Date(post.createdAt).toLocaleDateString('uk-UA') %></span>
+                                            <% } %>
+                                        </div>
+                                        <h3 class="sr-card-title"><%= post.title %></h3>
+                                        <% if (post.excerpt) { %>
+                                            <p class="sr-card-excerpt"><%= post.excerpt.length > 100 ? post.excerpt.substring(0, 100) + '...' : post.excerpt %></p>
+                                        <% } %>
+                                    </div>
+                                </a>
+                            </article>
+                        <% }) %>
+                    </div>
+                </section>
+            <% } %>
+
+            <% if ((!products || products.length === 0) && (!posts || posts.length === 0)) { %>
+                <div class="sr-empty-state glass-panel" data-aos="zoom-in">
+                    <div class="sr-empty-icon"><i class="fa-solid fa-ghost"></i></div>
+                    <h2 class="text-gradient">Нічого не знайдено</h2>
+                    <p>На жаль, за запитом <strong class="sr-query-highlight">"<%= query %>"</strong> ми не знайшли жодного товару чи статті.</p>
+                    <p class="sr-empty-hint">Спробуйте змінити пошукове слово, перевірте орфографію або перейдіть до загального каталогу.</p>
+                    <a href="/catalog" class="sr-btn-primary">Перейти в каталог</a>
+                </div>
+            <% } %>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+    
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js" defer></script>
+    <script src="/dist/main.bundle.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AOS !== 'undefined') {
+                AOS.init({ once: true, duration: 800, easing: 'ease-out-cubic', offset: 50 });
+            }
+        });
+    </script>
+</body>
+</html>

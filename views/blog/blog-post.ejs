@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <%
+    const optimizeImg = (url, params) => {
+        if (!url) return '/images/placeholder.png';
+        if (url.includes('res.cloudinary.com')) {
+            return url.replace('/upload/', `/upload/f_auto,q_auto,${params}/`);
+        }
+        return url;
+    };
+    %>
+
+    <title><%= pageTitle %></title>
+    <meta name="description" content="<%= metaDescription %>">
+    <meta name="robots" content="index, follow">
+    <% if (locals.canonicalUrl) { %><link rel="canonical" href="<%= canonicalUrl %>" /><% } %>
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <% if (post && post.imageUrl) { %>
+        <link rel="preload" 
+              as="image" 
+              href="<%= optimizeImg(post.imageUrl, 'w_800,c_limit') %>"
+              imagesrcset="<%= optimizeImg(post.imageUrl, 'w_400,c_limit') %> 400w, 
+                           <%= optimizeImg(post.imageUrl, 'w_800,c_limit') %> 800w, 
+                           <%= optimizeImg(post.imageUrl, 'w_1200,c_limit') %> 1200w"
+              imagesizes="(max-width: 768px) 100vw, 900px"
+              fetchpriority="high">
+    <% } %>
+
+     <% if (locals.isProduction && locals.gaMeasurementId) { %>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'AW-17036727455');
+          gtag('config', '<%= locals.gaMeasurementId %>');
+          console.log('GA4 Initialized for Blog Post with ID:', '<%= locals.gaMeasurementId %>');
+        </script>
+    <% } %>
+
+    <style>
+        .article-image-container {
+            aspect-ratio: 16/9;
+            background-color: #EAEAEA;
+            width: 100%;
+            margin: 0 0 40px 0;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        .article-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+
+    <link rel="stylesheet" href="/css/common.css"> 
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+    
+    <link rel="preload" href="/css/blog-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/blog-page.css"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+
+    <meta property="og:title" content="<%= pageTitle %>">
+    <meta property="og:description" content="<%= metaDescription %>">
+    <meta property="og:image" content="<%= optimizeImg(ogImage, 'w_1200,c_limit') %>">
+    <meta property="og:url" content="<%= locals.canonicalUrl %>">
+    <meta property="og:type" content="article">
+    <% if (post.publishedAt) { %><meta property="article:published_time" content="<%= new Date(post.publishedAt).toISOString() %>"><% } %>
+    <% if (post.updatedAt) { %><meta property="article:modified_time" content="<%= new Date(post.updatedAt).toISOString() %>"><% } %>
+    <% if (post.authorDisplay) { %><meta property="article:author" content="<%= locals.baseUrl || 'https://vuzlyk.com' %>"><% } %>
+    <% if (post.tags && post.tags.length > 0) { %>
+        <% post.tags.forEach(tag => { %>
+    <meta property="article:tag" content="<%= tag %>">
+        <% }); %>
+    <% } %>
+    <meta property="og:site_name" content="Вузлик до вузлика">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= pageTitle %>">
+    <meta name="twitter:description" content="<%= metaDescription %>">
+    <meta name="twitter:image" content="<%= optimizeImg(ogImage, 'w_1200,c_limit') %>">
+    
+<% if (typeof jsonLd !== 'undefined') { %>
+    <script type="application/ld+json">
+        <%- JSON.stringify(jsonLd) %>
+    </script>
+<% } %>
+
+</head>
+<body>
+    <div class="reading-progress-bar" id="readingProgressBar"></div>
+
+    <%- include('../partials/header', { cartItemCount: typeof cartItemCount !== 'undefined' ? cartItemCount : 0 }) %>
+
+    <main class="blog-page-main section-padding">
+        <div class="container article-container">
+            <article class="blog-article"> 
+            <% if (post.imageUrl) { %>
+                <figure class="article-image-container" data-aos="fade-in" data-aos-duration="800">
+                    <img src="<%= optimizeImg(post.imageUrl, 'w_800,c_limit') %>" 
+                         srcset="<%= optimizeImg(post.imageUrl, 'w_400,c_limit') %> 400w, 
+                                 <%= optimizeImg(post.imageUrl, 'w_800,c_limit') %> 800w, 
+                                 <%= optimizeImg(post.imageUrl, 'w_1200,c_limit') %> 1200w"
+                         sizes="(max-width: 768px) 100vw, 900px"
+                         alt="Головне зображення для статті <%= post.title %>" 
+                         class="article-image"
+                         width="1200"
+                         height="675"
+                         fetchpriority="high"
+                         decoding="async">
+                </figure>
+            <% } %>
+
+                <div class="article-content-wrapper"> 
+                    <header class="article-header" data-aos="fade-up">
+                        <h1 class="article-title"><%= post.title %></h1>
+                        <% if (post.publishedAt) { %>
+                            <div class="article-meta-wrapper">
+                                <p class="article-meta">
+                                    <span class="article-date" title="Дата публікації">
+                                        <i class="far fa-calendar-alt"></i> <%= new Date(post.publishedAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                                    </span>
+                                    <% if (post.authorDisplay) { %>
+                                        <span class="article-author" title="Автор">
+                                            <i class="far fa-user"></i> <%= post.authorDisplay %>
+                                        </span>
+                                    <% } %>
+                                     <% if (post.views > 0) { %>
+                                        <span class="article-views" title="Перегляди">
+                                            <i class="far fa-eye"></i> <%= post.views %>
+                                        </span>
+                                    <% } %>
+                                </p>
+                            </div>
+                        <% } %>
+                    </header>
+
+                    <div class="article-content typography" data-aos="fade-up" data-aos-delay="100">
+                        <%- post.content %>
+                    </div>
+
+                    <div class="article-footer-extras" data-aos="fade-up" data-aos-delay="150">
+                        <% if (post.tags && post.tags.length > 0) { %>
+                            <div class="article-tags">
+                                <strong><i class="fas fa-tags"></i> Теги:</strong>
+                                <% post.tags.forEach(tag => { %>
+                                    <span class="tag-link"><%= tag %></span>
+                                <% }); %>
+                            </div>
+                        <% } %>
+
+                        <div class="article-share">
+                            <strong><i class="fas fa-share-alt"></i> Поділитися:</strong>
+                            <div class="share-buttons">
+                                <a href="#" class="share-btn telegram" onclick="shareTelegram(event)" title="Поділитися в Telegram">
+                                    <i class="fab fa-telegram-plane"></i>
+                                </a>
+                                <a href="#" class="share-btn facebook" onclick="shareFacebook(event)" title="Поділитися у Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <button class="share-btn copy-link" onclick="copyLink(event)" title="Скопіювати посилання">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="article-navigation" data-aos="fade-up" data-aos-delay="200">
+                        <a href="/blog" class="btn btn-secondary article-back-btn">
+                            <i class="fas fa-arrow-left"></i> Повернутися до всіх статей
+                        </a>
+                    </div>
+                </div> 
+            </article>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <script src="/dist/main.bundle.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof AOS !== 'undefined') { AOS.init({ once: true, duration: 600, offset: 50 }); }
+
+            const progressBar = document.getElementById('readingProgressBar');
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+        });
+
+        function shareTelegram(e) {
+            e.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://t.me/share/url?url=${url}&text=${title}`, '_blank');
+        }
+
+        function shareFacebook(e) {
+            e.preventDefault();
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+        }
+
+        function copyLink(e) {
+            e.preventDefault();
+            const btn = e.currentTarget;
+            const icon = btn.querySelector('i');
+            
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                btn.classList.add('success');
+                icon.className = 'fas fa-check';
+                
+                setTimeout(() => {
+                    btn.classList.remove('success');
+                    icon.className = 'fas fa-link';
+                }, 2000);
+            }).catch(err => {
+                console.error('Не вдалося скопіювати посилання: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

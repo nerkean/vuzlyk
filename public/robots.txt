@@ -1,0 +1,16 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /profile/
+Disallow: /login
+Disallow: /register
+Disallow: /auth/google
+Disallow: /auth/google/callback
+Disallow: /order/place
+Disallow: /order/request-sent
+Allow: /
+Allow: /catalog
+Allow: /about
+Allow: /product/
+Sitemap: https://vuzlyk.com/sitemap.xml

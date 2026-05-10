@@ -1,0 +1,137 @@
+<nav class="side-menu" id="side-menu-panel" aria-hidden="true">
+    <div class="side-menu-header">
+        <a href="/" class="side-menu-logo">Вузлик до вузлика</a>
+        <button id="close-menu-btn" class="close-menu-btn" aria-label="Закрити меню">&times;</button>
+    </div>
+    <ul class="side-menu-nav-list">
+        <li>
+            <a href="/">
+                <i class="fa-solid fa-house"></i>
+                <span>Головна</span>
+            </a>
+        </li>
+        <li class="has-submenu">
+            <a href="/catalog">
+                <i class="fa-solid fa-tags"></i>
+                <span>Каталог</span>
+            </a>
+            <ul class="submenu">
+                 <% (typeof categories !== 'undefined' && categories.length > 0 ? categories : [{name: 'Усі товари', slug: ''}]).forEach(category => { %>
+                    <li><a href="/catalog?category=<%= category.slug %>"><%= category.name %></a></li>
+                 <% }) %>
+            </ul>
+        </li>
+        <li>
+            <a href="/blog">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+        </li>
+        <li>
+            <a href="/about">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Про нас</span>
+            </a>
+        </li>
+        <li>
+            <a href="/faq">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>Часті питання</span>
+            </a>
+        </li>
+        <li>
+            <a href="/contacts">
+                <i class="fa-solid fa-envelope"></i>
+                <span>Контакти</span>
+            </a>
+        </li>
+    </ul>
+    <div class="side-menu-footer">
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+            <a href="/profile" class="btn btn-secondary">Мій профіль</a>
+        <% } else { %>
+            <a href="/login" class="btn btn-primary">Увійти / Реєстрація</a>
+        <% } %>
+    </div>
+</nav>
+
+<div class="site-overlay" id="site-overlay"></div>
+
+<header class="site-header">
+    <div class="container">
+        <div class="logo">
+            <a href="/">
+                <img src="/images/logo.png" alt="Логотип Vuzlyk" class="logo-img" width="50" height="50">
+                <span class="logo-text">Вузлик до вузлика</span>
+            </a>
+        </div>
+
+        <nav class="main-nav" id="main-nav-menu">
+            <ul>
+                <li><a href="/">Головна</a></li>
+                <li class="has-dropdown">
+                    <a href="/catalog">Каталог <i class="fa-solid fa-chevron-down" style="font-size: 0.8em; margin-left: 4px;"></i></a>
+                    <div class="dropdown-menu">
+                        <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                            <% categories.forEach(category => { %>
+                                <a href="/catalog?category=<%= category.slug %>"><%= category.name %></a>
+                            <% }) %>
+                        <% } %>
+                        <a href="/catalog"><b>Усі товари</b></a>
+                    </div>
+                </li>
+                <li><a href="/blog">Блог</a></li>
+                <li><a href="/about">Про нас</a></li>
+                <li><a href="/contacts">Контакти</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <div class="currency-switcher">
+                <a href="?currency=<%= typeof nextCurrency !== 'undefined' ? nextCurrency : 'USD' %>" aria-label="Змінити валюту">
+                    <%= typeof currencySymbols !== 'undefined' && typeof selectedCurrency !== 'undefined' ? currencySymbols[selectedCurrency] : '₴' %>
+                </a>
+            </div>
+            
+            <button class="header-action-icon search-toggle" aria-label="Пошук">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <a href="/wishlist" class="header-action-icon" aria-label="Список бажань">
+                <i class="fa-regular fa-heart"></i>
+            </a>
+
+            <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+                <a href="/profile" class="header-action-icon desktop-only" aria-label="Профіль">
+                    <i class="fa-regular fa-user"></i>
+                </a>
+            <% } else { %>
+                <a href="/login" class="header-action-icon desktop-only" aria-label="Увійти">
+                    <i class="fa-regular fa-user"></i>
+                </a>
+            <% } %>
+            
+            <a href="/cart" class="header-action-icon header-cart" aria-label="Кошик">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span class="cart-count"><%= typeof cartItemCount !== 'undefined' ? cartItemCount : 0 %></span>
+            </a>
+
+            <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Меню" aria-controls="side-menu-panel" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<div class="search-overlay" id="search-overlay">
+    <button class="search-overlay-close" id="search-overlay-close" aria-label="Закрити пошук">&times;</button>
+    <div class="search-overlay-content">
+        <form action="/search" method="GET" class="search-form">
+            <input type="search" name="q" placeholder="Пошук товарів та статей..." class="search-input" id="search-input" required autocomplete="off">
+            <button type="submit" class="search-submit-btn" aria-label="Знайти">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+        <div class="search-results-container" id="search-results-container"></div>
+    </div>
+</div>

@@ -1,0 +1,493 @@
+.checkout-page-main .container {
+    padding-top: 40px;
+    padding-bottom: 80px;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 50px;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    letter-spacing: -1px;
+    font-size: 2.8em;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+.checkout-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid var(--color-background);
+}
+.checkout-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.checkout-section h2 {
+    font-family: var(--font-heading);
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    font-weight: 900;
+    color: var(--color-text);
+    letter-spacing: -0.5px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 800;
+    font-size: 0.9em;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.form-group label .required {
+    color: var(--color-danger);
+    margin-left: 3px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    font-size: 1.05em;
+    font-family: var(--font-body);
+    background-color: var(--color-white);
+    color: var(--color-text);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="tel"]:focus,
+.form-group input[type="number"]:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-text);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.shipping-methods {
+    margin-top: 15px;
+}
+.shipping-option {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border: 2px solid transparent;
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-main);
+    margin-bottom: 15px;
+    cursor: pointer;
+    box-shadow: var(--box-shadow-light);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.shipping-option:last-child {
+    margin-bottom: 0;
+}
+.shipping-option:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow-medium);
+}
+.shipping-option.selected {
+    border-color: var(--color-text);
+    background-color: var(--color-light-bg);
+    box-shadow: none;
+}
+
+.shipping-option input[type="radio"] {
+    margin-right: 15px;
+    cursor: pointer;
+    accent-color: var(--color-text);
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+.shipping-option label {
+    flex-grow: 1;
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+.shipping-cost {
+    margin-left: auto;
+    padding-left: 15px;
+    font-size: 1.1em;
+    font-weight: 800;
+    color: var(--color-text);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.shipping-address-fields {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid var(--color-background);
+}
+.pickup-note p {
+    font-style: italic;
+    color: var(--color-text-light);
+    margin-bottom: 0;
+    padding: 15px;
+    background-color: var(--color-background);
+    border-radius: 12px;
+}
+
+.checkout-sidebar {
+    background-color: var(--color-white);
+    padding: 40px 30px;
+    border-radius: var(--border-radius-main);
+    border: none;
+    box-shadow: var(--box-shadow-medium);
+    position: sticky;
+    top: 100px;
+}
+
+.order-summary h2 {
+    font-family: var(--font-heading);
+    font-size: 1.6em;
+    font-weight: 900;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--color-background);
+    text-align: left;
+}
+
+.summary-items {
+    margin-bottom: 25px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.summary-items::-webkit-scrollbar { width: 6px; }
+.summary-items::-webkit-scrollbar-track { background: var(--color-background); border-radius: 4px; }
+.summary-items::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1em;
+    padding: 15px 0;
+    border-bottom: 1px dashed var(--color-border);
+    color: var(--color-text-light);
+}
+.summary-item:last-child {
+    border-bottom: none;
+}
+.summary-item .item-name {
+    padding-right: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+.summary-item-price {
+    font-weight: 800;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    font-size: 1.05em;
+}
+.summary-row span:first-child {
+    color: var(--color-text-light);
+    font-weight: 500;
+}
+.summary-row span:last-child {
+    font-weight: 800;
+}
+.shipping-total-text {
+    font-weight: 500 !important;
+    font-size: 0.95em;
+    color: var(--color-text-light) !important;
+}
+.total-row {
+    font-family: var(--font-heading);
+    font-size: 1.5em;
+    font-weight: 900;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid var(--color-text);
+}
+.grand-total-amount {
+    color: var(--color-text);
+}
+
+.payment-method {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid var(--color-background);
+    text-align: center;
+}
+.payment-method h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: var(--color-text);
+    font-weight: 800;
+    text-transform: uppercase;
+}
+.payment-method p {
+    font-size: 0.95em;
+    color: var(--color-text-light);
+    margin-bottom: 15px;
+}
+.payment-method img {
+    display: inline-block;
+    max-width: 140px;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+.place-order-action {
+    margin-top: 35px;
+}
+.place-order-btn {
+    width: 100%;
+    padding: 18px !important;
+    font-size: 1.1em !important;
+}
+
+.save-data-section {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid var(--color-background);
+}
+.terms-agree {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.save-data-section .form-group.checkbox-group { margin-bottom: 0; }
+
+.save-data-section input[type="checkbox"],
+.terms-agree input[type="checkbox"] {
+    opacity: 0; position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+}
+
+.save-data-section label,
+.terms-agree label {
+    display: inline-flex;
+    align-items: flex-start;
+    position: relative;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95em;
+    color: var(--color-text-light);
+    padding-left: 32px;
+    line-height: 1.5;
+    user-select: none;
+}
+
+.save-data-section label::before,
+.terms-agree label::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 2px;
+    width: 20px; height: 20px;
+    border: 2px solid var(--color-border);
+    background-color: var(--color-white);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.save-data-section label::after,
+.terms-agree label::after {
+    content: '';
+    position: absolute;
+    left: 7px; top: 6px;
+    width: 6px; height: 10px;
+    border: solid var(--color-white);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.save-data-section label:hover::before,
+.terms-agree label:hover::before {
+    border-color: var(--color-text);
+}
+
+.save-data-section input[type="checkbox"]:checked + label::before,
+.terms-agree input[type="checkbox"]:checked + label::before {
+    background-color: var(--color-text);
+    border-color: var(--color-text);
+}
+.save-data-section input[type="checkbox"]:checked + label::after,
+.terms-agree input[type="checkbox"]:checked + label::after {
+    opacity: 1;
+}
+
+.save-data-section input[type="checkbox"]:focus + label::before,
+.terms-agree input[type="checkbox"]:focus + label::before {
+    outline: 2px solid rgba(17, 17, 17, 0.2);
+    outline-offset: 2px;
+}
+
+.terms-agree label a {
+    color: var(--color-text);
+    text-decoration: underline;
+    font-weight: 700;
+}
+.terms-agree label a:hover {
+    color: var(--color-accent);
+}
+.terms-agree label .required { 
+    color: var(--color-danger);
+    margin-left: 3px;
+    font-weight: bold;
+}
+
+.custom-embroidery-checkout-options h2 {
+    font-size: 1.4em;
+    margin-bottom: 20px;
+}
+.custom-instructions {
+    margin-bottom: 25px;
+    color: var(--color-text);
+    font-size: 1em;
+    line-height: 1.6;
+    background-color: var(--color-light-bg);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--color-text);
+}
+.file-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+.file-upload-area .trigger-file-upload-checkout {
+    flex-shrink: 0;
+}
+.file-upload-area .file-name-checkout {
+    font-size: 0.9em;
+    color: var(--color-text);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-grow: 1;
+    background-color: var(--color-background);
+    padding: 10px 15px;
+    border-radius: 12px;
+    min-height: 40px; 
+    display: inline-flex; 
+    align-items: center;
+}
+.image-preview-checkout {
+    margin-top: 15px;
+    padding: 20px;
+    border: 2px dashed var(--color-border);
+    border-radius: 16px;
+    background-color: var(--color-white);
+    text-align: center;
+}
+.image-preview-checkout img {
+    display: inline-block;
+    max-width: 100%;
+    max-height: 200px; 
+    border-radius: 8px;
+    box-shadow: var(--box-shadow-light);
+}
+
+@media (max-width: 992px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+    .checkout-sidebar {
+        position: static;
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2.2em;
+        margin-bottom: 30px;
+    }
+    .checkout-section h2 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+    .checkout-sidebar {
+        padding: 30px 20px;
+    }
+    .summary-items {
+        max-height: none; 
+        overflow-y: visible;
+        padding-right: 0;
+    }
+    .file-upload-area {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .file-upload-area .trigger-file-upload-checkout {
+        width: 100%; 
+    }
+    .file-upload-area .file-name-checkout {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-page-main .container {
+        padding-top: 30px;
+        padding-bottom: 60px;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group input[type="number"],
+    .form-group textarea {
+        padding: 14px 15px;
+        border-radius: 12px;
+    }
+    .shipping-option { 
+        padding: 15px; 
+        align-items: flex-start;
+    }
+    .shipping-option label {
+        font-size: 1em;
+        margin-top: -2px;
+    }
+    .shipping-cost {
+        font-size: 1em;
+        padding-left: 10px;
+    }
+    .total-row { 
+        font-size: 1.3em; 
+    }
+}

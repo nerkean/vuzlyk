@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель - Замовлення</title>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item active">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Замовлення</span>
+                <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+                    <span class="nav-badge" id="sidebarOrderCount"><%= orders.length %></span>
+                <% } %>
+            </a>
+            <a href="/admin/products" class="nav-item">
+                <i class="fa-solid fa-tags"></i>
+                <span>Товари</span>
+            </a>
+            <a href="/admin/categories" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'categories' ? 'active' : '' %>">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Категорії</span>
+            </a>
+            <a href="/admin/blog" class="nav-item">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+            <a href="/admin/blog/html-guide" class="nav-item">
+                <i class="fa-solid fa-code"></i>
+                <span>HTML Інструкція</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="admin-content-wrapper">
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Пошук замовлень (ID, ім'я, телефон)...">
+                </div>
+            </div>
+            <div class="topbar-right">
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container-fluid">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Запити на замовлення</h2>
+                        <p class="page-subtitle">Керуйте новими запитами та їх статусами</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon new">
+                            <i class="fa-solid fa-inbox"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-title">Нові запити</p>
+                            <h3 class="stat-value"><%= typeof orders !== 'undefined' ? orders.filter(o => o.status === 'Новий').length : 0 %></h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon processing">
+                            <i class="fa-solid fa-spinner"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-title">В обробці</p>
+                            <h3 class="stat-value"><%= typeof orders !== 'undefined' ? orders.filter(o => o.status === 'В обробці').length : 0 %></h3>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon done">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <p class="stat-title">Узгоджено</p>
+                            <h3 class="stat-value"><%= typeof orders !== 'undefined' ? orders.filter(o => o.status === 'Узгоджено').length : 0 %></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card table-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Останні запити <span id="visibleOrderCount" style="font-size: 0.8em; color: var(--text-muted); font-weight: 400; margin-left: 8px;"></span></h3>
+                        <div class="filter-group">
+                            <select id="statusFilter" class="filter-select">
+                                <option value="all">Усі статуси</option>
+                                <option value="Новий">Нові</option>
+                                <option value="В обробці">В обробці</option>
+                                <option value="Узгоджено">Узгоджено</option>
+                                <option value="Виконано">Виконано</option>
+                                <option value="Скасовано">Скасовано</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="modern-table" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Замовлення / Дата</th>
+                                        <th>Клієнт та Доставка</th>
+                                        <th>Деталі замовлення</th>
+                                        <th>Сума</th>
+                                        <th>Статус</th>
+                                        <th class="text-right">Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <% orders.forEach(order => { %>
+                                        <tr data-order-id="<%= order._id %>" class="table-row-animate order-row">
+                                            <td data-label="Замовлення / Дата">
+                                                <div class="order-id">#<%= order._id.toString().slice(-6).toUpperCase() %></div>
+                                                <div class="date-cell">
+                                                    <span class="date-main"><i class="fa-regular fa-calendar"></i> <%= new Date(order.receivedAt).toLocaleDateString('uk-UA', { day: '2-digit', month: 'short', year: 'numeric' }) %></span>
+                                                    <span class="time-sub"><i class="fa-regular fa-clock"></i> <%= new Date(order.receivedAt).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' }) %></span>
+                                                </div>
+                                            </td>
+                                            
+                                            <td data-label="Клієнт та Доставка">
+                                                <div class="client-info" style="margin-bottom: 12px;">
+                                                    <div class="client-avatar"><%= order.contactInfo.name.charAt(0).toUpperCase() %></div>
+                                                    <div class="client-details">
+                                                        <strong class="client-name"><%= order.contactInfo.name %></strong>
+                                                        <a href="tel:<%= order.contactInfo.phone %>" class="contact-link client-phone"><i class="fa-solid fa-phone"></i> <%= order.contactInfo.phone %></a>
+                                                        <a href="mailto:<%= order.contactInfo.email %>" class="contact-link client-email"><i class="fa-regular fa-envelope"></i> <%= order.contactInfo.email %></a>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="delivery-details" style="font-size: 0.85em; padding-top: 10px; border-top: 1px dashed var(--color-border); line-height: 1.4;">
+                                                    <% if (order.shipping && order.shipping.method === 'nova_poshta') { %>
+                                                        <div style="color: #db342e; font-weight: 700; margin-bottom: 4px;"><i class="fa-solid fa-box" style="margin-right: 4px;"></i> Нова Пошта</div>
+                                                        <div style="color: var(--text-muted);"><%= order.shipping.city || 'Місто не вказано' %></div>
+                                                        <div style="color: var(--text-muted);"><%= order.shipping.warehouse || 'Відділення не вказано' %></div>
+                                                    <% } else if (order.shipping && order.shipping.method === 'ukrposhta') { %>
+                                                        <div style="color: #ffb800; font-weight: 700; margin-bottom: 4px;"><i class="fa-solid fa-envelope" style="margin-right: 4px;"></i> Укрпошта</div>
+                                                        <div style="color: var(--text-muted);"><%= order.shipping.city || 'Місто не вказано' %></div>
+                                                        <div style="color: var(--text-muted);"><%= order.shipping.address || 'Адреса не вказана' %></div>
+                                                    <% } else if (order.shipping && order.shipping.method === 'pickup') { %>
+                                                        <div style="color: var(--color-success); font-weight: 700;"><i class="fa-solid fa-location-dot" style="margin-right: 4px;"></i> Самовивіз (Бровари)</div>
+                                                    <% } else { %>
+                                                        <div style="color: var(--text-muted);"><i class="fa-solid fa-truck" style="margin-right: 4px;"></i> Спосіб доставки не вказано</div>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+
+                                            <td data-label="Деталі замовлення" class="items-cell">
+                                                <div class="items-list-compact">
+                                                    <% order.items.forEach((item, index) => { %>
+                                                        <% if (index < 2) { %>
+                                                            <div class="item-compact">
+                                                                <% if (item.imageUrl) { %>
+                                                                    <img src="<%= item.imageUrl %>" alt="<%= item.name %>" class="item-img-mini">
+                                                                <% } else { %>
+                                                                    <div class="item-img-placeholder"><i class="fa-solid fa-image"></i></div>
+                                                                <% } %>
+                                                                <div class="item-text">
+                                                                    <a href="/product/<%= item.productId %>" target="_blank" class="item-name" title="<%= item.name %>"><%= item.name %></a>
+                                                                    <span class="item-qty">x<%= item.quantity %></span>
+                                                                </div>
+                                                            </div>
+                                                        <% } %>
+                                                    <% }); %>
+                                                    <% if (order.items.length > 2) { %>
+                                                        <div class="more-items-badge">+<%= order.items.length - 2 %> ще</div>
+                                                    <% } %>
+                                                </div>
+                                                
+                                                <% if (order.customDescription && order.customDescription !== 'Не вказано') { %>
+                                                    <div style="margin-top: 12px; padding: 10px; background-color: #f8fafc; border-radius: 8px; border-left: 3px solid #b9936c; font-size: 0.85em; line-height: 1.4;">
+                                                        <strong style="display: block; margin-bottom: 4px; color: #111111;"><i class="fa-solid fa-paintbrush" style="color: #b9936c; margin-right: 6px;"></i>Своя вишивка (Опис):</strong>
+                                                        <div style="white-space: pre-wrap; color: #475569;"><%= order.customDescription %></div>
+                                                    </div>
+                                                <% } %>
+                                                
+                                                <% if (order.comments && order.comments.trim()) { %>
+                                                    <div style="margin-top: 12px; padding: 10px; background-color: #f1f5f9; border-radius: 8px; border-left: 3px solid #64748b; font-size: 0.85em; line-height: 1.4;">
+                                                        <strong style="display: block; margin-bottom: 4px; color: #111111;"><i class="fa-regular fa-comment-dots" style="color: #64748b; margin-right: 6px;"></i>Коментар клієнта:</strong>
+                                                        <div style="white-space: pre-wrap; color: #475569;"><%= order.comments %></div>
+                                                    </div>
+                                                <% } %>
+                                            </td>
+                                            
+                                            <td data-label="Сума">
+                                                <div class="order-total" style="font-weight: 700; font-size: 1.1em; color: var(--color-text);">
+                                                    <%= order.totalAmount ? order.totalAmount + ' ₴' : 'Не вказано' %>
+                                                </div>
+                                            </td>
+
+                                            <td data-label="Статус">
+                                                <div class="status-wrapper">
+                                                    <select class="status-select status-<%= order.status === 'Новий' ? 'new' : (order.status === 'В обробці' ? 'processing' : (order.status === 'Узгоджено' ? 'agreed' : (order.status === 'Виконано' ? 'done' : 'cancelled'))) %>" data-order-id="<%= order._id %>">
+                                                        <option value="Новий" <%= order.status === 'Новий' ? 'selected' : '' %>>Новий</option>
+                                                        <option value="В обробці" <%= order.status === 'В обробці' ? 'selected' : '' %>>В обробці</option>
+                                                        <option value="Узгоджено" <%= order.status === 'Узгоджено' ? 'selected' : '' %>>Узгоджено</option>
+                                                        <option value="Виконано" <%= order.status === 'Виконано' ? 'selected' : '' %>>Виконано</option>
+                                                        <option value="Скасовано" <%= order.status === 'Скасовано' ? 'selected' : '' %>>Скасовано</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td data-label="Дії" class="text-right actions-cell">
+                                                <button class="action-btn view-btn" title="Деталі замовлення (в розробці)">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                                <button class="action-btn delete-btn btn-delete-order" data-order-id="<%= order._id %>" title="Видалити">
+                                                    <i class="fa-regular fa-trash-can"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                            <div id="noResultsMessage" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+                                <i class="fa-solid fa-search" style="font-size: 2em; margin-bottom: 10px; opacity: 0.5;"></i>
+                                <p>За вашим запитом нічого не знайдено.</p>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-icon-wrapper">
+                                <i class="fa-solid fa-inbox"></i>
+                            </div>
+                            <h3>Немає нових замовлень</h3>
+                            <p>Коли клієнти залишать запити, вони з'являться тут.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="confirmationModal" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <button class="close-button">&times;</button>
+                <div class="modal-body text-center">
+                    <div class="warning-icon-wrapper">
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 id="confirmationMessage">Видалити замовлення?</h3>
+                    <p class="modal-subtext">Ця дія є незворотною. Замовлення буде видалено з бази даних назавжди.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelActionBtn" class="btn btn-secondary">Скасувати</button>
+                    <button id="confirmActionBtn" class="btn btn-danger">Видалити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ordersTable = document.querySelector('.modern-table');
+            const modal = document.getElementById('confirmationModal');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const orderRows = document.querySelectorAll('.order-row');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const visibleOrderCount = document.getElementById('visibleOrderCount');
+            
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.admin-sidebar');
+            
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
+            const filterOrders = () => {
+                if (!orderRows.length) return;
+                
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const filterValue = statusFilter.value;
+                let visibleCount = 0;
+
+                orderRows.forEach(row => {
+                    const orderId = row.querySelector('.order-id').textContent.toLowerCase();
+                    const clientName = row.querySelector('.client-name').textContent.toLowerCase();
+                    const clientPhone = row.querySelector('.client-phone').textContent.toLowerCase();
+                    const clientEmail = row.querySelector('.client-email').textContent.toLowerCase();
+                    
+                    const statusSelect = row.querySelector('.status-select');
+                    const status = statusSelect ? statusSelect.value : '';
+
+                    const matchesSearch = orderId.includes(searchTerm) || 
+                                          clientName.includes(searchTerm) || 
+                                          clientPhone.includes(searchTerm) || 
+                                          clientEmail.includes(searchTerm);
+                                          
+                    const matchesFilter = filterValue === 'all' || status === filterValue;
+
+                    if (matchesSearch && matchesFilter) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (noResultsMessage) {
+                    noResultsMessage.style.display = visibleCount === 0 ? 'block' : 'none';
+                    if (visibleCount === 0) {
+                        ordersTable.querySelector('thead').style.display = 'none';
+                    } else {
+                        ordersTable.querySelector('thead').style.display = '';
+                    }
+                }
+                
+                if (searchTerm !== '' || filterValue !== 'all') {
+                    visibleOrderCount.textContent = `(Знайдено: ${visibleCount})`;
+                } else {
+                    visibleOrderCount.textContent = '';
+                }
+            };
+
+            if (searchInput) searchInput.addEventListener('input', filterOrders);
+            if (statusFilter) statusFilter.addEventListener('change', filterOrders);
+
+            if (!modal || !ordersTable) return; 
+            
+            const closeButton = modal.querySelector('.close-button');
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            const cancelBtn = document.getElementById('cancelActionBtn');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            let actionToConfirm = null; 
+
+            const showModal = (message, onConfirm) => {
+                if (!confirmationMessage) return;
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+                actionToConfirm = onConfirm; 
+            };
+
+            const closeModal = () => {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    actionToConfirm = null; 
+                }, 300); 
+            };
+
+            if(confirmBtn) confirmBtn.addEventListener('click', () => {
+                if (typeof actionToConfirm === 'function') {
+                    actionToConfirm(); 
+                }
+                closeModal();
+            });
+
+            if(cancelBtn) cancelBtn.addEventListener('click', closeModal);
+            if(closeButton) closeButton.addEventListener('click', closeModal);
+            
+            window.addEventListener('click', (event) => { 
+                if (event.target == modal) {
+                    closeModal();
+                }
+            });
+
+            ordersTable.addEventListener('change', async (event) => {
+                if (event.target.classList.contains('status-select')) {
+                    const select = event.target;
+                    const orderId = select.dataset.orderId;
+                    const newStatus = select.value;
+                    const prevValue = select.getAttribute('data-prev-value') || "Новий";
+
+                    try {
+                        select.classList.add('loading');
+                        
+                        const response = await fetch(`/admin/orders/${orderId}/update-status`, {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'CSRF-Token': csrfToken
+                            },
+                            body: JSON.stringify({ newStatus })
+                        });
+                        
+                        select.classList.remove('loading');
+                        
+                        const result = await response.json();
+                        if (!response.ok) { 
+                           throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                        }
+                        
+                        if (result.success) {
+                            select.className = `status-select status-${
+                                newStatus === 'Новий' ? 'new' : 
+                                (newStatus === 'В обробці' ? 'processing' : 
+                                (newStatus === 'Узгоджено' ? 'agreed' : 
+                                (newStatus === 'Виконано' ? 'done' : 'cancelled')))
+                            }`;
+                            
+                            const wrapper = select.closest('.status-wrapper');
+                            wrapper.classList.add('success-pulse');
+                            setTimeout(() => wrapper.classList.remove('success-pulse'), 1000);
+                            
+                            select.setAttribute('data-prev-value', newStatus);
+                            
+                            if (statusFilter && statusFilter.value !== 'all' && statusFilter.value !== newStatus) {
+                                setTimeout(filterOrders, 500);
+                            }
+                        } else {
+                            throw new Error(result.message || 'Невідома помилка оновлення статусу');
+                        }
+                    } catch (err) {
+                        select.classList.remove('loading');
+                        console.error('Помилка при оновленні статусу:', err);
+                        alert(`Помилка оновлення статусу: ${err.message}`);
+                        select.value = prevValue;
+                    }
+                }
+            });
+
+            ordersTable.addEventListener('focusin', (e) => {
+                if (e.target.classList.contains('status-select')) {
+                    if (!e.target.hasAttribute('data-prev-value')) {
+                        e.target.setAttribute('data-prev-value', e.target.value);
+                    }
+                }
+            });
+
+            ordersTable.addEventListener('click', (event) => {
+                const deleteButton = event.target.closest('.btn-delete-order');
+                if (deleteButton) {
+                    const orderId = deleteButton.dataset.orderId;
+                    const orderRow = deleteButton.closest('tr'); 
+
+                    showModal(`Видалити замовлення?`, async () => {
+                        try {
+                            deleteButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                            deleteButton.disabled = true;
+                            
+                            const response = await fetch(`/admin/orders/${orderId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'CSRF-Token': csrfToken 
+                                }
+                            });
+                            const result = await response.json();
+                             if (!response.ok) { 
+                                 throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                             }
+                            if (result.success) {
+                                if(orderRow) {
+                                    orderRow.classList.add('row-deleting');
+                                    setTimeout(() => {
+                                        orderRow.remove();
+                                        filterOrders(); 
+                                        
+                                        const sidebarBadge = document.getElementById('sidebarOrderCount');
+                                        if (sidebarBadge) {
+                                            const currentCount = parseInt(sidebarBadge.textContent, 10);
+                                            if (!isNaN(currentCount) && currentCount > 0) {
+                                                sidebarBadge.textContent = currentCount - 1;
+                                            }
+                                        }
+                                    }, 400); 
+                                }
+                            } else {
+                                throw new Error(result.message || 'Невідома помилка видалення');
+                            }
+                        } catch (err) {
+                            deleteButton.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
+                            deleteButton.disabled = false;
+                            console.error('Помилка при видаленні:', err);
+                            alert(`Помилка видалення: ${err.message}`);
+                        }
+                    });
+                }
+            });
+            
+            const rows = document.querySelectorAll('.table-row-animate');
+            rows.forEach((row, index) => {
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50 * index);
+            });
+        });
+    </script>
+</body>
+</html>

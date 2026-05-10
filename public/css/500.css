@@ -1,0 +1,74 @@
+.error-500-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px); 
+    padding: 60px 15px;
+    background-color: var(--color-background); 
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.error-container {
+    max-width: 650px;
+    width: 100%;
+    padding: 60px 40px; 
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-main);
+    box-shadow: var(--box-shadow-medium); 
+    border: none;
+}
+
+.error-code {
+    font-family: var(--font-heading);
+    font-size: clamp(7rem, 22vw, 13rem); 
+    font-weight: 900;
+    color: var(--color-danger);
+    line-height: 0.8;
+    margin-bottom: 25px;
+    letter-spacing: -4px;
+}
+
+.error-heading {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 900;
+    color: var(--color-text);
+    margin-top: 0; 
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+}
+
+.error-message {
+    font-size: 1.15rem;
+    color: var(--color-text-light);
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.error-message p { 
+    margin-bottom: 10px;
+}
+.error-message p:last-child {
+    margin-bottom: 0;
+}
+
+.error-home-link .btn {
+    padding: 16px 40px !important;
+    font-size: 1.1em !important;
+}
+
+@media (max-width: 768px) {
+    .error-500-page {
+        min-height: calc(100vh - 120px);
+        padding: 40px 15px;
+    }
+    .error-container {
+        padding: 40px 20px;
+    }
+    .error-code {
+        letter-spacing: -2px;
+    }
+}

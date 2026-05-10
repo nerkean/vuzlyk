@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%
+    let pageTitleValue = (product && product.name) ? `${product.name}` : 'Деталі товару';
+    if (product && product.category && product.category !== 'Вишивка') { 
+        pageTitleValue += ` (${product.category})`;
+    }
+    pageTitleValue += ` - Купити Вишивку Ручної Роботи | Вузлик`;
+    
+    const baseUrl = process.env.BASE_URL || 'https://vuzlyk.com';
+    
+    const optimizeImg = (url, params) => {
+        if (!url) return '/images/placeholder.png';
+        if (url.includes('res.cloudinary.com')) {
+            return url.replace('/upload/', `/upload/f_auto,q_auto,${params}/`);
+        }
+        return url;
+    };
+
+    let ogImageMetaUrl = new URL('/images/og-image.jpg', baseUrl).href; 
+    if (product && product.images && product.images.length > 0 && product.images[0].large && product.images[0].large.url) {
+        ogImageMetaUrl = optimizeImg(product.images[0].large.url, 'w_1200'); 
+    }
+
+    const canonicalPageUrl = `${baseUrl}/product/${(product && product._id) ? product._id : ''}`;
+    const metaDescContent = typeof metaDescription !== 'undefined' ? metaDescription : (product && product.description ? product.description.replace(/<[^>]*>?/gm, '').substring(0,160) : 'Ексклюзивна ручна вишивка від майстерні Вузлик.');
+    %>
+    <title><%= pageTitleValue %></title>
+    <meta name="description" content="<%= metaDescContent %>">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<%= canonicalPageUrl %>" />
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <meta property="og:title" content="<%= pageTitleValue %>">
+    <meta property="og:description" content="<%= metaDescContent %>">
+    <meta property="og:image" content="<%= ogImageMetaUrl %>">
+    <meta property="og:url" content="<%= canonicalPageUrl %>">
+    <meta property="og:type" content="product">
+    <meta property="og:site_name" content="Вузлик до вузлика">
+    <% if (product && typeof product.price === 'number') { %>
+    <meta property="product:price:amount" content="<%= product.price %>"> 
+    <meta property="product:price:currency" content="UAH">
+    <% } %>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= pageTitleValue %>">
+    <meta name="twitter:description" content="<%= metaDescContent %>">
+    <meta name="twitter:image" content="<%= ogImageMetaUrl %>">
+    <% if (locals.isProduction && locals.gaMeasurementId) { %>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '<%= locals.gaMeasurementId %>');
+        </script>
+    <% } %>
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin> 
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <% if (product && product.images && product.images.length > 0 && product.images[0].large) { %>
+        <link rel="preload" href="<%= optimizeImg(product.images[0].large.url, 'w_700,c_limit') %>" as="image" fetchpriority="high">
+    <% } %>
+    <style>
+        .am-product-main { min-height: 100vh; display: block; }
+        .am-container { max-width: 1200px; margin: 0 auto; padding: 30px 20px 0; }
+        .am-product-split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+        .am-gallery-column { position: sticky; top: 100px; }
+        .am-main-image-frame { border-radius: 28px; aspect-ratio: 4 / 5; background: #EAEAEA; position: relative; overflow: hidden; width: 100%; }
+        @media (max-width: 992px) {
+            .am-product-split { grid-template-columns: 1fr; gap: 40px; }
+            .am-main-image-frame { aspect-ratio: 1 / 1; }
+        }
+    </style>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/product-page.css">
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://unpkg.com/aos@next/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+</head>
+<body class="apple-minimal-theme">
+    <%- include('partials/header') %>
+
+    <% if (typeof productLD !== 'undefined' && productLD) { %>
+    <script type="application/ld+json">
+        <%- JSON.stringify(productLD, null, 2) %>
+    </script>
+    <% } %>
+
+    <main class="am-product-main">
+        <div class="am-ambient-bg" aria-hidden="true">
+            <div class="am-blob am-blob-1"></div>
+            <div class="am-blob am-blob-2"></div>
+            <div class="am-blob am-blob-3"></div>
+        </div>
+
+        <div class="am-side-decor" aria-hidden="true">
+            <div class="am-decor-item am-blob-shape blob-left"></div>
+            <div class="am-decor-item am-thread-ring ring-left-1"></div>
+            <div class="am-decor-item am-thread-ring ring-left-2"></div>
+            
+            <div class="am-decor-item am-blob-shape blob-right"></div>
+            <div class="am-decor-item am-thread-ring ring-right-1"></div>
+            <div class="am-decor-item am-thread-ring ring-right-2"></div>
+        </div>
+
+        <div class="container am-container">
+            <% if (product) { %>
+
+            <nav class="am-breadcrumb" aria-label="Хлібні крихти">
+                <a href="/">Головна</a> 
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i> 
+                <a href="/catalog">Каталог</a> 
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i> 
+                <% if (product.category) { %>
+                    <a href="/catalog?category=<%= encodeURIComponent(product.category) %>"><%= product.category %></a> 
+                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i> 
+                <% } %>
+                <span class="current" aria-current="page"><%= product.name %></span>
+            </nav>
+
+            <section class="am-product-split">
+                <div class="am-gallery-column">
+                    <div class="am-main-image-frame glass-effect" id="productSlider">
+                    <% if (product.images && product.images.length > 0) { %>
+                        <% product.images.forEach((imageSet, index) => { %>
+                            <% if (imageSet.large && imageSet.large.url) { %>
+                                <img class="am-slider-img <%= index === 0 ? 'active' : '' %>" 
+                                     src="<%= optimizeImg(imageSet.large.url, 'w_700,c_limit') %>" 
+                                     alt="Фото <%= index + 1 %> - <%= product.name %>"
+                                     loading="<%= index === 0 ? 'eager' : 'lazy' %>"
+                                     fetchpriority="<%= index === 0 ? 'high' : 'auto' %>"
+                                     width="507" 
+                                     height="634">
+                            <% } %>
+                        <% }); %>
+                    <% } %>
+                    </div>
+
+                    <% if (product.images && product.images.length > 1) { %>
+                    <div class="am-thumbnails-row" id="thumbnailList">
+                        <% product.images.forEach((imageSet, index) => { %>
+                            <% if (imageSet.thumb && imageSet.thumb.url) { %>
+                                <div class="am-thumb-card glass-effect <%= index === 0 ? 'active' : '' %>" data-index="<%= index %>">
+                                    <img src="<%= optimizeImg(imageSet.thumb.url, 'w_150,h_150,c_fill') %>" 
+                                         alt="Прев'ю <%= index + 1 %>" 
+                                         loading="lazy" 
+                                         width="82" 
+                                         height="82">
+                                </div>
+                            <% } %>
+                        <% }); %>
+                    </div>
+                    <% } %>
+                </div>
+
+                <div class="am-info-column">
+                    <div class="am-title-group">
+                        <div class="am-meta-row">
+                            <% if (product.category) { %>
+                                <div class="am-category-tag"><%= product.category %></div>
+                            <% } %>
+                            <% if (product.sku) { %>
+                                <div class="am-sku">Арт: <%= product.sku %></div>
+                            <% } %>
+                        </div>
+
+                        <h1 class="am-title"><%= product.name %></h1>
+                        
+                        <div class="am-status-row">
+                            <span class="am-status <%= product.status === 'Під замовлення' ? 'preorder' : 'instock' %>">
+                                <i class="fa-solid <%= product.status === 'Під замовлення' ? 'fa-clock' : 'fa-check-circle' %>"></i> <%= product.status || 'Не вказано' %>
+                            </span>
+                            <% if (product.creation_time_info && product.status === 'Під замовлення') { %>
+                                <span class="am-time-note"><%= product.creation_time_info %></span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="am-price-group">
+                        <% if (product.price !== undefined) { %>
+                            <% if (product.maxPrice && product.maxPrice > product.price) { %>
+                                <div class="am-price-value text-gradient"><%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %> <span class="am-price-range"> – <%= formatPrice(product.maxPrice, selectedCurrency, exchangeRates, currencySymbols) %></span></div>
+                            <% } else { %>
+                                <div class="am-price-value text-gradient"><%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %></div>
+                            <% } %>
+                        <% } else { %>
+                            <div class="am-price-value text-gradient">Ціну уточнюйте</div>
+                        <% } %>
+
+                        <% if (product._id.toString() === '68060e0fe39ed348e8785150' || (product.maxPrice && product.maxPrice > product.price)) { %>
+                            <div class="am-price-subtext"><i class="fa-solid fa-circle-info"></i> Кінцева ціна залежить від складності та розміру.</div>
+                        <% } %>
+                    </div>
+
+                    <div class="am-actions-group">
+                        <button class="am-btn-buy add-to-cart-button" data-product-id="<%= product._id %>">
+                            Додати в кошик <i class="fa-solid fa-bag-shopping" style="margin-left: 8px;"></i>
+                        </button>
+                        
+                        <button class="am-btn-wishlist glass-effect wishlist-btn <%= (wishlistIds && wishlistIds.has(product._id.toString())) ? 'in-wishlist' : '' %>" 
+                                data-product-id="<%= product._id %>" 
+                                aria-label="Список бажань" title="Додати в улюблені"
+                                <% if (!currentUser) { %> data-redirect-to-login="true" <% } %>>
+                            <i class="fa<%= (wishlistIds && wishlistIds.has(product._id.toString())) ? 's' : 'r' %> fa-heart"></i>
+                        </button>
+                    </div>
+
+                    <div class="am-features-grid">
+                        <div class="am-feature-item">
+                            <div class="feat-icon"><i class="fa-solid fa-hand-sparkles"></i></div>
+                            <span>Ручна робота</span>
+                        </div>
+                        <div class="am-feature-item">
+                            <div class="feat-icon"><i class="fa-solid fa-leaf"></i></div>
+                            <span>Еко матеріали</span>
+                        </div>
+                        <div class="am-feature-item">
+                            <div class="feat-icon"><i class="fa-regular fa-gem"></i></div>
+                            <span>Преміум якість</span>
+                        </div>
+                    </div>
+
+                    <div class="am-delivery-card glass-effect">
+                        <div class="am-delivery-icon-wrap">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <div class="am-delivery-text">
+                            <strong>Безкоштовний самовивіз або доставка</strong>
+                            <p>Забирайте в Броварах або замовляйте відправку Новою Поштою по всій Україні.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="am-product-story" data-aos="fade-up">
+                <div class="am-story-container">
+                    
+                    <% if ((product.dimensions && product.dimensions.size_name) || (product.materials && product.materials.length > 0)) { %>
+                        <div class="am-specs-grid glass-effect centered">
+                            <% if (product.dimensions && product.dimensions.size_name) { %>
+                                <div class="spec-cell">
+                                    <span class="spec-label">Розмір</span>
+                                    <span class="spec-val"><%= product.dimensions.size_name %></span>
+                                </div>
+                            <% } %>
+                            <% if (product.materials && product.materials.length > 0) { %>
+                                <div class="spec-cell">
+                                    <span class="spec-label">Матеріали</span>
+                                    <span class="spec-val"><%= product.materials.join(', ') %></span>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% } %>
+
+                    <% if (product.description) { %>
+                        <div class="am-text-section centered" itemprop="description">
+                            <h2>Історія виробу</h2>
+                            <p><%- product.description.replace(/\n/g, '<br>') %></p>
+                        </div>
+                    <% } %>
+
+                    <div class="am-packaging-block glass-effect">
+                        <div class="pkg-icon"><i class="fa-solid fa-gift"></i></div>
+                        <h3>Естетика в кожній деталі</h3>
+                        <p>Ми віримо, що важливий не лише сам виріб, але й емоції від його розпакування. Тому кожна робота дбайливо загортається в преміальне крафтове пакування зі стрічкою, щоб стати ідеальним подарунком для вас або ваших близьких.</p>
+                    </div>
+
+                    <div class="am-quote-block glass-effect centered">
+                        <i class="fa-solid fa-quote-left"></i>
+                        <p>«Кожен стібок — це маленька історія, створена з любов'ю та увагою до найменших деталей, щоб подарувати вам справжній затишок.»</p>
+                    </div>
+
+                    <% if (product.care_instructions) { %>
+                        <div class="am-care-section centered">
+                            <h3><i class="fa-solid fa-hands-bubbles" style="color:var(--am-accent); margin-right: 8px;"></i>Як доглядати</h3>
+                            <p><%= product.care_instructions %></p>
+                        </div>
+                    <% } %>
+
+                    <% if (product.tags && product.tags.length > 0) { %>
+                        <div class="am-tags-group centered">
+                            <% product.tags.forEach((tag) => { %>
+                               <a href="/catalog?tags=<%= encodeURIComponent(tag) %>" class="am-tag-pill glass-effect"><%= tag %></a>
+                            <% }); %>
+                        </div>
+                    <% } %>
+
+                </div>
+            </section>
+
+            <% if (typeof similarProducts !== 'undefined' && similarProducts && similarProducts.length > 0) { %>
+                <section class="am-similar-section" data-aos="fade-up" data-aos-duration="600">
+                    <h2 class="am-section-title">Вам також може сподобатися</h2> 
+                    
+                    <div class="am-scroll-track">
+                        <% similarProducts.forEach((similarProduct, index) => { %>
+                            <article class="am-card glass-effect">
+                                <a href="/product/<%= similarProduct._id %>" class="am-card-link">
+                                    <div class="am-card-img-box">
+                                        <%
+                                            let simImgSrc = '/images/placeholder.png';
+                                            if (similarProduct.images && similarProduct.images.length > 0) {
+                                                const simImgSet = similarProduct.images[0];
+                                                if (simImgSet.medium && simImgSet.medium.url) {
+                                                    simImgSrc = optimizeImg(simImgSet.medium.url, 'w_350,h_440,c_fill');
+                                                } else if (simImgSet.thumb && simImgSet.thumb.url) {
+                                                    simImgSrc = optimizeImg(simImgSet.thumb.url, 'w_350,h_440,c_fill');
+                                                }
+                                            }
+                                        %>
+                                        <img src="<%= simImgSrc %>" loading="lazy" alt="<%= similarProduct.name %>" width="280" height="350">
+                                    </div>
+                                    <div class="am-card-body">
+                                        <h3 class="am-card-title"><%= similarProduct.name %></h3>
+                                        <div class="am-card-price">
+                                            <% if (similarProduct.price !== undefined) { %>
+                                                <%= formatPrice(similarProduct.price, selectedCurrency, exchangeRates, currencySymbols) %>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </a>
+                            </article>
+                        <% }); %>
+                    </div>
+                </section>
+            <% } %>
+
+            <% } else { %>
+                <div class="am-not-found glass-effect">
+                    <h2>Товар не знайдено</h2>
+                    <p>Здається, ця вишивка вже знайшла свій дім.</p>
+                    <a href="/catalog" class="am-btn-buy" style="display:inline-block; max-width:200px; text-decoration:none;">В каталог</a>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/dist/main.bundle.js" defer></script>
+    <script src="/js/product-page.js" defer></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js" defer></script> 
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          if (typeof AOS !== 'undefined') {
+              AOS.init({ once: true, duration: 700, easing: 'ease-out-cubic', offset: 80, disable: 'mobile' });
+          } 
+
+          const slides = document.querySelectorAll('.am-slider-img');
+          const thumbs = document.querySelectorAll('.am-thumb-card');
+          const sliderContainer = document.getElementById('productSlider');
+          let currentSlide = 0;
+          let slideInterval;
+
+          if (slides.length > 1) {
+              function goToSlide(n) {
+                  slides[currentSlide].classList.remove('active');
+                  if (thumbs.length) thumbs[currentSlide].classList.remove('active');
+                  
+                  currentSlide = (n + slides.length) % slides.length;
+                  
+                  slides[currentSlide].classList.add('active');
+                  if (thumbs.length) {
+                      thumbs[currentSlide].classList.add('active');
+                  }
+              }
+
+              function nextSlide() { goToSlide(currentSlide + 1); }
+
+              function startSlider() {
+                  slideInterval = setInterval(nextSlide, 4500); 
+              }
+              function stopSlider() { clearInterval(slideInterval); }
+
+              startSlider();
+
+              if (sliderContainer) {
+                  sliderContainer.addEventListener('mouseenter', stopSlider);
+                  sliderContainer.addEventListener('mouseleave', startSlider);
+              }
+
+              thumbs.forEach(thumb => {
+                  thumb.addEventListener('click', function() {
+                      stopSlider();
+                      const index = parseInt(this.getAttribute('data-index'));
+                      goToSlide(index);
+                      startSlider(); 
+                  });
+              });
+          }
+      });
+    </script>
+</body>
+</html>

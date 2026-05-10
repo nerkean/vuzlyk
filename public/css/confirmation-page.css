@@ -1,0 +1,71 @@
+.confirmation-page {
+    text-align: center;
+    padding: 80px 20px;
+    min-height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-background); 
+    box-sizing: border-box;
+}
+
+.confirmation-icon {
+    font-size: 5em; 
+    color: #16a34a;
+    margin-bottom: 30px;
+    animation: bounceInScale 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+    line-height: 1;
+}
+
+.confirmation-page h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--color-text); 
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.confirmation-page p {
+    font-size: 1.15em;
+    color: var(--color-text-light);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 40px; 
+    line-height: 1.6;
+}
+
+.confirmation-page .btn {
+    margin-top: 10px;
+    padding: 16px 40px !important;
+    font-size: 1.1em !important;
+}
+
+@keyframes bounceInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .confirmation-page {
+        min-height: calc(100vh - 120px);
+        padding: 40px 20px;
+    }
+    .confirmation-icon {
+        font-size: 4em;
+        margin-bottom: 20px;
+    }
+}

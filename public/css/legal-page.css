@@ -1,0 +1,109 @@
+.legal-page-main {
+    background-color: var(--color-background);
+}
+
+.legal-page-main .container {
+    padding-top: 60px;
+    padding-bottom: 80px;
+    max-width: 800px;
+}
+
+.legal-page-main .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: calc(2em + 1vw);
+    letter-spacing: -1px;
+    color: var(--color-text);
+}
+
+.last-updated {
+    text-align: center;
+    font-size: 1.05em;
+    color: var(--color-text-light);
+    margin-bottom: 50px;
+    font-style: italic;
+    font-family: serif;
+}
+
+.legal-page-main section {
+    margin-bottom: 45px;
+}
+
+.legal-page-main section h2 {
+    font-family: var(--font-heading);
+    font-size: 1.8em;
+    font-weight: 900;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-text);
+    color: var(--color-text);
+    letter-spacing: -0.5px;
+}
+
+.legal-page-main section:first-of-type h2 {
+    margin-top: 0;
+}
+
+.legal-page-main section p {
+    margin-bottom: 1.2em;
+    line-height: 1.8;
+    color: var(--color-text);
+    font-size: 1.05em;
+}
+
+.legal-page-main section ul {
+    list-style: disc;
+    margin-left: 0;
+    margin-bottom: 1.5em;
+    padding-left: 25px;
+}
+
+.legal-page-main section li {
+    margin-bottom: 0.8em;
+    line-height: 1.8;
+    color: var(--color-text);
+    font-size: 1.05em;
+}
+
+.legal-page-main section li::marker {
+    color: var(--color-accent);
+}
+
+.legal-page-main section a {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    font-weight: 600;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease;
+}
+
+.legal-page-main section a:hover {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+    .legal-page-main .container {
+        padding-top: 40px;
+        padding-bottom: 50px;
+    }
+    
+    .legal-page-main section h2 {
+        font-size: 1.5em;
+        padding-bottom: 8px;
+    }
+    
+    .last-updated {
+        margin-bottom: 35px;
+    }
+    
+    .legal-page-main section p,
+    .legal-page-main section li {
+        font-size: 1em;
+        line-height: 1.7;
+    }
+}

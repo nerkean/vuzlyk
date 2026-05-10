@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформлення Замовлення - Вузлик до вузлика</title>
+    <meta name="description" content="Оформлення замовлення вишивки ручної роботи в майстерні Вузлик до вузлика.">
+    <meta name="robots" content="noindex">
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" href="/css/common.css"> 
+    <link rel="stylesheet" href="/css/checkout-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        .relative { position: relative; }
+        .autocomplete-list {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+            background: #fff; border: 1px solid var(--border-color, #cbd5e1); border-radius: 8px;
+            max-height: 250px; overflow-y: auto; list-style: none; padding: 0; margin: 4px 0 0 0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: none;
+        }
+        .autocomplete-list.active { display: block; }
+        .autocomplete-list li {
+            padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f1f5f9;
+            font-size: 14px; transition: background 0.2s;
+            line-height: 1.4;
+        }
+        .autocomplete-list li:last-child { border-bottom: none; }
+        .autocomplete-list li:hover { background: #f8fafc; color: var(--brand-primary, #b9936c); }
+        .np-loader { display: none; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .np-loader.active { display: block; }
+    </style>
+</head>
+<body>
+    <%- include('partials/header', { cartItemCount: typeof cartItemCount !== 'undefined' ? cartItemCount : 0 }) %>
+
+    <main class="checkout-page-main">
+        <div class="container">
+            <h1 class="page-title">Оформлення замовлення</h1>
+            <p class="checkout-intro">Будь ласка, заповніть форму нижче. Після відправки ми зв'яжемося з вами для уточнення деталей, узгодження вартості та способів оплати.</p>
+
+            <form id="checkout-form" action="/order/place" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="checkout-layout">
+
+                    <div class="checkout-details">
+                        <section class="checkout-section">
+                            <h2>1. Контактна інформація</h2>
+                            <div class="form-group">
+                                <label for="email">Email <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" class="form-control" required
+                                       value="<%= currentUser ? currentUser.email : '' %>" <%= currentUser ? 'readonly' : '' %>>
+                                       <% if (currentUser) { %> <small class="form-text">Email використовується з вашого профілю.</small> <% } %>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Телефон <span class="required">*</span></label>
+                                <input type="tel" id="phone" name="phone" class="form-control" required placeholder="+380 XX XXX XX XX"
+                                       value="<%= currentUser && currentUser.defaultContactInfo ? currentUser.defaultContactInfo.phone : '' %>">
+                            </div>
+                            <div class="form-group">
+                                <label for="full_name">Ім'я та прізвище <span class="required">*</span></label>
+                                <input type="text" id="full_name" name="full_name" class="form-control" required
+                                       value="<%= currentUser && currentUser.defaultContactInfo ? currentUser.defaultContactInfo.name : (currentUser ? currentUser.name : '') %>">
+                            </div>
+                        </section>
+
+                        <section class="checkout-section shipping-section">
+                            <h2>2. Доставка</h2>
+                            <div class="shipping-methods">
+                                <% const savedMethod = currentUser?.defaultShippingInfo?.method %>
+                                <div class="shipping-option <%= savedMethod === 'nova_poshta' || !savedMethod ? 'selected' : '' %>">
+                                    <input type="radio" id="nova_poshta" name="shippingMethod" value="nova_poshta" required <%= savedMethod === 'nova_poshta' || !savedMethod ? 'checked' : '' %>>
+                                    <label for="nova_poshta">Нова Пошта</label>
+                                    <span class="shipping-cost">За тарифами</span>
+                                </div>
+                                <div class="shipping-option <%= savedMethod === 'ukrposhta' ? 'selected' : '' %>">
+                                    <input type="radio" id="ukrposhta" name="shippingMethod" value="ukrposhta" required <%= savedMethod === 'ukrposhta' ? 'checked' : '' %>>
+                                    <label for="ukrposhta">Укрпошта</label>
+                                    <span class="shipping-cost">За тарифами</span>
+                                </div>
+                                 <div class="shipping-option <%= savedMethod === 'pickup' ? 'selected' : '' %>">
+                                    <input type="radio" id="pickup" name="shippingMethod" value="pickup" required <%= savedMethod === 'pickup' ? 'checked' : '' %>>
+                                    <label for="pickup">Самовивіз</label>
+                                    <span class="shipping-cost">Бровари</span>
+                                </div>
+                            </div>
+
+                            <div id="shipping-address-fields-container" class="shipping-address-fields">
+                                
+                                <div id="np-fields" style="display: none;">
+                                    <div class="form-group relative">
+                                        <label for="np_city_search">Місто (Нова Пошта) <span class="required">*</span></label>
+                                        <input type="text" id="np_city_search" class="form-control" placeholder="Почніть вводити назву міста..." autocomplete="off">
+                                        <div id="np_city_loader" class="np-loader"><i class="fa-solid fa-spinner fa-spin"></i> Шукаємо...</div>
+                                        <ul id="np_city_list" class="autocomplete-list"></ul>
+                                        <input type="hidden" id="shipping_city_np" name="shipping_city" value="<%= savedMethod === 'nova_poshta' && currentUser?.defaultShippingInfo ? currentUser.defaultShippingInfo.city : '' %>">
+                                    </div>
+                                    
+                                    <div class="form-group relative">
+                                        <label for="np_warehouse_search">Відділення / Поштомат <span class="required">*</span></label>
+                                        <input type="text" id="np_warehouse_search" class="form-control" placeholder="Спочатку оберіть місто..." autocomplete="off" disabled
+                                               value="<%= savedMethod === 'nova_poshta' && currentUser?.defaultShippingInfo?.warehouse ? currentUser.defaultShippingInfo.warehouse : '' %>">
+                                        <div id="np_warehouse_loader" class="np-loader"><i class="fa-solid fa-spinner fa-spin"></i> Завантаження відділень...</div>
+                                        <ul id="np_warehouse_list" class="autocomplete-list"></ul>
+                                        <input type="hidden" id="shipping_np_warehouse" name="shipping_np_warehouse" value="<%= savedMethod === 'nova_poshta' && currentUser?.defaultShippingInfo?.warehouse ? currentUser.defaultShippingInfo.warehouse : '' %>">
+                                    </div>
+                                </div>
+
+                                <div id="ukr-fields" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="shipping_city_ukr">Місто або населений пункт <span class="required">*</span></label>
+                                        <input type="text" id="shipping_city_ukr" name="shipping_city" class="form-control" placeholder="Напр: м. Київ"
+                                               value="<%= savedMethod === 'ukrposhta' && currentUser?.defaultShippingInfo ? currentUser.defaultShippingInfo.city : '' %>">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="shipping_address1">Індекс та повна адреса <span class="required">*</span></label>
+                                        <input type="text" id="shipping_address1" name="shipping_address1" class="form-control" placeholder="01001, вул. Хрещатик, 1, кв. 1"
+                                               value="<%= savedMethod === 'ukrposhta' && currentUser?.defaultShippingInfo ? currentUser.defaultShippingInfo.address : '' %>">
+                                    </div>
+                                </div>
+
+                                <div id="pickup-note-container" class="pickup-note" style="display: none; margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                                    <p style="margin: 0; color: var(--text-primary);"><i class="fa-solid fa-location-dot" style="color: var(--brand-primary); margin-right: 8px;"></i> Ми зв'яжемося з вами для узгодження часу та місця зустрічі в м. Бровари.</p>
+                                </div>
+
+                            </div>
+                        </section>
+
+
+                        <%
+                            const customProductId = process.env.CUSTOM_PRODUCT_ID;
+                            const customItemInCart = cartItems.find(item => item.productId === customProductId);
+                        %>
+                        <% if (customItemInCart) { %>
+                        <section class="checkout-section custom-embroidery-checkout-options">
+                            <h2>3. Деталі для "Своя вишивка"</h2>
+                            <p class="custom-instructions">
+                                Опишіть вашу ідею або завантажте файл. Якщо ви завантажуєте файл, будь ласка, будьте готові надіслати його нам окремо після нашого дзвінка/листа.
+                            </p>
+                            <div class="custom-option">
+                                <label for="customDescriptionCheckout">Опис ідеї:</label>
+                                <textarea id="customDescriptionCheckout" name="custom_description" rows="5" placeholder="Опишіть бажаний візерунок, кольори, розміщення..."></textarea>
+                            </div>
+                            <div class="custom-option">
+                                <label>Або завантажте файл (приклад, ескіз):</label>
+                                <div class="file-upload-area">
+                                    <input type="file" id="customFileCheckout" name="custom_file" accept="image/*,.pdf,.ai,.eps" hidden>
+                                    <button type="button" class="btn btn-secondary trigger-file-upload-checkout">
+                                     <svg class="icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor"><path d="M288 109.3V352c0 17.7-14.3 32-32 32s-32-14.3-32-32V109.3l-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352H192c0 35.3 28.7 64 64 64s64-28.7 64-64H448c35.3 0 64 28.7 64 64v32c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V416c0-35.3 28.7-64 64-64z"/></svg>
+                                        Вибрати файл
+                                    </button>
+                                    <span class="file-name-checkout">Файл не вибрано</span>
+                                </div>
+                                <div class="image-preview-checkout" id="imagePreviewContainerCheckout" style="display: none;">
+                                    <p><strong>Попередній перегляд:</strong></p>
+                                    <img id="imagePreviewCheckout" src="#" alt="Попередній перегляд зображення">
+                                </div>
+                            </div>
+                        </section>
+                        <% } %>
+
+                        <section class="checkout-section">
+                            <h2><%= customItemInCart ? '4' : '3' %>. Коментар до замовлення</h2>
+                            <div class="form-group">
+                                <label for="order-comments">Ваші побажання</label>
+                                <textarea id="order-comments" name="comments" rows="4" placeholder="Додаткова інформація, побажання щодо доставки..."></textarea>
+                            </div>
+                            <% if (currentUser) { %>
+                                <section class="checkout-section save-data-section">
+                                     <div class="form-group checkbox-group">
+                                        <input type="checkbox" id="saveInfo" name="saveInfo" value="on" checked>
+                                        <label for="saveInfo" style="display:inline; margin-left:8px; cursor:pointer;">Зберегти мої контактні дані та адресу доставки для наступних замовлень</label>
+                                    </div>
+                                </section>
+                            <% } %>
+                        </section>
+                    </div> 
+                    
+                    <div class="checkout-summary">
+                        <aside class="checkout-sidebar">
+                            <section class="checkout-section order-summary">
+                                <h2>Ваше замовлення</h2>
+                                <div class="summary-items">
+                                    <% if (cartItems && cartItems.length > 0) { %>
+                                        <% cartItems.forEach(item => { %>
+                                            <div class="summary-item">
+                                                <span class="summary-item-name"><%= item.name %> x <%= item.quantity %></span>
+                                                <span class="summary-item-price"><%= formatPrice(item.lineTotal, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                                            </div>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <p>Ваш кошик порожній.</p>
+                                    <% } %>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Проміжний підсумок:</span>
+                                    <span class="subtotal-amount"><%= formatPrice(subtotal, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                                </div>
+                                <div class="summary-row shipping-note">
+                                    <span>Доставка:</span>
+                                    <span class="shipping-total-text">За тарифами перевізника</span>
+                                </div>
+                                <div class="summary-row total-row">
+                                    <span>До сплати (орієнтовно):</span>
+                                    <span class="grand-total-amount"><%= formatPrice(total, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                                </div>
+                            </section>
+
+                            <div class="place-order-action">
+                                <button type="submit" class="btn btn-primary btn-lg place-order-btn">Надіслати запит на замовлення</button>
+                            </div>
+                             <p class="checkout-agreement">Натискаючи кнопку "Надіслати запит", ви погоджуєтесь з <a href="/terms" target="_blank">умовами обслуговування</a> та <a href="/privacy-policy" target="_blank">політикою конфіденційності</a>.</p>
+                        </aside>
+                    </div> 
+                </div> 
+            </form>
+        </div> 
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script src="/dist/main.bundle.js" defer></script>
+    <script src="/js/checkout.js" defer></script> 
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const NP_API_KEY = '69f44da6870d69a00b2364829f0b1152'; 
+
+            const methodRadios = document.querySelectorAll('input[name="shippingMethod"]');
+            
+            const npFields = document.getElementById('np-fields');
+            const ukrFields = document.getElementById('ukr-fields');
+            const pickupNote = document.getElementById('pickup-note-container');
+            
+            const npCitySearch = document.getElementById('np_city_search');
+            const npCityHidden = document.getElementById('shipping_city_np');
+            const npCityList = document.getElementById('np_city_list');
+            const npCityLoader = document.getElementById('np_city_loader');
+            
+            // Поля НП (Відділення)
+            const npWarehouseSearch = document.getElementById('np_warehouse_search');
+            const npWarehouseHidden = document.getElementById('shipping_np_warehouse');
+            const npWarehouseList = document.getElementById('np_warehouse_list');
+            const npWarehouseLoader = document.getElementById('np_warehouse_loader');
+            
+            // Глобальна змінна для зберігання відділень обраного міста
+            let currentWarehouses = [];
+
+            // Поля Укрпошти
+            const ukrCity = document.getElementById('shipping_city_ukr');
+            const ukrAddress = document.getElementById('shipping_address1');
+
+            // 1. Логіка перемикання вкладок
+            function updateShippingVisibility() {
+                const selected = document.querySelector('input[name="shippingMethod"]:checked')?.value;
+                
+                // Ховаємо все
+                npFields.style.display = 'none';
+                ukrFields.style.display = 'none';
+                pickupNote.style.display = 'none';
+                
+                // Вимикаємо ВСІ поля
+                npCityHidden.disabled = true;
+                npWarehouseHidden.disabled = true;
+                npWarehouseSearch.disabled = true;
+                ukrCity.disabled = true;
+                ukrAddress.disabled = true;
+
+                // Вмикаємо тільки потрібне
+                if (selected === 'nova_poshta') {
+                    npFields.style.display = 'block';
+                    npCityHidden.disabled = false;
+                    npWarehouseHidden.disabled = false;
+                    npWarehouseSearch.disabled = false;
+                    
+                    if (npCityHidden.value && !npCitySearch.value) {
+                        npCitySearch.value = npCityHidden.value;
+                    }
+                } else if (selected === 'ukrposhta') {
+                    ukrFields.style.display = 'block';
+                    ukrCity.disabled = false;
+                    ukrAddress.disabled = false;
+                } else if (selected === 'pickup') {
+                    pickupNote.style.display = 'block';
+                }
+            }
+
+            methodRadios.forEach(radio => radio.addEventListener('change', updateShippingVisibility));
+            updateShippingVisibility(); // Запуск при завантаженні
+
+            // 2. Логіка API Нової Пошти (Міста)
+            let timeoutId;
+            npCitySearch.addEventListener('input', function() {
+                const query = this.value.trim();
+                npCityHidden.value = ''; // Скидаємо приховану назву
+                npWarehouseSearch.value = '';
+                npWarehouseHidden.value = '';
+                npWarehouseSearch.disabled = true;
+                npWarehouseSearch.placeholder = 'Спочатку оберіть місто...';
+                currentWarehouses = [];
+
+                if (query.length < 2) {
+                    npCityList.classList.remove('active');
+                    return;
+                }
+
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(async () => {
+                    npCityLoader.classList.add('active');
+                    try {
+                        const response = await fetch('https://api.novaposhta.ua/v2.0/json/', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                apiKey: NP_API_KEY,
+                                modelName: 'Address',
+                                calledMethod: 'searchSettlements',
+                                methodProperties: { CityName: query, Limit: 10 }
+                            })
+                        });
+                        const data = await response.json();
+                        
+                        npCityList.innerHTML = '';
+                        if (data.success && data.data[0] && data.data[0].Addresses.length > 0) {
+                            data.data[0].Addresses.forEach(city => {
+                                const li = document.createElement('li');
+                                li.textContent = `${city.Present}`;
+                                li.addEventListener('click', () => selectCity(city.MainDescription, city.DeliveryCity, city.Present));
+                                npCityList.appendChild(li);
+                            });
+                            npCityList.classList.add('active');
+                        } else {
+                            npCityList.innerHTML = '<li style="color:red; cursor:default;">Місто не знайдено</li>';
+                            npCityList.classList.add('active');
+                        }
+                    } catch (err) {
+                        console.error('Помилка пошуку міст:', err);
+                    } finally {
+                        npCityLoader.classList.remove('active');
+                    }
+                }, 500); 
+            });
+
+            // 3. Вибір міста і завантаження відділень у пам'ять
+            function selectCity(cityName, cityRef, presentName) {
+                npCitySearch.value = presentName;
+                npCityHidden.value = presentName;
+                npCityList.classList.remove('active');
+                
+                loadWarehouses(cityRef);
+            }
+
+            async function loadWarehouses(cityRef) {
+                npWarehouseSearch.value = '';
+                npWarehouseHidden.value = '';
+                npWarehouseSearch.disabled = true;
+                npWarehouseSearch.placeholder = 'Завантажуємо відділення...';
+                npWarehouseLoader.classList.add('active');
+                currentWarehouses = [];
+
+                try {
+                    const response = await fetch('https://api.novaposhta.ua/v2.0/json/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            apiKey: NP_API_KEY,
+                            modelName: 'Address',
+                            calledMethod: 'getWarehouses',
+                            methodProperties: { CityRef: cityRef, Limit: 500 }
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success && data.data.length > 0) {
+                        currentWarehouses = data.data;
+                        npWarehouseSearch.disabled = false;
+                        npWarehouseSearch.placeholder = 'Введіть номер або адресу (напр. 15 або Київська)...';
+                        npWarehouseSearch.focus(); // Одразу переводимо фокус на поле відділень
+                    } else {
+                        npWarehouseSearch.placeholder = 'У цьому місті немає відділень';
+                    }
+                } catch (err) {
+                    console.error('Помилка завантаження відділень:', err);
+                    npWarehouseSearch.placeholder = 'Помилка завантаження';
+                } finally {
+                    npWarehouseLoader.classList.remove('active');
+                }
+            }
+
+            // 4. Логіка пошуку відділень (локально, без додаткових запитів до API)
+            function renderWarehouses(query) {
+                npWarehouseList.innerHTML = '';
+                
+                // Фільтруємо масив відділень
+                const filtered = query 
+                    ? currentWarehouses.filter(w => w.Description.toLowerCase().includes(query.toLowerCase()))
+                    : currentWarehouses;
+
+                if (filtered.length > 0) {
+                    // Показуємо максимум 50 результатів, щоб браузер не гальмував
+                    filtered.slice(0, 50).forEach(w => {
+                        const li = document.createElement('li');
+                        li.textContent = w.Description;
+                        li.addEventListener('click', () => {
+                            npWarehouseSearch.value = w.Description;
+                            npWarehouseHidden.value = w.Description;
+                            npWarehouseList.classList.remove('active');
+                        });
+                        npWarehouseList.appendChild(li);
+                    });
+                    npWarehouseList.classList.add('active');
+                } else {
+                    npWarehouseList.innerHTML = '<li style="color:red; cursor:default;">Відділення не знайдено</li>';
+                    npWarehouseList.classList.add('active');
+                }
+            }
+
+            npWarehouseSearch.addEventListener('input', function() {
+                npWarehouseHidden.value = ''; // Скидаємо приховане значення, поки клієнт не обере зі списку
+                if (currentWarehouses.length > 0) {
+                    renderWarehouses(this.value.trim());
+                }
+            });
+
+            // Відкриваємо список при кліку на поле
+            npWarehouseSearch.addEventListener('focus', function() {
+                if (currentWarehouses.length > 0) {
+                    renderWarehouses(this.value.trim());
+                }
+            });
+
+            // 5. Закривати списки при кліці поза ними
+            document.addEventListener('click', function(e) {
+                if (e.target !== npCitySearch && e.target !== npCityList) {
+                    npCityList.classList.remove('active');
+                }
+                if (e.target !== npWarehouseSearch && e.target !== npWarehouseList) {
+                    npWarehouseList.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

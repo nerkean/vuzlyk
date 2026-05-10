@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %> - Адмін-панель</title>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        .categories-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        .form-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+        }
+        .admin-form-group { margin-bottom: 20px; }
+        .admin-form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .admin-form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color, #cbd5e1); border-radius: var(--radius-sm); }
+        .cat-img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; }
+        
+        @media (max-width: 992px) {
+            .categories-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item">
+                <i class="fa-solid fa-box-open"></i><span>Замовлення</span>
+            </a>
+            <a href="/admin/products" class="nav-item">
+                <i class="fa-solid fa-tags"></i><span>Товари</span>
+            </a>
+            <a href="/admin/categories" class="nav-item active">
+                <i class="fa-solid fa-layer-group"></i><span>Категорії</span>
+            </a>
+            <a href="/admin/blog" class="nav-item">
+                <i class="fa-solid fa-pen-nib"></i><span>Блог</span>
+            </a>
+            <div class="nav-divider"></div>
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="admin-content-wrapper">
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container-fluid">
+                <div class="page-header" style="margin-bottom: 30px;">
+                    <h2 class="page-title">Керування категоріями</h2>
+                    <p class="page-subtitle">Створюйте розділи для каталогу товарів</p>
+                </div>
+
+                <% if (typeof query !== 'undefined' && query.error) { %>
+                    <div style="padding: 15px; background: #fee2e2; color: #b91c1c; border-radius: 8px; margin-bottom: 20px;">
+                        <i class="fa-solid fa-circle-exclamation"></i> Сталася помилка: <%= query.error %>
+                    </div>
+                <% } %>
+
+                <div class="categories-layout">
+                    <div class="form-card">
+                        <h3 style="margin-bottom: 20px; font-size: 18px;">Створити категорію</h3>
+                        <form action="/admin/categories" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            
+                            <div class="admin-form-group">
+                                <label for="name">Назва (напр: Вишивка) <span style="color:red">*</span></label>
+                                <input type="text" id="name" name="name" class="admin-form-control" required>
+                            </div>
+                            
+                            <div class="admin-form-group">
+                                <label for="slug">URL-шлях (напр: vyshyvka) <span style="color:red">*</span></label>
+                                <input type="text" id="slug" name="slug" class="admin-form-control" required placeholder="Тільки латиниця без пробілів">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="description">Опис (для SEO)</label>
+                                <textarea id="description" name="description" class="admin-form-control" rows="3"></textarea>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="order">Порядок сортування (число)</label>
+                                <input type="number" id="order" name="order" class="admin-form-control" value="0">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+                                <i class="fa-solid fa-plus"></i> Додати категорію
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card table-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Існуючі категорії</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Назва</th>
+                                        <th>URL-шлях</th>
+                                        <th>Порядок</th>
+                                        <th class="text-right">Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (categories && categories.length > 0) { %>
+                                        <% categories.forEach(cat => { %>
+                                            <tr>
+                                                <td style="font-weight: 600;"><%= cat.name %></td>
+                                                <td><code style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px;"><%= cat.slug %></code></td>
+                                                <td><%= cat.order %></td>
+                                                <td class="text-right">
+                                                    <form action="/admin/categories/<%= cat._id %>/delete" method="POST" onsubmit="return confirm('Ви впевнені, що хочете видалити категорію?');">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit" class="action-btn delete-btn" title="Видалити">
+                                                            <i class="fa-regular fa-trash-can"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center" style="padding: 30px; color: #86868b;">
+                                            Ще не створено жодної категорії
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const nameInput = document.getElementById('name');
+        const slugInput = document.getElementById('slug');
+        
+        const translit = (str) => {
+            const ru = {
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 
+                'е': 'e', 'є': 'ie', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 
+                'ї': 'i', 'й': 'i', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 
+                'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 
+                'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 
+                'ь': '', 'ю': 'iu', 'я': 'ia', ' ': '-'
+            };
+            return str.toLowerCase().split('').map(char => ru[char] || (/[a-z0-9-]/.test(char) ? char : '')).join('').replace(/-+/g, '-');
+        };
+
+        if(nameInput && slugInput) {
+            nameInput.addEventListener('input', () => {
+                if(!slugInput.value || slugInput.dataset.auto === "true") {
+                    slugInput.value = translit(nameInput.value);
+                    slugInput.dataset.auto = "true";
+                }
+            });
+            slugInput.addEventListener('input', () => { slugInput.dataset.auto = "false"; });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вузлик до вузлика - Ексклюзивна Вишивка Ручної Роботи | Купити Онлайн Україна</title>
+    <meta name="description" content="Майстерня 'Вузлик до вузлика' пропонує унікальну українську вишивку ручної роботи. Замовляйте ексклюзивні вишиванки, вишиті картини та аксесуари, створені з любов'ю. Відкрийте красу традицій у сучасному виконанні. Доставка по Україні та світу.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<%= canonicalUrl %>" />
+    <meta name="csrf-token" content="<%= csrfToken %>">
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="preload" href="/images/image1-original.webp" as="image" 
+          imagesrcset="/images/image1-480w.webp 480w, /images/image1-800w.webp 800w, /images/image1-1200w.webp 1200w, /images/image1-1600w.webp 1600w, /images/image1-original.webp 1920w" 
+          imagesizes="100vw" fetchpriority="high">
+
+    <link rel="preload" href="/css/homepage.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/homepage.css"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+
+    <% if (isProduction) { %>
+        <link rel="preload" href="/dist/main.bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/dist/main.bundle.css"></noscript>
+    <% } else { %>
+        <link rel="stylesheet" href="/dist/main.bundle.css">
+    <% } %>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Store",
+          "@id": "https://vuzlyk.com/#organization",
+          "name": "Вузлик до вузлика",
+          "url": "https://vuzlyk.com/",
+          "logo": "https://vuzlyk.com/images/logo.webp",
+          "image": "https://vuzlyk.com/images/og-image.jpg",
+          "description": "Майстерня унікальної української вишивки ручної роботи. Ексклюзивні вишиванки, вишиті картини та аксесуари, створені з любов'ю та увагою до деталей.",
+          "email": "info@vuzlyk.com",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Бровари",
+            "addressRegion": "Київська область",
+            "addressCountry": "UA"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "50.5106",
+            "longitude": "30.7902"
+          },
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "contactType": "Customer Service",
+              "email": "info@vuzlyk.com",
+              "areaServed": "UA",
+              "availableLanguage": ["Ukrainian", "English"]
+            }
+          ],
+          "founder": {
+            "@type": "Person",
+            "name": "Валентина Юрченко",
+            "jobTitle": "Майстриня вишивки",
+            "image": "https://vuzlyk.com/images/maystrynya.webp",
+            "sameAs": [
+                "https://www.facebook.com/valentina.yurchenko",
+                "https://www.instagram.com/valentyna_embroidery",
+                "https://www.pinterest.com/valentyna_embroidery/"
+            ]
+          },
+          "knowsAbout": [
+            "Українська вишивка", "Вишивка ручної роботи", "Вишиванки", "Аксесуари з вишивкою", "Традиційне мистецтво", "Handmade embroidery", "Етнічний одяг", "Авторські візерунки", "Сучасна вишивка", "Вишиті картини", "Подарунки ручної роботи", "Льон", "Бавовна", "Декор для дому", "Українська культура", "Сімейні традиції", "Ексклюзивні вироби", "Індивідуальне замовлення", "Вишиті аксесуари", "Вишиті серветки", "Весільна вишивка", "Патріотична вишивка", "Символіка України", "Національні орнаменти", "Фольклор", "Крафтові вироби", "Мистецтво вишивки", "Вишивка гладдю", "Вишивка хрестиком"
+          ],
+          "makesOffer": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Вишивка на замовлення"
+              },
+              "url": "https://vuzlyk.com/catalog"
+            }
+          ],
+          "paymentAccepted": "Cash, Credit Card, Bank Transfer",
+          "priceRange": "$$ - $$$",
+          "currenciesAccepted": "UAH, USD, EUR",
+          "areaServed": {
+            "@type": "Country",
+            "name": "Ukraine"
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": [
+                "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+              ],
+              "opens": "09:00",
+              "closes": "20:00"
+            }
+          ],
+          "sameAs": [
+            "https://www.facebook.com/valentina.yurchenko",
+            "https://www.instagram.com/valentyna_embroidery",
+            "https://www.pinterest.com/valentyna_embroidery/"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://vuzlyk.com/#website",
+          "url": "https://vuzlyk.com/",
+          "name": "Вузлик до вузлика",
+          "description": "Вузлик до вузлика - майстерня унікальної української вишивки ручної роботи. Ексклюзивні вишиванки, картини та аксесуари.",
+          "publisher": {
+            "@id": "https://vuzlyk.com/#organization"
+          },
+          "inLanguage": "uk",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://vuzlyk.com/catalog?search={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+    <meta property="og:title" content="Вузлик до вузлика - Ексклюзивна Вишивка Ручної Роботи | Купити Онлайн Україна">
+    <meta property="og:description" content="Майстерня 'Вузлик до вузлика' пропонує унікальну українську вишивку ручної роботи. Замовляйте ексклюзивні вишиванки, картини та аксесуари.">
+    <meta property="og:image" content="https://vuzlyk.com/images/og-image.jpg">
+    <meta property="og:url" content="https://vuzlyk.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Вузлик до вузлика">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Вузлик до вузлика - Ексклюзивна Вишивка Ручної Роботи | Купити Онлайн Україна">
+    <meta name="twitter:description" content="Майстерня 'Вузлик до вузлика' пропонує унікальну українську вишивку ручної роботи. Замовляйте ексклюзивні вишиванки, картини та аксесуари.">
+    <meta name="twitter:image" content="https://vuzlyk.com/images/og-image.jpg">
+</head>
+<body>
+
+    <%- include('partials/header', { cartItemCount: typeof cartItemCount !== 'undefined' ? cartItemCount : 0 }) %>
+
+    <main>
+        <section class="hero">
+            <div class="swiper hero-swiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide hero-slide">
+                        <img
+                            src="/images/image1-original.webp"
+                            srcset="/images/image1-480w.webp 480w,
+                                    /images/image1-800w.webp 800w,
+                                    /images/image1-1200w.webp 1200w,
+                                    /images/image1-1600w.webp 1600w,
+                                    /images/image1-original.webp 1920w"
+                            sizes="100vw"
+                            alt="Приклад вишивки ручної роботи від майстерні Вузлик до вузлика" 
+                            loading="eager" 
+                            fetchpriority="high" 
+                            decoding="async"
+                            width="1920" height="1080" class="hero-slide-img">
+                    </div>
+                    <div class="swiper-slide hero-slide">
+                        <img
+                            src="/images/image2-original.webp"
+                            srcset="/images/image2-480w.webp 480w,
+                                    /images/image2-800w.webp 800w,
+                                    /images/image2-1200w.webp 1200w,
+                                    /images/image2-1600w.webp 1600w,
+                                    /images/image2-original.webp 1920w"
+                            sizes="100vw"
+                            alt="Процес створення української вишивки" loading="lazy" decoding="async"
+                            width="1920" height="1080" class="hero-slide-img">
+                    </div>
+                    <div class="swiper-slide hero-slide">
+                         <img
+                            src="/images/image3-original.webp"
+                            srcset="/images/image3-480w.webp 480w,
+                                    /images/image3-800w.webp 800w,
+                                    /images/image3-1200w.webp 1200w,
+                                    /images/image3-1600w.webp 1600w,
+                                    /images/image3-original.webp 1920w"
+                            sizes="100vw"
+                            alt="Готова вишита картина від Вузлик до вузлика" loading="lazy" decoding="async"
+                            width="1920" height="1080" class="hero-slide-img">
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h1 class="hero-title">
+                    <span>Унікальні</span>
+                    <span>вишивки</span>
+                    </h1>
+                <p data-aos="fade-up" data-aos-delay="600">Мистецтво, втілене у кожному стібку.</p>
+                <a href="/catalog" class="btn btn-primary btn-lg" data-aos="fade-up" data-aos-delay="800">До Колекції<i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </section>
+
+        
+<section class="gift-story-section section-padding">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Подаруйте емоцію, вишиту вручну</h2>
+        <p class="section-subtitle text-center" data-aos="fade-up" data-aos-delay="100">
+            Вишивка — це не просто річ. Це спогад, оберіг, символ любові, який залишається назавжди.
+        </p>
+        <div class="gift-story-grid">
+            <div class="gift-story-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="gift-story-image">
+                    <img src="/images/family.webp" alt="Сімейна реліквія - вишита картина з іменами" loading="lazy">
+                </div>
+                <div class="gift-story-content">
+                    <h3>Збережіть найцінніше</h3>
+                    <p>Створіть унікальну сімейну реліквію — вишиту картину з іменами, важливою датою або символом вашої родини. Це подарунок, що передаватиметься з покоління в покоління.</p>
+                </div>
+            </div>
+
+            <div class="gift-story-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="gift-story-image">
+                    <img src="/images/ukraine.webp" alt="Вишивка пейзажу пам'ятного місця" loading="lazy">
+                </div>
+                <div class="gift-story-content">
+                    <h3>Згадайте особливе місце</h3>
+                    <p>Дім, де ви виросли, місце першого побачення або улюблений пейзаж. Ми можемо вишити будь-яке дороге вашому серцю місце, перетворивши його на витвір мистецтва.</p>
+                </div>
+            </div>
+
+            <div class="gift-story-card" data-aos="fade-up" data-aos-delay="400">
+                <div class="gift-story-image">
+                    <img src="/images/present.webp" alt="Втілення індивідуального ескізу вишивки" loading="lazy">
+                </div>
+                <div class="gift-story-content">
+                    <h3>Втілюйте власну ідею</h3>
+                    <p>Маєте унікальний задум? Розкажіть нам про нього! Ми допоможемо створити вишивку за вашим власним ескізом, щоб ваша мрія стала реальністю, вишитою нитками.</p>
+                    <a href="/product/68060e0fe39ed348e8785150" class="btn btn-secondary btn-sm">Замовити свою вишивку</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section section-padding bg-light">
+            <div class="container grid-container-about">
+<div class="about-image" data-aos="fade-right" data-aos-duration="800">
+
+    <img 
+        src="/images/field-800w.webp"
+        srcset="/images/field-400w.webp 400w, 
+                /images/field-800w.webp 800w, 
+                /images/field-1200w.webp 1200w"
+        sizes="(max-width: 768px) 85vw, 35vw"
+        alt="Процес створення української вишивки ручної роботи в майстерні Вузлик до вузлика" 
+        width="600" height="700" loading="lazy">
+</div>
+                <div class="about-text" data-aos="fade-up" data-aos-duration="800" data-aos-delay="150">
+                    <h2>Історія в Кожному Стібку: Про Майстерню "Вузлик до вузлика"</h2>
+                    <p><strong>"Вузлик до вузлика"</strong> – це творча майстерня, де народжується унікальна українська вишивка. Ми зберігаємо тепло традицій та поєднуємо їх із сучасним баченням, щоб створювати виняткові вишиті вироби, які будуть радувати вас роками та стануть справжньою сімейною цінністю.</p>
+                    <p>Ми віримо, що вишивка – це не просто прикраса, а генетичний код нації, мова символів, що єднає покоління. Кожен виріб у нашій майстерні - це результат кропіткої ручної праці, натхнення та безмежної любові до української культури. Ми використовуємо лише найкращі натуральні матеріали, такі як льон та бавовна, а кожен орнамент несе в собі глибокий зміст та позитивну енергетику.</p>
+                    <p>Наша мета – не просто створювати гарні вишивки, а дарувати вам частинку української душі, тепло наших рук та оберіг на довгі роки. Ми прагнемо, щоб кожна вишита річ від "Вузлик до вузлика" розповідала свою історію та приносила радість своєму власнику.</p>
+                    <a href="/about" class="btn btn-secondary">Дізнатися Більше про Нас</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section section-padding">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">Чому Обирають "Вузлик до вузлика"?</h2>
+                <div class="features-grid">
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="feature-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" aria-hidden="true"><path d="M320 0c17.7 0 32 14.3 32 32l0 208c0 8.8 7.2 16 16 16s16-7.2 16-16l0-176c0-17.7 14.3-32 32-32s32 14.3 32 32l0 176c0 8.8 7.2 16 16 16s16-7.2 16-16l0-112c0-17.7 14.3-32 32-32s32 14.3 32 32l0 195.1c-11.9 4.8-21.3 14.9-25 27.8l-8.9 31.2L478.9 391C460.6 396.3 448 413 448 432c0 18.9 12.5 35.6 30.6 40.9C448.4 497.4 409.9 512 368 512l-19.2 0c-59.6 0-116.9-22.9-160-64L76.4 341c-16-15.2-16.6-40.6-1.4-56.6s40.6-16.6 56.6-1.4l60.5 57.6c0-1.5-.1-3.1-.1-4.6l0-272c0-17.7 14.3-32 32-32s32 14.3 32 32l0 176c0 8.8 7.2 16 16 16s16-7.2 16-16l0-208c0-17.7 14.3-32 32-32s32 14.3 32 32l0 176c0 8.8 7.2 16 16 16s16-7.2 16-16l0-208c0-17.7 14.3-32 32-32zm-7.3 326.6c-1.1-3.9-4.7-6.6-8.7-6.6s-7.6 2.7-8.7 6.6L288 352l-25.4 7.3c-3.9 1.1-6.6 4.7-6.6 8.7s2.7 7.6 6.6 8.7L288 384l7.3 25.4c1.1 3.9 4.7 6.6 8.7 6.6s7.6-2.7 8.7-6.6L320 384l25.4-7.3c3.9-1.1 6.6-4.7 6.6-8.7s-2.7-7.6-6.6-8.7L320 352l-7.3-25.4zM104 120l48.3 13.8c4.6 1.3 7.7 5.5 7.7 10.2s-3.1 8.9-7.7 10.2L104 168 90.2 216.3c-1.3 4.6-5.5 7.7-10.2 7.7s-8.9-3.1-10.2-7.7L56 168 7.7 154.2C3.1 152.9 0 148.7 0 144s3.1-8.9 7.7-10.2L56 120 69.8 71.7C71.1 67.1 75.3 64 80 64s8.9 3.1 10.2 7.7L104 120zM584 408l48.3 13.8c4.6 1.3 7.7 5.5 7.7 10.2s-3.1 8.9-7.7 10.2L584 456l-13.8 48.3c-1.3 4.6-5.5 7.7-10.2 7.7s-8.9-3.1-10.2-7.7L536 456l-48.3-13.8c-4.6-1.3-7.7-5.5-7.7-10.2s3.1-8.9 7.7-10.2L536 408l13.8-48.3c1.3-4.6 5.5-7.7 10.2-7.7s8.9 3.1 10.2 7.7L584 408z"/></svg></div><h3>100% Ручна Робота</h3><p>Кожен виріб створюється вручну з увагою до найменших деталей, зберігаючи тепло рук майстрині.</p></div>
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="200"><div class="feature-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><path d="M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5l88 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-16 0-72 0s0 0 0 0c-16.6 0-32.7 1.9-48.3 5.4c-25.9 5.9-49.9 16.4-71.4 30.7c0 0 0 0 0 0C38.3 298.8 0 364.9 0 440l0 16c0 13.3 10.7 24 24 24s24-10.7 24-24l0-16c0-48.7 20.7-92.5 53.8-123.2C121.6 392.3 190.3 448 272 448l1 0c132.1-.7 239-130.9 239-291.4c0-42.6-7.5-83.1-21.1-119.6c-2.6-6.9-12.7-6.6-16.2-.1C455.9 72.1 418.7 96 376 96L272 96z"/></svg></div><h3>Натуральні Матеріали</h3><p>Використовуємо лише якісні натуральні тканини (льон, бавовна) та нитки, що гарантує довговічність та комфорт.</p></div>
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="300"><div class="feature-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><path d="M512 256c0 .9 0 1.8 0 2.7c-.4 36.5-33.6 61.3-70.1 61.3L344 320c-26.5 0-48 21.5-48 48c0 3.4 .4 6.7 1 9.9c2.1 10.2 6.5 20 10.8 29.9c6.1 13.8 12.1 27.5 12.1 42c0 31.8-21.6 60.7-53.4 62c-3.5 .1-7 .2-10.6 .2C114.6 512 0 397.4 0 256S114.6 0 256 0S512 114.6 512 256zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm0-96a32 32 0 1 0 0-64 32 32 0 1 0 0 64zM288 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 96a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg></div><h3>Унікальні Дизайни</h3><p>Поєднання автентичних українських орнаментів та сучасного стилю, можливість створення індивідового дизайну вишивки.</p></div>
+                    <div class="feature-item" data-aos="fade-up" data-aos-delay="400"><div class="feature-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/></svg></div><h3>Зроблено з Любов'ю</h3><p>Вкладаємо серце в кожну нитку, кожен стіжок, щоб ви отримали не просто вишивку, а справжній оберіг.</p></div>
+                </div>
+            </div>
+        </section>
+
+<section class="categories-section section-padding">
+    <div class="container">
+        <h2 class="section-title" data-aos="fade-up">Наші Категорії</h2>
+        <div class="categories-grid">
+            
+            <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                <% categories.slice(0, 4).forEach((category, index) => { %>
+                    <a href="/catalog?category=<%= category.slug %>" class="category-item" data-aos="fade-up" data-aos-delay="<%= index * 100 %>">
+                        <%
+                            let catImgSrc = '/images/placeholder.svg';
+                            if (typeof category.image === 'string') {
+                                catImgSrc = category.image;
+                            } else if (category.image && category.image.url) {
+                                catImgSrc = category.image.url;
+                            }
+                        %>
+                        <img src="<%= catImgSrc %>" alt="Категорія вишивки: <%= category.name %>" loading="lazy">
+                        <div class="category-item-overlay">
+                            <h3><%= category.name %></h3>
+                        </div>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <a href="/catalog?category=all" class="category-item" data-aos="fade-up" data-aos-delay="100">
+                    <img src="/images/placeholder.svg" alt="Всі товари майстерні" loading="lazy">
+                    <div class="category-item-overlay">
+                        <h3>Всі товари</h3>
+                    </div>
+                </a>
+            <% } %>
+            
+        </div>
+    </div>
+</section>
+
+
+        <section class="featured-products section-padding bg-light">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">Наші Хіти та Новинки Вишивки</h2>
+                <p class="section-subtitle text-center" data-aos="fade-up" data-aos-delay="50">
+                    Ознайомтеся з найпопулярнішими вишитими виробами ручної роботи, які вже підкорили серця наших клієнтів, та нашими останніми творіннями. Кожна річ – це втілення майстерності та української душі.
+                </p>
+                <% if (typeof featuredProducts !== 'undefined' && featuredProducts.length > 0) { %>
+                    <div class="product-grid">
+                        <% featuredProducts.forEach((product, index) => { %>
+                            <article class="product-card" data-aos="fade-up" data-aos-delay="<%= 100 + index * 50 %>">
+                                <div class="product-image-wrapper">
+                                    <a href="/product/<%= product.slug || product._id %>">
+                                        <%
+                                        let featuredImgSrc = '/images/placeholder.svg';
+                                        let imgWidth = 300;
+                                        let imgHeight = 400;
+                                        if (product.images && product.images.length > 0 && product.images[0]) {
+                                            if (product.images[0].medium && product.images[0].medium.url) {
+                                                featuredImgSrc = product.images[0].medium.url;
+                                            } else if (product.images[0].thumb && product.images[0].thumb.url) {
+                                                featuredImgSrc = product.images[0].thumb.url;
+                                            } else if (typeof product.images[0] === 'string') {
+                                                featuredImgSrc = product.images[0];
+                                            }
+                                        }
+                                        %>
+                                        <img src="<%= featuredImgSrc %>"
+                                             alt="Вишивка ручної роботи: <%= product.name %>"
+                                             width="<%= imgWidth %>" height="<%= imgHeight %>" loading="lazy"
+                                             onerror="this.onerror=null; this.src='/images/placeholder.svg';">
+                                        <div class="product-overlay">
+                                            <span class="view-details-btn">Детальніше</span>
+                                        </div>
+                                    </a>
+                                </div>
+<div class="product-info">
+    <button 
+        class="wishlist-btn <%= (wishlistIds && wishlistIds.has(product._id.toString())) ? 'in-wishlist' : '' %>" 
+        data-product-id="<%= product._id %>" 
+        aria-label="Додати в список бажань"
+        <% if (!currentUser) { %>
+            data-redirect-to-login="true"
+        <% } %>
+    >
+        <i class="fa<%= (wishlistIds && wishlistIds.has(product._id.toString())) ? 's' : 'r' %> fa-heart"></i>
+    </button>
+    
+    <a href="/product/<%= product._id %>">
+        <h3><%= product.name %></h3>
+    </a>
+    <p class="price"><%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %></p>
+                                    <button class="btn btn-tertiary add-to-cart-button" data-product-id="<%= product._id %>">
+                                        <svg class="icon icon-cart-plus" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor">
+                                            <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20l44 0 0 44c0 11 9 20 20 20s20-9 20-20l0-44 44 0c11 0 20-9 20-20s-9-20-20-20l-44 0 0-44c0-11-9-20-20-20s-20 9-20 20l0 44-44 0c-11 0-20 9-20 20z"/>
+                                        </svg>
+                                        В кошик
+                                    </button>
+</div>
+                            </article>
+                        <% }); %>
+                    </div>
+                    <div class="text-center" data-aos="fade-up" data-aos-delay="<%= 100 + featuredProducts.length * 50 %>">
+                         <a href="/catalog" class="btn btn-secondary btn-lg">Переглянути Всі Вишивки</a>
+                    </div>
+                <% } else { %>
+                    <p class="text-center">Популярні товари незабаром з'являться.</p>
+                <% } %>
+            </div>
+        </section>
+
+        <% if (typeof recentPosts !== 'undefined' && recentPosts.length > 0) { %>
+        <section class="blog-highlights-section section-padding">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">Цікаве з Нашого Блогу про Вишивку</h2>
+                <div class="blog-highlights-grid">
+                    <% recentPosts.forEach((post, index) => { %>
+                        <article class="blog-post-item-mini" data-aos="fade-up" data-aos-delay="<%= 100 + index * 100 %>">
+                            <% if (post.imageUrl) { %>
+                                <a href="/blog/<%= post.slug %>" class="post-item-image-link-mini">
+                                    <img src="<%= post.imageUrl %>" alt="Стаття: <%= post.title %>" loading="lazy" class="post-item-image-mini">
+                                </a>
+                            <% } %>
+                            <div class="post-item-content-mini">
+                                <h3 class="post-item-title-mini"><a href="/blog/<%= post.slug %>"><%= post.title %></a></h3>
+                                <p class="post-item-summary-mini"><%= post.summary.substring(0, 120) %>...</p>
+                                <a href="/blog/<%= post.slug %>" class="btn btn-tertiary btn-sm">Читати далі</a>
+                            </div>
+                        </article>
+                    <% }); %>
+                </div>
+                <div class="text-center" data-aos="fade-up" data-aos-delay="400">
+                    <a href="/blog" class="btn btn-secondary">Всі Статті Блогу</a>
+                </div>
+            </div>
+        </section>
+        <% } %>
+
+        <section class="testimonials-section section-padding bg-light">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">Що Кажуть Наші Клієнти про Вишивки</h2>
+                <div class="testimonials-grid">
+                    <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="testimonial-rating" role="img" aria-label="Рейтинг 5 зірок"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg></div>
+                        <p class="testimonial-text">Доброго дня, пані Валентино! Отримала ваші чудові поля! Дуже вам дякую! Одне поїде в Мюнхен, а інше полетить в Дубаї. Дуже дякую вам!</p>
+                        <p class="testimonial-author">- Олена</p>
+                    </div>
+                    <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="testimonial-rating" role="img" aria-label="Рейтинг 5 зірок"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg></div>
+                        <p class="testimonial-text">Добрий день, сьогодні забрала замовлення, дякую за таку красу, в реальності ще гарніше ніж на фото і дуже дякую за гарне пакування і неймовірне побажання 🥰🥰🥰😍</p>
+                        <p class="testimonial-author">- Марія</p>
+                    </div>
+                    <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
+                         <div class="testimonial-rating" role="img" aria-label="Рейтинг 5 зірок"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" aria-hidden="true"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/></svg></div>
+                        <p class="testimonial-text">Доброго дня, отримала посилку і відразу подарувала чоловіку, не втерпіла) Це краса неймовірна!!! Пакування, листівка, підставка - все дуже естетичне і ідеально для подарунку🌸Сама вишивка така прекрасна!!! Словами не описати, стільки ніжності та любові❤️❤️❤️Окреме дякую за привітання, це дуже цінно🌸🌸🌸</p>
+                        <p class="testimonial-author">- Маргарита</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="map-section section-padding">
+            <div class="container">
+                <h2 class="section-title" data-aos="fade-up">Наша Географія та Контакти</h2>
+                <p class="section-subtitle text-center" data-aos="fade-up" data-aos-delay="100">
+                    Майстерня "Вузлик до вузлика" з любов'ю створює унікальні вишивки в серці України, у місті Бровари Київської області, та з радістю відправляє їх у будь-який куточок світу, щоб поділитися красою українських традицій.
+                </p>
+                <div class="map-container" data-aos="fade-up" data-aos-delay="200">
+                    <div id="gmap" data-api-key="<%= locals.googleMapsApiKey %>"></div>
+                </div>
+                <div class="map-address-info" data-aos="fade-up" data-aos-delay="250">
+                    <p>Ми працюємо для вас в Україні, Київська область, м. Бровари.</p>
+                    <p>Маєте питання або бажаєте зробити індивідуальне замовлення? Ми завжди на зв'язку!</p>
+                    <a href="/contacts" class="btn btn-secondary">Зв'язатися з Нами</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+     <%- include('partials/footer') %>
+
+<script src="/dist/main.bundle.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" xintegrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+
+    <script defer>
+      document.addEventListener('DOMContentLoaded', function() {
+          if (typeof AOS !== 'undefined') {
+              AOS.init({
+                  once: true,
+                  duration: 700,
+                  easing: 'ease-out-cubic',
+                  offset: 50,
+              });
+          }
+
+          const heroSwiperElement = document.querySelector('.hero-swiper');
+          if (typeof Swiper !== 'undefined' && heroSwiperElement) {
+              const heroSwiper = new Swiper('.hero-swiper', {
+                  loop: true,
+                  effect: 'fade',
+                  fadeEffect: { crossFade: true },
+                  autoplay: { delay: 5000, disableOnInteraction: false },
+                  speed: 1000,
+                  pagination: { el: '.swiper-pagination', clickable: true },
+                  allowTouchMove: false,
+                  slidesPerView: 1,
+                  spaceBetween: 0,
+              });
+          }
+
+          const sideMenu = document.getElementById('side-menu-panel');
+          const toggleBtn = document.querySelector('.mobile-nav-toggle');
+          const closeBtn = document.getElementById('close-menu-btn');
+          
+          function updateMenuA11y(isOpen) {
+              if (!sideMenu) return;
+              if (isOpen) {
+                  sideMenu.removeAttribute('aria-hidden');
+                  sideMenu.style.visibility = 'visible';
+                  sideMenu.querySelectorAll('a, button').forEach(el => el.setAttribute('tabindex', '0'));
+              } else {
+                  sideMenu.setAttribute('aria-hidden', 'true');
+                  sideMenu.style.visibility = 'hidden';
+                  sideMenu.querySelectorAll('a, button').forEach(el => el.setAttribute('tabindex', '-1'));
+              }
+          }
+
+          updateMenuA11y(false);
+
+          if (toggleBtn) {
+              toggleBtn.addEventListener('click', () => updateMenuA11y(true));
+          }
+          if (closeBtn) {
+              closeBtn.addEventListener('click', () => updateMenuA11y(false));
+          }
+
+       async function initMap() {
+    const mapLocation = { lat: 50.5106, lng: 30.7902 }; 
+    const mapZoom = 12; 
+
+    const { Map } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+    const mapOptions = {
+        zoom: mapZoom,
+        center: mapLocation,
+        mapId: "DEMO_MAP_ID", 
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
+        styles: [
+            { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+            { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+            { featureType: "administrative.neighborhood", stylers: [{ visibility: "off" }] },
+        ]
+    };
+
+    const map = new Map(document.getElementById("gmap"), mapOptions);
+
+    const marker = new AdvancedMarkerElement({
+        position: mapLocation,
+        map: map,
+        title: "Майстерня 'Вузлик до вузлика', м. Бровари",
+    });
+
+    const infowindow = new google.maps.InfoWindow({
+        content: `<h5>Вузлик до вузлика</h5><p>Наша майстерня знаходиться тут.<br>Завітайте до нас онлайн!</p>`
+    });
+    
+    marker.addListener('click', function() {
+        infowindow.open({
+            anchor: marker,
+            map: map,
+        });
+    });
+}
+
+
+         const mapElement = document.getElementById('gmap');
+        if (mapElement) {
+            const mapObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const mapsApiKey = mapElement.dataset.apiKey;
+                        if (mapsApiKey && mapsApiKey !== 'undefined' && mapsApiKey !== '') {
+                            if (!window.google || !window.google.maps) {
+                                const script = document.createElement('script');
+                                script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsApiKey}&callback=initMap&loading=async&defer`;
+                                script.onerror = () => console.error("Google Maps script failed to load.");
+                                document.head.appendChild(script);
+                                window.initMap = initMap;
+                            }
+                        } else {
+                            console.warn("Google Maps API Key is not configured.");
+                            mapElement.innerHTML = '<p style="text-align:center; padding-top:50px;">Карта тимчасово недоступна.</p>';
+                        }
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: "100px" }); 
+
+            mapObserver.observe(mapElement);
+            }
+      });
+    </script>
+    <% if (isProduction && gaMeasurementId) { %>
+<script defer>
+    setTimeout(() => {
+        const gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=<%= gaMeasurementId %>';
+        document.head.appendChild(gtagScript);
+
+        gtagScript.onload = () => {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17036727455');
+            gtag('config', '<%= gaMeasurementId %>');
+            console.log('GA4 Initialized with ID (delayed):', '<%= gaMeasurementId %>');
+        };
+    }, 3000); 
+</script>
+<% } %>
+</body>
+</html>

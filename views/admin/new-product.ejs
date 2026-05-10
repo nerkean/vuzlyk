@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle %> - Адмін-панель</title>
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    
+    <style>
+        .admin-form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 30px 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+        }
+        .form-section:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-section-title i {
+            color: var(--brand-primary);
+        }
+
+        .admin-form-group { margin-bottom: 20px; }
+        
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        
+        .admin-form-group label small {
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-left: 5px;
+        }
+        
+        .admin-form-group .required { color: #ef4444; margin-left: 3px; }
+
+        .admin-form-control, 
+        .admin-form-group input[type="text"], 
+        .admin-form-group input[type="number"], 
+        .admin-form-group textarea, 
+        .admin-form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color, #cbd5e1);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--text-primary);
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .admin-form-control:focus, 
+        .admin-form-group input:focus, 
+        .admin-form-group textarea:focus, 
+        .admin-form-group select:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(185, 147, 108, 0.15);
+        }
+
+        .admin-form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .admin-form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .file-upload-wrapper {
+            border: 2px dashed var(--border-color, #cbd5e1);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .file-upload-wrapper:hover {
+            border-color: var(--brand-primary);
+            background-color: #fff;
+        }
+        .file-upload-wrapper input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            cursor: pointer;
+        }
+        .file-upload-content i {
+            font-size: 30px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .file-upload-content p {
+            margin: 0 0 5px 0;
+            font-weight: 500;
+        }
+        .file-upload-content small {
+            color: var(--text-secondary);
+        }
+
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color, #e2e8f0);
+            overflow: hidden;
+            background: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+        .image-preview-item img, .image-preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .file-name-preview {
+            display: none;
+        }
+        .btn-remove-preview {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .btn-remove-preview:hover {
+            background: rgb(185, 28, 28);
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color, #e2e8f0);
+            transition: all 0.2s;
+        }
+        .checkbox-group label:hover {
+            background: #f1f5f9;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand-primary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .seo-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .seo-input-group textarea {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .admin-form-container { padding: 20px; }
+            .form-row { flex-direction: column; gap: 20px; }
+            .seo-input-group { flex-direction: column; }
+            .seo-input-group .btn { width: 100%; }
+            .form-actions { flex-direction: column; }
+            .form-actions .btn { width: 100%; text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h2>Адмін-панель</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/orders" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'orders' ? 'active' : '' %>">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Замовлення</span>
+            </a>
+            <a href="/admin/products" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'products' || typeof pageName === 'undefined' ? 'active' : '' %>">
+                <i class="fa-solid fa-tags"></i>
+                <span>Товари</span>
+            </a>
+            <a href="/admin/categories" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'categories' ? 'active' : '' %>">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Категорії</span>
+            </a>
+            <a href="/admin/blog" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'blog' ? 'active' : '' %>">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>Блог</span>
+            </a>
+            <a href="/admin/blog/html-guide" class="nav-item <%= typeof pageName !== 'undefined' && pageName === 'html-guide' ? 'active' : '' %>">
+                <i class="fa-solid fa-code"></i>
+                <span>HTML Інструкція</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            
+            <a href="/admin/logout" class="nav-item logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Вийти</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="admin-content-wrapper">
+        <header class="admin-topbar">
+            <div class="topbar-left">
+                <button id="mobileMenuBtn" class="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div style="font-weight: 500; color: var(--text-secondary);">
+                    <a href="/admin/products" style="color: inherit; text-decoration: none;">Товари</a> 
+                    <i class="fa-solid fa-chevron-right" style="font-size: 10px; margin: 0 8px;"></i> 
+                    Створення товару
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-main">
+            <div class="container-fluid">
+                <div class="page-header" style="margin-bottom: 20px;">
+                    <div>
+                        <h2 class="page-title"><%= pageTitle %></h2>
+                    </div>
+                </div>
+
+                <%
+                let errorMessage = null;
+                if (locals.error) {
+                    if (locals.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
+                    else if (locals.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
+                    else if (locals.error === 'file_type') errorMessage = 'Дозволено завантажувати лише файли зображень (jpg, jpeg, png, gif, webp).';
+                    else if (locals.error === 'no_image') errorMessage = 'Будь ласка, завантажте хоча б одне зображення товару.';
+                    else errorMessage = locals.error;
+                } else if (typeof query !== 'undefined' && query.error) {
+                    if (query.error === 'validation') errorMessage = 'Будь ласка, заповніть усі обов\'язкові поля.';
+                    else if (query.error === 'price_validation') errorMessage = 'Максимальна ціна не може бути меншою за мінімальну.';
+                    else errorMessage = 'Сталася помилка. Спробуйте ще раз.';
+                }
+                %>
+                <% if (errorMessage) { %>
+                    <div class="error-message">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span><%= errorMessage %></span>
+                    </div>
+                <% } %>
+
+                <div class="admin-form-container">
+                    <form method="POST" action="/admin/products" enctype="multipart/form-data" id="newProductForm">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-circle-info"></i> Основна інформація</h3>
+                            
+                            <div class="admin-form-group">
+                                <label for="name">Назва товару <span class="required">*</span></label>
+                                <input type="text" id="name" name="name" required value="<%= locals.formData?.name || '' %>" placeholder="Наприклад: Вишиванка жіноча 'Червона рута'">
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="description">Опис товару <span class="required">*</span></label>
+                                <textarea id="description" name="description" rows="5" required placeholder="Детальний опис товару, його особливостей та переваг..."><%= locals.formData?.description || '' %></textarea>
+                            </div>
+
+                                                        <div class="form-row">
+                                <div class="admin-form-group">
+                                    <label for="category">Категорія <span class="required">*</span></label>
+                                    <select name="category" id="category" class="admin-form-control" required>
+                                        <option value="" disabled selected>Оберіть категорію</option>
+                                        <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                                            <% categories.forEach(cat => { %>
+                                                <option value="<%= cat.name %>" <%= (typeof formData !== 'undefined' && formData.category === cat.name) ? 'selected' : '' %>><%= cat.name %></option>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <option value="Вишивка">Вишивка</option>
+                                            <option value="Аксесуари">Аксесуари</option>
+                                        <% } %>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="sku">Артикул (SKU) <small>(необов'язково)</small></label>
+                                    <input type="text" id="sku" name="sku" class="admin-form-control" value="<%= typeof formData !== 'undefined' ? formData.sku : '' %>" placeholder="Напр: VSH-001">
+                                    <small style="display:block; margin-top:4px;">Генерується автоматично, якщо порожньо</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-tag"></i> Ціна та наявність</h3>
+                            
+                            <div class="form-row" style="margin-bottom: 20px;">
+                                <div class="admin-form-group">
+                                    <label for="price">Основна ціна (грн) <span class="required">*</span></label>
+                                    <input type="number" id="price" name="price" required min="0" step="0.01" value="<%= locals.formData?.price || '' %>" placeholder="0.00">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="maxPrice">Максимальна ціна (грн) <small>(якщо є діапазон)</small></label>
+                                    <input type="number" id="maxPrice" name="maxPrice" min="0" step="0.01" value="<%= locals.formData?.maxPrice || '' %>" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="admin-form-group">
+                                    <label for="status">Статус товару <span class="required">*</span></label>
+                                    <select id="status" name="status" required class="admin-form-control">
+                                        <option value="Під замовлення" <%= (locals.formData?.status === 'Під замовлення' || !locals.formData?.status) ? 'selected' : '' %>>Під замовлення</option>
+                                        <option value="В наявності" <%= (locals.formData?.status === 'В наявності') ? 'selected' : '' %>>В наявності</option>
+                                        <option value="Немає в наявності" <%= (locals.formData?.status === 'Немає в наявності') ? 'selected' : '' %>>Немає в наявності</option>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="creation_time_info">Термін виготовлення / доставки <span class="required">*</span></label>
+                                    <input type="text" id="creation_time_info" name="creation_time_info" required placeholder="Наприклад: 5-7 робочих днів" value="<%= locals.formData?.creation_time_info || '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-regular fa-images"></i> Медіафайли</h3>
+                            
+                            <div class="admin-form-group">
+                                <label>Зображення товару <span class="required">*</span> <small>(від 1 до 10 файлів)</small></label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="imageFiles" name="imageFiles" multiple required accept="image/png, image/jpeg, image/jpg, image/gif, image/webp">
+                                    <div class="file-upload-content">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                        <p>Натисніть або перетягніть файли сюди</p>
+                                        <small>Дозволені формати: JPG, PNG, WEBP (до 10MB). Можна додавати частинами.</small>
+                                    </div>
+                                </div>
+                                <div class="image-preview-container" id="imagePreviewContainerNew"></div>
+                            </div>
+
+                            <div class="admin-form-group" style="margin-top: 30px;">
+                                <label for="livePhotoFile">"Живе" фото або відео (GIF/MP4) <small>(необов'язково)</small></label>
+                                <div class="file-upload-wrapper" style="padding: 15px;">
+                                    <input type="file" id="livePhotoFile" name="livePhotoFile" accept="image/gif,video/mp4,video/webm">
+                                    <div class="file-upload-content">
+                                        <i class="fa-solid fa-film"></i>
+                                        <p style="font-size: 14px;">Завантажити анімацію при наведенні</p>
+                                        <small>GIF, MP4, WebM до 5MB</small>
+                                    </div>
+                                </div>
+                                <div class="image-preview-container" id="livePhotoPreviewContainer"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-list-ul"></i> Характеристики</h3>
+                            
+                            <div class="form-row" style="margin-bottom: 20px;">
+                                <div class="admin-form-group">
+                                    <label for="materials">Матеріали <small>(через кому)</small></label>
+                                    <input type="text" id="materials" name="materials" placeholder="Напр: Льон 100%, Бавовна" value="<%= locals.formData?.materials ? (Array.isArray(locals.formData.materials) ? locals.formData.materials.join(', ') : locals.formData.materials) : '' %>">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="colors">Кольори <small>(через кому)</small></label>
+                                    <input type="text" id="colors" name="colors" placeholder="Напр: Білий, Червоний з чорним" value="<%= locals.formData?.colors ? (Array.isArray(locals.formData.colors) ? locals.formData.colors.join(', ') : locals.formData.colors) : '' %>">
+                                </div>
+                            </div>
+
+                            <div class="admin-form-group">
+                                <label for="care_instructions">Інструкції по догляду</label>
+                                <textarea id="care_instructions" name="care_instructions" rows="2" placeholder="Напр: Делікатне прання при 30 градусах..."><%= locals.formData?.care_instructions || '' %></textarea>
+                            </div>
+                            
+                            <div class="admin-form-group">
+                                <label for="tags">Теги для пошуку <small>(через кому)</small></label>
+                                <input type="text" id="tags" name="tags" placeholder="Напр: вишиванка, жіноча, подарунок" value="<%= locals.formData?.tags ? (Array.isArray(locals.formData.tags) ? locals.formData.tags.join(', ') : locals.formData.tags) : '' %>">
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3 class="form-section-title"><i class="fa-solid fa-magnifying-glass-chart"></i> SEO та відображення</h3>
+                            
+                            <div class="admin-form-group">
+                                <label for="metaDescription">Meta Опис (для Google)</label>
+                                <div class="seo-input-group">
+                                    <textarea id="metaDescription" name="metaDescription" rows="2" maxlength="170" class="admin-form-control" placeholder="Короткий опис для результатів пошуку (до 170 символів)..."><%= locals.formData?.metaDescription || '' %></textarea>
+                                    <button type="button" id="generateMetaDescBtn" class="btn btn-secondary">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Згенерувати AI
+                                    </button>
+                                </div>
+                                <div id="metaDescCounter" style="font-size: 12px; text-align: left; color: var(--text-muted); margin-top: 5px;">0 / 170 символів</div>
+                            </div>
+
+                            <div class="admin-form-group checkbox-group" style="margin-top: 20px;">
+                                <label>
+                                    <input type="checkbox" name="isFeatured" <%= locals.formData?.isFeatured ? 'checked' : '' %>>
+                                    <span>Показувати товар у блоці "Наші Хіти" на головній сторінці</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-size: 16px;">
+                                <i class="fa-solid fa-save"></i> Зберегти товар
+                            </button>
+                            <a href="/admin/products" class="btn btn-secondary" style="padding: 12px 24px; font-size: 16px;">
+                                Скасувати
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (mobileBtn && sidebar) {
+                mobileBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const metaDescTextarea = document.getElementById('metaDescription');
+            const metaDescCounter = document.getElementById('metaDescCounter');
+            const metaDescMaxLength = 170; 
+
+            function updateMetaCounter() {
+                if (!metaDescTextarea || !metaDescCounter) return;
+                const currentLength = metaDescTextarea.value.length;
+                metaDescCounter.textContent = `${currentLength} / ${metaDescMaxLength} символів`;
+                if (currentLength > metaDescMaxLength) {
+                    metaDescCounter.style.color = '#ef4444';
+                } else if (currentLength > metaDescMaxLength - 20) { 
+                    metaDescCounter.style.color = '#f59e0b';
+                } else {
+                    metaDescCounter.style.color = 'var(--text-muted)';
+                }
+            }
+
+            if (metaDescTextarea && metaDescCounter) {
+                metaDescTextarea.addEventListener('input', updateMetaCounter);
+                updateMetaCounter(); 
+            }
+
+            const imageInput = document.getElementById('imageFiles');
+            const previewContainer = document.getElementById('imagePreviewContainerNew'); 
+            const productForm = document.getElementById('newProductForm'); 
+            let selectedFiles = []; 
+            const MAX_FILES = 10; 
+    
+            function updatePreview() {
+                if (!previewContainer) return;
+                previewContainer.innerHTML = ''; 
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.classList.add('image-preview-item');
+
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button'; 
+                        removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>'; 
+                        removeBtn.dataset.index = index;
+                        removeBtn.classList.add('btn-remove-preview'); 
+                        removeBtn.title = 'Видалити фото';
+                
+                        removeBtn.addEventListener('click', handleRemoveFile);
+                
+                        previewItem.appendChild(img);
+                        previewItem.appendChild(removeBtn); 
+                        previewContainer.appendChild(previewItem);
+                    }
+                    reader.readAsDataURL(file);
+                });
+                
+                if (imageInput) imageInput.required = selectedFiles.length === 0;
+            }
+    
+            if (imageInput) {
+                imageInput.addEventListener('change', function(event) {
+                    if (event.target.files) {
+                        const filesToAdd = Array.from(event.target.files);
+                        const currentTotal = selectedFiles.length + filesToAdd.length;
+            
+                        if (currentTotal > MAX_FILES) {
+                            alert(`Ви можете завантажити максимум ${MAX_FILES} зображень. Ви намагаєтесь додати ${currentTotal}.`);
+                            event.target.value = null; 
+                            return;
+                        }
+                        selectedFiles.push(...filesToAdd);
+                        updatePreview();
+                        event.target.value = null;
+                    }
+                });
+            }
+    
+            function handleRemoveFile(event) {
+                const btn = event.currentTarget;
+                const indexToRemove = parseInt(btn.dataset.index, 10);
+                if (!isNaN(indexToRemove) && indexToRemove >= 0 && indexToRemove < selectedFiles.length) {
+                    selectedFiles.splice(indexToRemove, 1);
+                    updatePreview();
+                }
+            }
+
+            const livePhotoInput = document.getElementById('livePhotoFile');
+            const livePhotoPreviewContainer = document.getElementById('livePhotoPreviewContainer');
+
+            if (livePhotoInput && livePhotoPreviewContainer) {
+                livePhotoInput.addEventListener('change', function(event) {
+                    livePhotoPreviewContainer.innerHTML = ''; 
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            const previewItem = document.createElement('div');
+                            previewItem.classList.add('image-preview-item'); 
+
+                            let mediaElement;
+                            if (file.type.startsWith('image/gif')) {
+                                mediaElement = document.createElement('img');
+                            } else if (file.type.startsWith('video/')) {
+                                mediaElement = document.createElement('video');
+                                mediaElement.autoplay = true;
+                                mediaElement.loop = true;
+                                mediaElement.muted = true; 
+                                mediaElement.setAttribute('playsinline', ''); 
+                            } else {
+                                livePhotoPreviewContainer.textContent = 'Непідтримуваний тип файлу.';
+                                return;
+                            }
+                            
+                            mediaElement.src = e.target.result;
+                            previewItem.appendChild(mediaElement);
+                            
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button'; 
+                            removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>'; 
+                            removeBtn.classList.add('btn-remove-preview'); 
+                            removeBtn.onclick = function() {
+                                livePhotoInput.value = null;
+                                livePhotoPreviewContainer.innerHTML = '';
+                            };
+                            previewItem.appendChild(removeBtn);
+
+                            livePhotoPreviewContainer.appendChild(previewItem);
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            const generateMetaBtn = document.getElementById('generateMetaDescBtn');
+            const productNameInput = document.getElementById('name');
+            const productDescriptionTextarea = document.getElementById('description');
+
+            if (generateMetaBtn && productNameInput && productDescriptionTextarea && metaDescTextarea) {
+                generateMetaBtn.addEventListener('click', async function() {
+                    const productName = productNameInput.value.trim();
+                    const productDescription = productDescriptionTextarea.value.trim();
+
+                    if (!productName || !productDescription) {
+                        alert('Будь ласка, введіть назву та опис товару для генерації мета-опису.');
+                        return;
+                    }
+                    
+                    const originalBtnContent = this.innerHTML;
+                    this.disabled = true;
+                    this.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Генеруємо...`;
+
+                    try {
+                        const response = await fetch('/admin/generate-meta-description', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'CSRF-Token': csrfToken 
+                            },
+                            body: JSON.stringify({ productName: productName, productDescription: productDescription })
+                        });
+                        
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.message || `Помилка сервера: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        if (data.metaDescription) {
+                            metaDescTextarea.value = data.metaDescription;
+                            updateMetaCounter(); 
+                            
+                            metaDescTextarea.style.borderColor = '#10b981';
+                            metaDescTextarea.style.backgroundColor = '#ecfdf5';
+                            setTimeout(() => {
+                                metaDescTextarea.style.borderColor = '';
+                                metaDescTextarea.style.backgroundColor = '';
+                            }, 1500);
+                        } else {
+                            alert('Не вдалося згенерувати мета-опис.');
+                        }
+                    } catch (error) {
+                        console.error('Помилка генерації мета-опису:', error);
+                        alert(`Помилка: ${error.message}`);
+                    } finally {
+                        this.disabled = false;
+                        this.innerHTML = originalBtnContent;
+                    }
+                });
+            }
+            
+            if (productForm) {
+                productForm.addEventListener('submit', async function(event) {
+                    event.preventDefault(); 
+                
+                    if (selectedFiles.length === 0) {
+                        alert('Будь ласка, додайте хоча б одне зображення товару.');
+                        
+                        document.querySelector('.file-upload-wrapper').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
+                    const submitButton = this.querySelector('button[type="submit"]');
+                    const originalBtnContent = submitButton.innerHTML;
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Збереження...`;
+
+                    const formData = new FormData();
+
+                    const formElements = this.elements;
+                    for (let i = 0; i < formElements.length; i++) {
+                        const element = formElements[i];
+                        if (element.name && element.type !== 'file' && element.type !== 'submit' && element.type !== 'button') {
+                            if (element.type === 'checkbox') {
+                                if (element.checked) formData.append(element.name, 'on');
+                            } else {
+                                formData.append(element.name, element.value);
+                            }
+                        }
+                    }
+
+                    selectedFiles.forEach(file => {
+                        formData.append('imageFiles', file);
+                    });
+                    
+                    if (livePhotoInput.files[0]) {
+                        formData.append('livePhotoFile', livePhotoInput.files[0]);
+                    }
+
+                    try {
+                        const response = await fetch('/admin/products', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            window.location.href = '/admin/products';
+                        } else {
+                            const errorData = await response.json().catch(() => ({ error: 'Помилка сервера.' }));
+                            if (response.status === 403 || (errorData.message && errorData.message.includes('csrf'))) {
+                                 alert('Помилка безпеки сесії. Будь ласка, оновіть сторінку.');
+                            } else {
+                                 alert(`Помилка збереження: ${errorData.error || errorData.message || response.statusText}`);
+                            }
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalBtnContent;
+                        }
+                    } catch (error) {
+                        console.error('Помилка при відправці форми:', error);
+                        alert('Помилка підключення до сервера.');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalBtnContent;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
