@@ -687,8 +687,8 @@ app.post('/cart/update', (req, res) => {
           message: 'Кількість оновлено',
           cartItemCount: newCartItemCount,
           itemLineTotal: itemLineTotal, 
-          subtotal: subtotal,     
-          total: total,         
+          subtotal: subtotal,    
+          total: total,        
           selectedCurrency: res.locals.selectedCurrency,
           exchangeRates: res.locals.exchangeRates,
           currencySymbols: res.locals.currencySymbols
@@ -1253,6 +1253,23 @@ app.get('/faq', csrfProtection, (req, res) => {
     res.render('faq', {
         pageTitle: 'Часті питання - Вузлик до вузлика',
         metaDescription: 'Відповіді на найпоширеніші питання про замовлення, доставку, оплату та догляд за виробами майстерні «Вузлик до вузлика».',
+        csrfToken: req.csrfToken()
+    });
+});
+
+// НОВІ МАРШРУТИ: Terms of Service та Privacy Policy
+app.get('/terms', csrfProtection, (req, res) => {
+    res.render('terms-of-service', {
+        pageTitle: 'Умови використання - Вузлик до вузлика',
+        metaDescription: 'Правила та умови використання сайту майстерні ручної вишивки «Вузлик до вузлика».',
+        csrfToken: req.csrfToken()
+    });
+});
+
+app.get('/privacy-policy', csrfProtection, (req, res) => {
+    res.render('privacy-policy', {
+        pageTitle: 'Політика конфіденційності - Вузлик до вузлика',
+        metaDescription: 'Інформація про те, як ми збираємо, використовуємо та захищаємо ваші персональні дані.',
         csrfToken: req.csrfToken()
     });
 });
