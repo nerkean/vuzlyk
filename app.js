@@ -1329,9 +1329,7 @@ app.get('/feeds/google-shopping.xml', async (req, res) => {
                 let imageUrl = '';
                 if (product.images && product.images.length > 0 && product.images[0].large) {
                     imageUrl = product.images[0].large.url;
-                    if (!imageUrl.startsWith('http')) {
-                        imageUrl = new URL(imageUrl, baseUrl).href;
-                    }
+                    if (!imageUrl.startsWith('http')) imageUrl = new URL(imageUrl, baseUrl).href;
                 } else {
                     imageUrl = `${baseUrl}/images/placeholder.svg`;
                 }
@@ -1339,17 +1337,24 @@ app.get('/feeds/google-shopping.xml', async (req, res) => {
                 const productLink = `${baseUrl}/product/${product.slug || product._id}`;
                 const description = (product.description || product.name)
                                     .replace(/<[^>]*>?/gm, '')
-                                    .replace(/&/g, '&amp;') 
+                                    .replace(/&/g, '&amp;')
                                     .replace(/</g, '&lt;')
                                     .replace(/>/g, '&gt;');
                 
                 const title = product.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                
                 const productType = product.category ? `<g:product_type><![CDATA[${product.category}]]></g:product_type>` : '';
                 
                 let availability = 'in_stock';
-                if (product.status === 'Продано') availability = 'out_of_stock';
-                if (product.status === 'Під замовлення') availability = 'preorder';
+                let availabilityDateXml = '';
+
+                if (product.status === 'Продано') {
+                    availability = 'out_of_stock';
+                } else if (product.status === 'Під замовлення') {
+                    availability = 'preorder';
+                    const readyDate = new Date();
+                    readyDate.setDate(readyDate.getDate() + 14);
+                    availabilityDateXml = `<g:availability_date>${readyDate.toISOString()}</g:availability_date>`;
+                }
 
                 xml += `
     <item>
@@ -1360,6 +1365,7 @@ app.get('/feeds/google-shopping.xml', async (req, res) => {
         <g:image_link>${imageUrl}</g:image_link>
         <g:condition>new</g:condition>
         <g:availability>${availability}</g:availability>
+        ${availabilityDateXml}
         <g:price>${product.price}.00 UAH</g:price>
         <g:brand>Вузлик до вузлика</g:brand>
         ${productType}
