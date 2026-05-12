@@ -116,19 +116,16 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(compression());
-app.use(express.static(path.join(__dirname, 'public')));
 
-if (process.env.NODE_ENV === 'production') {
-  app.use('/dist', express.static(path.join(__dirname, 'public', 'dist'), {
-    immutable: true,
-    maxAge: '1y' 
-  }));
+// ИСПРАВЛЕНИЕ 1: Глобальное кэширование статики
+// Раньше у тебя express.static('/') перехватывал запросы ДО того, как срабатывали
+// специфичные правила для /dist. Из-за этого кэш не применялся правильно.
+// Теперь мы применяем политику кэширования в 1 год ('365d') на ВСЮ папку public в продакшене.
+const staticOptions = process.env.NODE_ENV === 'production' 
+    ? { maxAge: '365d', immutable: true } 
+    : {};
 
-  app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), {
-    immutable: true,
-    maxAge: '1y'
-  }));
-}
+app.use(express.static(path.join(__dirname, 'public'), staticOptions));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -1257,7 +1254,6 @@ app.get('/faq', csrfProtection, (req, res) => {
     });
 });
 
-// НОВІ МАРШРУТИ: Terms of Service та Privacy Policy
 app.get('/terms', csrfProtection, (req, res) => {
     res.render('terms-of-service', {
         pageTitle: 'Умови використання - Вузлик до вузлика',
@@ -1350,7 +1346,7 @@ if (!process.env.RECAPTCHA_V2_SECRET_KEY) {
             });
         }
 
-        const mailSubject = subject ? `Повідомлення з сайту Вузлик: ${subject}` : `Нове повідомлення з контактної форми Вузлик від ${name}`;
+        const mailSubject = subject ? `Повідомлення з сайту Вузлик: ${subject}` : `Нове повідомлення з контактної форми Вузлик от ${name}`;
         const mailText = `Ім'я: ${name}\nEmail: ${email}\nТелефон: ${phone || 'Не вказано'}\nТема: ${subject || 'Без теми'}\n\nПовідомлення:\n${message}`;
         const mailHtml = `<p><strong>Ім'я:</strong> ${name}</p><p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p><p><strong>Телефон:</strong> ${phone || 'Не вказано'}</p><p><strong>Тема:</strong> ${subject || 'Без теми'}</p><hr><p><strong>Повідомлення:</strong></p><p style="white-space: pre-wrap;">${message}</p>`;
 
