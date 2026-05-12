@@ -1307,6 +1307,80 @@ app.get('/feeds/local-inventory.txt', async (req, res) => {
     }
 });
 
+app.get('/feeds/google-shopping.xml', async (req, res) => {
+    try {
+        const cacheKey = 'google_shopping_primary_feed';
+        let feedContent = cache.get(cacheKey); 
+        
+        if (!feedContent) {
+            const products = await Product.find({}).lean();
+            const baseUrl = process.env.BASE_URL || 'https://vuzlyk.com';
+            
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+<channel>
+    <title>Вузлик до вузлика - Каталог товарів</title>
+    <link>${baseUrl}</link>
+    <description>Ексклюзивна ручна вишивка від майстерні "Вузлик до вузлика"</description>`;
+
+            products.forEach(product => {
+                if (!product.name || !product.price) return;
+
+                let imageUrl = '';
+                if (product.images && product.images.length > 0 && product.images[0].large) {
+                    imageUrl = product.images[0].large.url;
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = new URL(imageUrl, baseUrl).href;
+                    }
+                } else {
+                    imageUrl = `${baseUrl}/images/placeholder.svg`;
+                }
+
+                const productLink = `${baseUrl}/product/${product.slug || product._id}`;
+                const description = (product.description || product.name)
+                                    .replace(/<[^>]*>?/gm, '')
+                                    .replace(/&/g, '&amp;') 
+                                    .replace(/</g, '&lt;')
+                                    .replace(/>/g, '&gt;');
+                
+                const title = product.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                const productType = product.category ? `<g:product_type><![CDATA[${product.category}]]></g:product_type>` : '';
+                
+                let availability = 'in_stock';
+                if (product.status === 'Продано') availability = 'out_of_stock';
+                if (product.status === 'Під замовлення') availability = 'preorder';
+
+                xml += `
+    <item>
+        <g:id>${product._id}</g:id>
+        <g:title>${title}</g:title>
+        <g:description>${description}</g:description>
+        <g:link>${productLink}</g:link>
+        <g:image_link>${imageUrl}</g:image_link>
+        <g:condition>new</g:condition>
+        <g:availability>${availability}</g:availability>
+        <g:price>${product.price}.00 UAH</g:price>
+        <g:brand>Вузлик до вузлика</g:brand>
+        ${productType}
+    </item>`;
+            });
+
+            xml += `
+</channel>
+</rss>`;
+
+            feedContent = xml;
+            cache.set(cacheKey, feedContent, 3600); 
+        }
+
+        res.header('Content-Type', 'application/xml');
+        res.send(feedContent);
+    } catch (error) {
+        console.error("Помилка генерації Основного фіда Google:", error);
+        res.status(500).send('Помилка сервера при генерації фіда');
+    }
+});
 
 app.post('/contacts/send', csrfProtection, async (req, res) => {
     const { name, email, phone, subject, message } = req.body;
