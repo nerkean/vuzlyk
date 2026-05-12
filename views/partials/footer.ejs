@@ -4,7 +4,9 @@
     <div class="container">
         <div class="footer-main-content">
             
+            <!-- Блок Бренду -->
             <div class="footer-brand-info">
+                <!-- Змінено h4 на h2 -->
                 <h2 class="footer-brand-heading">Вузлик до вузлика</h2>
                 <p class="footer-tagline">Вишиваємо ваші почуття, емоції та спогади.</p>
                 
@@ -22,13 +24,16 @@
                 </div>
             </div>
 
+            <!-- Блок Анімації -->
             <div class="footer-animation-column" data-aos="fade-up" data-aos-delay="100">
                 <canvas id="embroidery-canvas"></canvas>
                 <p class="animation-caption">Нитка долі, вузлик пам'яті</p>
             </div>
 
+            <!-- Блок Навігації -->
             <nav class="footer-nav-links">
                 <div class="footer-nav-column">
+                    <!-- Змінено h5 на h3 -->
                     <h3 class="footer-nav-heading">Навігація</h3>
                     <ul>
                         <li><a href="/about">Про нас</a></li>
@@ -38,6 +43,7 @@
                     </ul>
                 </div>
                 <div class="footer-nav-column">
+                    <!-- Змінено h5 на h3 -->
                     <h3 class="footer-nav-heading">Підтримка</h3>
                     <ul>
                         <li><a href="/faq">Часті Питання</a></li>
@@ -49,6 +55,7 @@
 
         </div>
 
+        <!-- Нижній бар -->
         <div class="footer-bottom-bar">
             <div class="copyright">
                 &copy; <%= new Date().getFullYear() %> Вузлик. Всі права захищено.
@@ -61,24 +68,3 @@
     
     <script src="/js/footer-animation.js" defer></script>
 </footer>
-
-<script id='merchantWidgetScript' src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
-<script>
-  merchantWidgetScript.addEventListener('load', function () {
-    merchantwidget.start({
-         merchant_id: 5586181309,
-         position: "BOTTOM_RIGHT", 
-         region: "UA"              
-    });
-
-    const fixWidgetA11y = setInterval(() => {
-        const merchantIframe = document.getElementById('merchantwidgetiframe');
-        if (merchantIframe && !merchantIframe.hasAttribute('title')) {
-            merchantIframe.setAttribute('title', 'Віджет зв\'язку з магазином Google');
-            clearInterval(fixWidgetA11y);
-        }
-    }, 500);
-
-    setTimeout(() => clearInterval(fixWidgetA11y), 10000);
-  });
-</script>

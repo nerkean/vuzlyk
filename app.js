@@ -461,16 +461,78 @@ app.get('/product/:id', csrfProtection, async (req, res, next) => {
 });
 
 app.get('/catalog', csrfProtection, async (req, res, next) => {
-    if (req.query.category) {
-        return next();
-    }
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12; 
+    const sortOption = req.query.sort || 'default';
     
     try {
-        const categories = res.locals.categories; 
-        res.render('categories', {
-            pageTitle: 'Наші Категорії | Вузлик до вузлика',
-            metaDescription: 'Оберіть розділ каталогу, щоб знайти ідеальну вишивку чи аксесуар ручної роботи для себе або на подарунок. Ексклюзивні вироби від Вузлик до вузлика.',
-            categories: categories,
+        const skip = (page - 1) * limit;
+        const sortQuery = getSortQuery(sortOption); 
+
+        const filterQuery = {}; 
+        // Добавляем фильтры из запроса в filterQuery
+        if (req.query.status) filterQuery.status = Array.isArray(req.query.status) ? { $in: req.query.status } : req.query.status;
+        if (req.query.tags) filterQuery.tags = Array.isArray(req.query.tags) ? { $in: req.query.tags } : req.query.tags;
+        
+        // Логика цен (учитываем конвертацию, если нужно, хотя в оригинале у тебя это было только в API)
+        if (req.query.price_from) filterQuery.price = { ...filterQuery.price, $gte: parseInt(req.query.price_from) };
+        if (req.query.price_to) filterQuery.price = { ...filterQuery.price, $lte: parseInt(req.query.price_to) };
+
+        const { category } = req.query;
+        let pageTitle = 'Каталог товарів ручної роботи';
+        let pageHeading = 'Каталог товарів';
+        let metaDescription = 'Перегляньте каталог унікальних виробів ручної роботи від майстерні "Вузлик до вузлика".';
+        let categoryTags = []; 
+
+        let selectedCategoryObj = null;
+        if (category && category !== 'all') { 
+            selectedCategoryObj = await Category.findOne({ slug: category }).lean();
+        }
+
+        // ОПТИМИЗАЦИЯ 1: Быстрое получение тегов через MongoDB distinct
+        if (selectedCategoryObj) {
+            pageTitle = `Каталог: ${selectedCategoryObj.name} Ручної Роботи`;
+            pageHeading = selectedCategoryObj.name;
+            metaDescription = selectedCategoryObj.description || `Каталог унікальних виробів у категорії ${selectedCategoryObj.name}.`;
+            filterQuery.category = selectedCategoryObj.name;
+
+            // База данных сама быстро соберет только уникальные теги, не выгружая все товары
+            categoryTags = await Product.distinct('tags', { category: selectedCategoryObj.name });
+        } else {
+            pageHeading = 'Усі товари';
+            // Получаем уникальные теги со всей базы
+            categoryTags = await Product.distinct('tags');
+        }
+
+        // ОПТИМИЗАЦИЯ 2: Параллельные запросы к БД
+        // Вместо того, чтобы ждать товары, а ПОТОМ считать их количество, мы делаем это одновременно
+        const [products, totalProducts] = await Promise.all([
+            Product.find(filterQuery).sort(sortQuery).skip(skip).limit(limit).lean(),
+            Product.countDocuments(filterQuery)
+        ]);
+
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const firstProductImageUrl = (products.length > 0 && products[0].images && products[0].images.length > 0)
+                                   ? (products[0].images[0].medium || products[0].images[0].thumb)
+                                   : null;
+
+        res.render('catalog', {
+            pageTitle: pageTitle,
+            pageHeading: pageHeading,
+            metaDescription: metaDescription,
+            categoryTags: categoryTags.filter(Boolean),
+            products: products,
+            currentPage: page,
+            totalPages: totalPages,
+            limit: limit,
+            count: totalProducts, 
+            firstProductImageUrl: firstProductImageUrl,
+            originalUrl: req.originalUrl,
+            selectedCurrency: res.locals.selectedCurrency,
+            exchangeRates: res.locals.exchangeRates,
+            currencySymbols: res.locals.currencySymbols,
+            query: req.query,
             csrfToken: req.csrfToken()
         });
     } catch (error) {

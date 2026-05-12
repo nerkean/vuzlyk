@@ -98,4 +98,9 @@ const productSchema = new Schema({
 productSchema.set('toJSON', { virtuals: true });
 productSchema.set('toObject', { virtuals: true });
 
+productSchema.index({ category: 1 });
+productSchema.index({ tags: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Product', productSchema);

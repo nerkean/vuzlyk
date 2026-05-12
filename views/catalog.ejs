@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <%
+        // === ФУНКЦІЯ ОПТИМІЗАЦІЇ CLOUDINARY ===
+        // Ця функція бере ваше оригінальне посилання і просить Cloudinary віддати 
+        // зменшену копію (width) у найкращому форматі (f_auto) та стисненні (q_auto).
         function getOptimizedCloudinaryUrl(url, width) {
             if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
             if (url.includes('/upload/')) {
-                return url.replace('/upload/', `/upload/w_${width},c_limit,q_auto,f_auto/`);
+                if (url.match(/\/upload\/v\d+\//)) {
+                    // Якщо URL чистий (без трансформацій)
+                    return url.replace('/upload/', `/upload/w_${width},c_fill,q_auto,f_auto/`);
+                } else {
+                    // Якщо якісь трансформації вже є, додаємо свої
+                    return url.replace(/\/upload\/([^\/]+)\//, `/upload/$1,w_${width},q_auto,f_auto/`);
+                }
             }
             return url;
         }
@@ -23,16 +32,25 @@
         const canonicalUrl = new URL(pageUrlPath, baseUrl).href;
         
         let ogProductImageUrl = null;
-        let preloadImageMedium = null;
+        let preloadImageUrl = null; // Для оптимізованого preload
 
         if (typeof locals.products !== 'undefined' && locals.products.length > 0 && locals.products[0].images && locals.products[0].images.length > 0) {
-            const firstImg = locals.products[0].images[0];
-            
-            ogProductImageUrl = firstImg.large?.url || firstImg.medium?.url || null;
-            preloadImageMedium = firstImg.medium?.url || firstImg.thumb?.url || firstImg.large?.url;
+            const firstProductImageSet = locals.products[0].images[0];
+            if (firstProductImageSet.large && firstProductImageSet.large.url) {
+                ogProductImageUrl = firstProductImageSet.large.url;
+            } else if (firstProductImageSet.medium && firstProductImageSet.medium.url) {
+                ogProductImageUrl = firstProductImageSet.medium.url;
+            }
+
+            // Беремо картинку для preload і одразу оптимізуємо її для мобайлу (400px)
+            if (firstProductImageSet.medium && firstProductImageSet.medium.url) {
+                preloadImageUrl = getOptimizedCloudinaryUrl(firstProductImageSet.medium.url, 400);
+            } else if (firstProductImageSet.thumb && firstProductImageSet.thumb.url) {
+                preloadImageUrl = getOptimizedCloudinaryUrl(firstProductImageSet.thumb.url, 400);
+            }
         }
-        
         const ogImageUrl = ogProductImageUrl ? new URL(ogProductImageUrl, baseUrl).href : new URL('/images/og-image.jpg', baseUrl).href;
+
         const currentPage = typeof locals.currentPage === 'number' && locals.currentPage > 0 ? locals.currentPage : 1; 
         const limit = typeof locals.limit === 'number' && locals.limit > 0 ? locals.limit : 12; 
     %>
@@ -59,6 +77,11 @@
     <meta name="twitter:title" content="<%= pageTitle %>">
     <meta name="twitter:description" content="<%= metaDescription %>">
     <meta name="twitter:image" content="<%= ogImageUrl %>">
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
     
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
@@ -68,38 +91,50 @@
     <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
     
-    <%# ПРЯМИЙ ПРЕЛОАД: без srcset, тільки один ідеальний розмір 400px %>
-    <% if (preloadImageMedium && currentPage === 1) { %>
-        <% const preOpt400 = getOptimizedCloudinaryUrl(preloadImageMedium, 400); %>
-        <link rel="preload" as="image" href="<%= preOpt400 %>" fetchpriority="high">
+    <%# Preload для першого зображення (вже оптимізованого!) %>
+    <% 
+        let lcpPreloadUrl = null;
+        if ((typeof locals.currentPage === 'undefined' || locals.currentPage === 1) && 
+            typeof locals.products !== 'undefined' && locals.products.length > 0) {
+            
+            let firstImgBase = '/images/placeholder.svg';
+            const firstProduct = locals.products[0];
+            if (firstProduct.images && firstProduct.images.length > 0) {
+                const imgSet = firstProduct.images[0];
+                if (imgSet.medium && typeof imgSet.medium === 'object' && imgSet.medium.url) {
+                    firstImgBase = imgSet.medium.url;
+                } else if (imgSet.thumb && typeof imgSet.thumb === 'object' && imgSet.thumb.url) {
+                    firstImgBase = imgSet.thumb.url;
+                } else if (typeof imgSet.medium === 'string' && imgSet.medium.trim() !== '') {
+                    firstImgBase = imgSet.medium;
+                }
+            }
+            
+            // ГЕНЕРУЄМО ЄДИНУ ВЕРСІЮ ДЛЯ LCP (600px - ідеально для мобайл/десктоп, щоб уникнути проблеми з Retina)
+            lcpPreloadUrl = typeof getOptimizedCloudinaryUrl === 'function' ? getOptimizedCloudinaryUrl(firstImgBase, 600) : firstImgBase;
+        }
+    %>
+    <% if (lcpPreloadUrl && lcpPreloadUrl !== '/images/placeholder.svg') { %>
+        <link rel="preload" href="<%= lcpPreloadUrl %>" as="image" fetchpriority="high">
     <% } %>
 
     <link rel="stylesheet" href="/css/common.css">
     <link rel="preload" href="/css/catalog-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/css/catalog-page.css"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
-
-    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
-    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
-    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" xintegrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" xintegrity="sha512-1cK78a1o+ht2JcaW6g8OXYwqpev9+6GqOkz9xmBN9iUUhIndKtxwILGWYOSibOKjLsEdjyjZvYDq/cZwNeak0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
 
     <style>
-        .catalog-page-main {
-            min-height: 100vh;
-        }
-        
+        /* АНТИ-СТРИБОК (Fix Layout Shift - CLS) */
+        /* Гарантуємо, що обгортка картинок тримає пропорцію 4:5 ще ДО завантаження самої картинки */
         .product-image-wrapper {
             position: relative;
             width: 100%;
             aspect-ratio: 4 / 5;
-            background-color: #f8f8f8;
+            background-color: #f8f8f8; /* Заглушка, поки вантажиться картинка */
             overflow: hidden;
-            display: block;
         }
         
         .product-card-image {
@@ -109,12 +144,11 @@
             position: absolute;
             top: 0;
             left: 0;
-            background-color: transparent;
         }
 
+        /* Запобігаємо стрибку футера при першому рендері */
         #product-grid-container {
             min-height: 80vh; 
-            align-content: start;
         }
     </style>
 </head>
@@ -340,39 +374,57 @@
     <% if (typeof locals.products !== 'undefined' && locals.products.length > 0) { %>
         <% locals.products.forEach((product, index) => { %>
             <% 
-                let baseImageUrl = '/images/placeholder.svg';
-
+                let staticImgSrc = '/images/placeholder.svg';
                 if (product.images && product.images.length > 0) {
                     const imgSet = product.images[0];
-                    baseImageUrl = imgSet.medium?.url || imgSet.thumb?.url || imgSet.large?.url || baseImageUrl;
+                    if (imgSet.medium && typeof imgSet.medium === 'object' && imgSet.medium.url) {
+                        staticImgSrc = imgSet.medium.url;
+                    } else if (imgSet.thumb && typeof imgSet.thumb === 'object' && imgSet.thumb.url) {
+                        staticImgSrc = imgSet.thumb.url;
+                    } else if (typeof imgSet.medium === 'string' && imgSet.medium.trim() !== '') {
+                        staticImgSrc = imgSet.medium;
+                    } else if (typeof imgSet.thumb === 'string' && imgSet.thumb.trim() !== '') {
+                        staticImgSrc = imgSet.thumb;
+                    }
                 }
-
-                const opt400 = getOptimizedCloudinaryUrl(baseImageUrl, 400);
-
                 const livePhotoUrl = product.livePhotoUrl || '';
                 const livePhotoType = livePhotoUrl.endsWith('.gif') ? 'gif' : (livePhotoUrl.endsWith('.mp4') || livePhotoUrl.endsWith('.webm') ? 'video' : 'unknown');
+
+                // === АБСОЛЮТНА ОПТИМІЗАЦІЯ LCP ===
+                // Перевіряємо, чи це головна LCP картинка (перша на першій сторінці)
+                const isLCP = (index === 0 && (typeof locals.currentPage === 'undefined' || locals.currentPage === 1));
+                
+                let imgAttributes = '';
+                let optimizedImgSrcForData = '';
+
+                if (isLCP) {
+                    // ДЛЯ LCP: Точний збіг з preload (600px), ЖОДНИХ srcset!
+                    const exactLcpSrc = typeof getOptimizedCloudinaryUrl === 'function' ? getOptimizedCloudinaryUrl(staticImgSrc, 600) : staticImgSrc;
+                    optimizedImgSrcForData = exactLcpSrc;
+                    imgAttributes = `src="${exactLcpSrc}" fetchpriority="high" loading="eager"`;
+                } else {
+                    // ДЛЯ ІНШИХ: Ліниве завантаження + srcset для Retina
+                    const opt400 = typeof getOptimizedCloudinaryUrl === 'function' ? getOptimizedCloudinaryUrl(staticImgSrc, 400) : staticImgSrc;
+                    const opt800 = typeof getOptimizedCloudinaryUrl === 'function' ? getOptimizedCloudinaryUrl(staticImgSrc, 800) : staticImgSrc;
+                    optimizedImgSrcForData = opt400;
+                    imgAttributes = `src="${opt400}" srcset="${opt400} 1x, ${opt800} 2x" loading="lazy"`;
+                }
             %>
             <article class="product-card" 
                      data-aos="fade-up" 
                      data-aos-delay="<%= index * 50 %>" 
                      data-aos-once="true"
-                     data-static-image-url="<%= opt400 %>"
+                     data-static-image-url="<%= optimizedImgSrcForData %>"
                      <% if (livePhotoUrl) { %>
                         data-live-photo-url="<%= livePhotoUrl %>"
                         data-live-photo-type="<%= livePhotoType %>"
                      <% } %>>
                 <div class="product-image-wrapper">
                     <a href="/product/<%= product._id %>" aria-label="Переглянути деталі товару <%= product.name %>">
-                        
                         <img class="product-card-image static-image" 
-                             src="<%= opt400 %>"
+                             <%- imgAttributes %>
                              alt="<%= product.name %>"
-                             width="400" height="500" 
-                             <% if (index === 0 && currentPage === 1) { %>
-                                 fetchpriority="high" loading="eager"
-                             <% } else { %>
-                                 loading="lazy"
-                             <% } %>
+                             width="300" height="375" 
                              onerror="this.onerror=null; this.src='/images/placeholder.svg';">
                         
                         <% if (livePhotoUrl) { %>
@@ -446,7 +498,7 @@
     <%- include('partials/footer') %>
 
     <script src="/dist/main.bundle.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" xintegrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <script src="/js/catalog.js" defer></script>
     <script defer>
       document.addEventListener('DOMContentLoaded', function() {
