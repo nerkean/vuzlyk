@@ -18,6 +18,7 @@ const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const { SitemapStream, streamToPromise } = require('sitemap');
 const { Readable } = require('stream');
+const NodeCache = require('node-cache');
 
 const User = require('./models/User');
 const Product = require('./models/Product');
@@ -74,24 +75,7 @@ async function sendTelegramOrderNotification(order) {
 
 const app = express();
 
-const cache = {
-    data: new Map(),
-    set(key, value, ttl_seconds) {
-        const expires = Date.now() + ttl_seconds * 1000;
-        this.data.set(key, { value, expires });
-    },
-    get(key) {
-        const item = this.data.get(key);
-        if (item && Date.now() < item.expires) {
-            return item.value;
-        }
-        this.data.delete(key);
-        return null;
-    },
-    clear() {
-        this.data.clear();
-    }
-};
+const cache = new NodeCache({ stdTTL: 300, checkperiod: 120 });
 
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5500;
@@ -116,16 +100,19 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(compression());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ИСПРАВЛЕНИЕ 1: Глобальное кэширование статики
-// Раньше у тебя express.static('/') перехватывал запросы ДО того, как срабатывали
-// специфичные правила для /dist. Из-за этого кэш не применялся правильно.
-// Теперь мы применяем политику кэширования в 1 год ('365d') на ВСЮ папку public в продакшене.
-const staticOptions = process.env.NODE_ENV === 'production' 
-    ? { maxAge: '365d', immutable: true } 
-    : {};
+if (process.env.NODE_ENV === 'production') {
+  app.use('/dist', express.static(path.join(__dirname, 'public', 'dist'), {
+    immutable: true,
+    maxAge: '1y' 
+  }));
 
-app.use(express.static(path.join(__dirname, 'public'), staticOptions));
+  app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), {
+    immutable: true,
+    maxAge: '1y'
+  }));
+}
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -407,6 +394,16 @@ app.get('/product/:id', csrfProtection, async (req, res, next) => {
             return res.status(404).render('404');
         }
 
+        const cacheKey = `product_${productId}`;
+        const cachedData = cache.get(cacheKey);
+        
+        if (cachedData) {
+            return res.render('product-detail', {
+                ...cachedData,
+                csrfToken: req.csrfToken()
+            });
+        }
+
         const product = await Product.findById(productId).lean();
         
         if (!product) {
@@ -446,13 +443,18 @@ app.get('/product/:id', csrfProtection, async (req, res, next) => {
             }
         };
 
-        res.render('product-detail', {
+        const renderData = {
             product: product, 
             similarProducts: similarProducts, 
             isCustomProduct: isCustomProduct, 
             pageTitle: pageTitle, 
             metaDescription: metaDescription, 
-            productLD: productSchema,
+            productLD: productSchema
+        };
+        cache.set(cacheKey, renderData, 300);
+
+        res.render('product-detail', {
+            ...renderData,
             csrfToken: req.csrfToken()
         });
     } catch (error) {
@@ -461,78 +463,16 @@ app.get('/product/:id', csrfProtection, async (req, res, next) => {
 });
 
 app.get('/catalog', csrfProtection, async (req, res, next) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 12; 
-    const sortOption = req.query.sort || 'default';
+    if (req.query.category) {
+        return next();
+    }
     
     try {
-        const skip = (page - 1) * limit;
-        const sortQuery = getSortQuery(sortOption); 
-
-        const filterQuery = {}; 
-        // Добавляем фильтры из запроса в filterQuery
-        if (req.query.status) filterQuery.status = Array.isArray(req.query.status) ? { $in: req.query.status } : req.query.status;
-        if (req.query.tags) filterQuery.tags = Array.isArray(req.query.tags) ? { $in: req.query.tags } : req.query.tags;
-        
-        // Логика цен (учитываем конвертацию, если нужно, хотя в оригинале у тебя это было только в API)
-        if (req.query.price_from) filterQuery.price = { ...filterQuery.price, $gte: parseInt(req.query.price_from) };
-        if (req.query.price_to) filterQuery.price = { ...filterQuery.price, $lte: parseInt(req.query.price_to) };
-
-        const { category } = req.query;
-        let pageTitle = 'Каталог товарів ручної роботи';
-        let pageHeading = 'Каталог товарів';
-        let metaDescription = 'Перегляньте каталог унікальних виробів ручної роботи від майстерні "Вузлик до вузлика".';
-        let categoryTags = []; 
-
-        let selectedCategoryObj = null;
-        if (category && category !== 'all') { 
-            selectedCategoryObj = await Category.findOne({ slug: category }).lean();
-        }
-
-        // ОПТИМИЗАЦИЯ 1: Быстрое получение тегов через MongoDB distinct
-        if (selectedCategoryObj) {
-            pageTitle = `Каталог: ${selectedCategoryObj.name} Ручної Роботи`;
-            pageHeading = selectedCategoryObj.name;
-            metaDescription = selectedCategoryObj.description || `Каталог унікальних виробів у категорії ${selectedCategoryObj.name}.`;
-            filterQuery.category = selectedCategoryObj.name;
-
-            // База данных сама быстро соберет только уникальные теги, не выгружая все товары
-            categoryTags = await Product.distinct('tags', { category: selectedCategoryObj.name });
-        } else {
-            pageHeading = 'Усі товари';
-            // Получаем уникальные теги со всей базы
-            categoryTags = await Product.distinct('tags');
-        }
-
-        // ОПТИМИЗАЦИЯ 2: Параллельные запросы к БД
-        // Вместо того, чтобы ждать товары, а ПОТОМ считать их количество, мы делаем это одновременно
-        const [products, totalProducts] = await Promise.all([
-            Product.find(filterQuery).sort(sortQuery).skip(skip).limit(limit).lean(),
-            Product.countDocuments(filterQuery)
-        ]);
-
-        const totalPages = Math.ceil(totalProducts / limit);
-
-        const firstProductImageUrl = (products.length > 0 && products[0].images && products[0].images.length > 0)
-                                   ? (products[0].images[0].medium || products[0].images[0].thumb)
-                                   : null;
-
-        res.render('catalog', {
-            pageTitle: pageTitle,
-            pageHeading: pageHeading,
-            metaDescription: metaDescription,
-            categoryTags: categoryTags.filter(Boolean),
-            products: products,
-            currentPage: page,
-            totalPages: totalPages,
-            limit: limit,
-            count: totalProducts, 
-            firstProductImageUrl: firstProductImageUrl,
-            originalUrl: req.originalUrl,
-            selectedCurrency: res.locals.selectedCurrency,
-            exchangeRates: res.locals.exchangeRates,
-            currencySymbols: res.locals.currencySymbols,
-            query: req.query,
+        const categories = res.locals.categories; 
+        res.render('categories', {
+            pageTitle: 'Наші Категорії | Вузлик до вузлика',
+            metaDescription: 'Оберіть розділ каталогу, щоб знайти ідеальну вишивку чи аксесуар ручної роботи для себе або на подарунок. Ексклюзивні вироби від Вузлик до вузлика.',
+            categories: categories,
             csrfToken: req.csrfToken()
         });
     } catch (error) {
@@ -551,6 +491,18 @@ app.get('/catalog', csrfProtection, async (req, res, next) => {
     if (req.query.tags) filters.tags = Array.isArray(req.query.tags) ? req.query.tags : [req.query.tags];
 
     try {
+        const cacheKey = `catalog_${JSON.stringify(req.query)}`;
+        const cachedCatalog = cache.get(cacheKey);
+        
+        if (cachedCatalog) {
+            return res.render('catalog', {
+                ...cachedCatalog,
+                originalUrl: req.originalUrl,
+                query: req.query,
+                csrfToken: req.csrfToken()
+            });
+        }
+
         const skip = (page - 1) * limit;
         const sortQuery = getSortQuery(sortOption); 
 
@@ -573,51 +525,41 @@ app.get('/catalog', csrfProtection, async (req, res, next) => {
             metaDescription = selectedCategoryObj.description || `Каталог унікальних виробів у категорії ${selectedCategoryObj.name}.`;
             filterQuery.category = selectedCategoryObj.name;
 
-            const productsInCategory = await Product.find({ category: selectedCategoryObj.name }).select('tags').lean();
-            const allTags = new Set();
-            productsInCategory.forEach(p => {
-                if (p.tags && Array.isArray(p.tags)) p.tags.forEach(t => allTags.add(t));
-            });
-            categoryTags = Array.from(allTags);
+            categoryTags = await Product.distinct('tags', { category: selectedCategoryObj.name });
         } else {
             pageHeading = 'Усі товари';
-            
-            const allProducts = await Product.find({}).select('tags').lean();
-            const allTags = new Set();
-            allProducts.forEach(p => {
-                if (p.tags && Array.isArray(p.tags)) p.tags.forEach(t => allTags.add(t));
-            });
-            categoryTags = Array.from(allTags);
+            categoryTags = await Product.distinct('tags');
         }
 
-        const products = await Product.find(filterQuery)
-            .sort(sortQuery)
-            .skip(skip)
-            .limit(limit)
-            .lean(); 
+        const [products, totalProducts] = await Promise.all([
+            Product.find(filterQuery).sort(sortQuery).skip(skip).limit(limit).lean(),
+            Product.countDocuments(filterQuery)
+        ]);
 
-        const totalProducts = await Product.countDocuments(filterQuery);
         const totalPages = Math.ceil(totalProducts / limit);
 
         const firstProductImageUrl = (products.length > 0 && products[0].images && products[0].images.length > 0)
                                    ? (products[0].images[0].medium || products[0].images[0].thumb)
                                    : null;
 
-        res.render('catalog', {
+        const renderData = {
             pageTitle: pageTitle,
             pageHeading: pageHeading,
-             metaDescription: metaDescription,
-            categoryTags: categoryTags, 
+            metaDescription: metaDescription,
+            categoryTags: categoryTags.filter(Boolean), 
             products: products,
             currentPage: page,
             totalPages: totalPages,
             limit: limit,
             count: totalProducts, 
-            firstProductImageUrl: firstProductImageUrl,
+            firstProductImageUrl: firstProductImageUrl
+        };
+
+        cache.set(cacheKey, renderData, 300);
+
+        res.render('catalog', {
+            ...renderData,
             originalUrl: req.originalUrl,
-            selectedCurrency: res.locals.selectedCurrency,
-            exchangeRates: res.locals.exchangeRates,
-            currencySymbols: res.locals.currencySymbols,
             query: req.query,
             csrfToken: req.csrfToken()
         });
@@ -746,8 +688,8 @@ app.post('/cart/update', (req, res) => {
           message: 'Кількість оновлено',
           cartItemCount: newCartItemCount,
           itemLineTotal: itemLineTotal, 
-          subtotal: subtotal,    
-          total: total,        
+          subtotal: subtotal,     
+          total: total,         
           selectedCurrency: res.locals.selectedCurrency,
           exchangeRates: res.locals.exchangeRates,
           currencySymbols: res.locals.currencySymbols
@@ -867,18 +809,28 @@ app.get('/api/products', async (req, res) => {
             default:
                 sortQuery = {};
         }
-        const totalProducts = await Product.countDocuments(filterQuery);
-        const products = await Product.find(filterQuery)
-            .sort(sortQuery)
-            .skip(skip)
-            .limit(limit);
-        res.json({
+
+        const cacheKey = `api_products_${JSON.stringify(req.query)}_${filterCurrency}`;
+        const cachedAPI = cache.get(cacheKey);
+        if (cachedAPI) {
+            return res.json(cachedAPI);
+        }
+
+        const [totalProducts, products] = await Promise.all([
+            Product.countDocuments(filterQuery),
+            Product.find(filterQuery).sort(sortQuery).skip(skip).limit(limit).lean()
+        ]);
+        
+        const responseData = {
             success: true,
             products: products,
             currentPage: page,
             totalPages: Math.ceil(totalProducts / limit),
             totalProducts: totalProducts
-        });
+        };
+
+        cache.set(cacheKey, responseData, 300);
+        res.json(responseData);
     } catch (error) {
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
@@ -1115,7 +1067,7 @@ app.post('/order/place', async (req, res) => {
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04);">
                                 <tr><td align="center" style="padding: 30px 20px; border-bottom: 1px solid #EAE6DF; background-color: #ffffff;">
                                     <h1 style="margin: 0; color: #111111; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">
-                                        <img src="https://tviy-sayt.com/images/logo.png" alt="Лого" width="40" height="40" style="vertical-align: middle; margin-right: 12px; border-radius: 8px;">
+                                        <img src="https://vuzlyk.com/images/logo.png" alt="Лого" width="40" height="40" style="vertical-align: middle; margin-right: 12px; border-radius: 8px;">
                                         <span style="vertical-align: middle;">Вузлик до вузлика</span>
                                     </h1>
                                 </td></tr>
@@ -1201,7 +1153,7 @@ app.post('/order/place', async (req, res) => {
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04);">
                                 <tr><td align="center" style="padding: 30px 20px; border-bottom: 1px solid #EAE6DF; background-color: #ffffff;">
                                     <h1 style="margin: 0; color: #111111; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">
-                                        <img src="https://tviy-sayt.com/images/logo.png" alt="Лого" width="40" height="40" style="vertical-align: middle; margin-right: 12px; border-radius: 8px;">
+                                        <img src="https://vuzlyk.com/images/logo.png" alt="Лого" width="40" height="40" style="vertical-align: middle; margin-right: 12px; border-radius: 8px;">
                                         <span style="vertical-align: middle;">Вузлик до вузлика</span>
                                     </h1>
                                 </td></tr>
@@ -1291,15 +1243,6 @@ app.get('/order/request-sent', csrfProtection, (req, res) => {
     });
 });
 
-app.get('/contacts', csrfProtection, (req, res) => {
-    res.render('contacts', {
-        pageTitle: "Контакти - Вузлик до вузлика", 
-        query: req.query,
-        formData: {},
-        csrfToken: req.csrfToken()
-    });
-});
-
 app.get('/about', csrfProtection, (req, res) => {
     res.render('about', {
         pageTitle: 'Про нас - Вузлик до вузлика',
@@ -1332,17 +1275,30 @@ app.get('/privacy-policy', csrfProtection, (req, res) => {
     });
 });
 
+app.get('/contacts', csrfProtection, (req, res) => {
+    res.render('contacts', {
+        pageTitle: "Контакти - Вузлик до вузлика", 
+        query: req.query,
+        formData: {},
+        csrfToken: req.csrfToken()
+    });
+});
+
 app.get('/feeds/local-inventory.txt', async (req, res) => {
     try {
-        const products = await Product.find({}); 
-        const storeCode = 'VUZLYK_BROVARY'; 
-        let feedContent = 'store_code\tid\tavailability\n';
+        let feedContent = cache.get('local_inventory_feed');
+        
+        if (!feedContent) {
+            const products = await Product.find({}).select('_id').lean(); 
+            const storeCode = 'VUZLYK_BROVARY'; 
+            feedContent = 'store_code\tid\tavailability\n';
 
-        products.forEach(product => {
-            const productId = product._id.toString();
-            const availability = 'in_stock'; 
-            feedContent += `${storeCode}\t${productId}\t${availability}\n`;
-        });
+            products.forEach(product => {
+                feedContent += `${storeCode}\t${product._id}\tin_stock\n`;
+            });
+            
+            cache.set('local_inventory_feed', feedContent, 3600);
+        }
 
         res.header('Content-Type', 'text/plain');
         res.send(feedContent);
@@ -1408,7 +1364,7 @@ if (!process.env.RECAPTCHA_V2_SECRET_KEY) {
             });
         }
 
-        const mailSubject = subject ? `Повідомлення з сайту Вузлик: ${subject}` : `Нове повідомлення з контактної форми Вузлик от ${name}`;
+        const mailSubject = subject ? `Повідомлення з сайту Вузлик: ${subject}` : `Нове повідомлення з контактної форми Вузлик від ${name}`;
         const mailText = `Ім'я: ${name}\nEmail: ${email}\nТелефон: ${phone || 'Не вказано'}\nТема: ${subject || 'Без теми'}\n\nПовідомлення:\n${message}`;
         const mailHtml = `<p><strong>Ім'я:</strong> ${name}</p><p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p><p><strong>Телефон:</strong> ${phone || 'Не вказано'}</p><p><strong>Тема:</strong> ${subject || 'Без теми'}</p><hr><p><strong>Повідомлення:</strong></p><p style="white-space: pre-wrap;">${message}</p>`;
 
