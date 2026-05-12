@@ -1284,29 +1284,6 @@ app.get('/contacts', csrfProtection, (req, res) => {
     });
 });
 
-app.get('/feeds/local-inventory.txt', async (req, res) => {
-    try {
-        let feedContent = cache.get('local_inventory_feed');
-        
-        if (!feedContent) {
-            const products = await Product.find({}).select('_id').lean(); 
-            const storeCode = 'VUZLYK_BROVARY'; 
-            feedContent = 'store_code\tid\tavailability\n';
-
-            products.forEach(product => {
-                feedContent += `${storeCode}\t${product._id}\tin_stock\n`;
-            });
-            
-            cache.set('local_inventory_feed', feedContent, 3600);
-        }
-
-        res.header('Content-Type', 'text/plain');
-        res.send(feedContent);
-    } catch (error) {
-        res.status(500).send('Помилка сервера при генерації фіда');
-    }
-});
-
 app.get('/feeds/google-shopping.xml', async (req, res) => {
     try {
         const cacheKey = 'google_shopping_primary_feed';
