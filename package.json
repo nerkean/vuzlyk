@@ -11,7 +11,7 @@
     "watch:server": "nodemon app.js",
     "watch:js": "esbuild public/js/main.js --bundle --outfile=public/dist/main.bundle.js --loader:.woff2=file --watch",
     "build:js": "esbuild public/js/main.js --bundle --minify --outfile=public/dist/main.bundle.js --loader:.woff2=file",
-    "build:css": "cleancss -o public/dist/style.min.css public/css/*.css",
+    "build:css": "cleancss -o public/dist/main.bundle.css public/css/common.css public/css/homepage.css",
     "build": "npm run build:js && npm run build:css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

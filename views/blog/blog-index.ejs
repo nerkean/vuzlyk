@@ -6,7 +6,7 @@
 
     <%
     const optimizeImg = (url, params) => {
-        if (!url) return '/images/placeholder.png';
+        if (!url) return '/images/placeholder.svg';
         if (url.includes('res.cloudinary.com')) {
             return url.replace('/upload/', `/upload/f_auto,q_auto,${params}/`);
         }
@@ -43,20 +43,13 @@
           gtag('js', new Date());
           gtag('config', 'AW-17036727455');
           gtag('config', '<%= locals.gaMeasurementId %>');
-          console.log('GA4 Initialized for Blog Index with ID:', '<%= locals.gaMeasurementId %>');
         </script>
     <% } %>
 
     <link rel="stylesheet" href="/css/common.css">
-    
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
-
-    <link rel="preload" href="/css/blog-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/blog-page.css"></noscript>
-
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+    <link rel="stylesheet" href="/css/blog-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     
     <meta property="og:title" content="<%= pageTitle %>">
     <meta property="og:description" content="<%= metaDescription %>">
@@ -134,12 +127,16 @@
 
     <main class="blog-page-main section-padding">
         <div class="container">
-            <h1 class="page-title" data-aos="fade-up"><%= pageTitle %></h1>
+            <div class="blog-header text-center" data-aos="fade-up">
+                <span class="section-eyebrow">Енциклопедія та натхнення</span>
+                <h1 class="section-title"><%= pageTitle %></h1>
+                <p class="blog-subtitle">Історії українських орнаментів, секрети ручної вишивки, символіка кольорів та поради з догляду за вашими улюбленими речами</p>
+            </div>
 
             <% if (posts && posts.length > 0) { %>
                 <div class="blog-posts-list">
                     <% posts.forEach((post, index) => { %>
-                        <article class="blog-post-item <%= post.imageUrl ? 'has-image' : '' %>" data-aos="fade-up" data-aos-delay="100">
+                        <article class="blog-post-item <%= post.imageUrl ? 'has-image' : '' %>" data-aos="fade-up" data-aos-delay="<%= (index % 3) * 80 %>">
                             <% if (post.imageUrl) { %>
                                 <a href="/blog/<%= post.slug %>" class="post-item-image-link compact-thumbnail">
                                     <img src="<%= optimizeImg(post.imageUrl, 'w_800,c_limit') %>" 
@@ -151,19 +148,19 @@
                                 </a>
                             <% } %>
                             <div class="post-item-content">
+                                <% if (post.publishedAt) { %>
+                                    <div class="post-item-meta">
+                                        <span class="post-date"><i class="far fa-calendar-alt"></i> <%= new Date(post.publishedAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+                                        <% if (post.authorDisplay) { %>
+                                            <span class="post-author"><i class="far fa-user"></i> <%= post.authorDisplay %></span>
+                                        <% } %>
+                                    </div>
+                                <% } %>
                                 <h2 class="post-item-title">
                                     <a href="/blog/<%= post.slug %>"><%= post.title %></a>
                                 </h2>
-                                <% if (post.publishedAt) { %>
-                                    <p class="post-item-meta">
-                                        <span class="post-date"><%= new Date(post.publishedAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
-                                        <% if (post.authorDisplay) { %>
-                                            <span class="post-author"> | Автор: <%= post.authorDisplay %></span>
-                                        <% } %>
-                                    </p>
-                                <% } %>
                                 <p class="post-item-summary"><%= post.summary %></p>
-                                <a href="/blog/<%= post.slug %>" class="btn btn-tertiary btn-read-more">Читати далі <i class="fas fa-arrow-right"></i></a>
+                                <a href="/blog/<%= post.slug %>" class="btn-read-more">Читати статтю</a>
                             </div>
                         </article>
                     <% }); %>
@@ -208,7 +205,9 @@
                 <% } %>
 
             <% } else { %>
-                <p class="text-center">Наразі немає опублікованих статей. Завітайте пізніше!</p>
+                <div class="blog-empty-box text-center">
+                    <p>Наразі немає опублікованих статей. Завітайте пізніше!</p>
+                </div>
             <% } %>
         </div>
     </main>
@@ -219,7 +218,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <script defer>
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof AOS !== 'undefined') { AOS.init({ once: true, duration: 600, offset: 50 }); }
+            if (typeof AOS !== 'undefined') { AOS.init({ once: true, duration: 650, offset: 50 }); }
         });
     </script>
 </body>

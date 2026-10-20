@@ -16,22 +16,18 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/images/favicon/site.webmanifest" />
 
-    <link rel="stylesheet" href="/css/common.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-       <noscript><link rel="stylesheet" href="/css/homepage.css"></noscript>
-
-    <link rel="preload" href="/css/500.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/500.css"></noscript>
-
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/500.css">
 </head>
 <body>
     <%- include('partials/header') %>
 
     <main class="error-500-page">
         <div class="container error-container">
+            <span class="error-badge">✦ Технічна пауза ✦</span>
             <div class="error-code">500</div>
             <h1 class="error-heading">Помилка сервера</h1>
 
@@ -39,15 +35,19 @@
                 <% if (typeof message !== 'undefined' && message) { %>
                     <p><%= message %></p>
                 <% } else { %>
-                    <p>На жаль, на сервері сталася непередбачена помилка.</p>
-                    <p>Ми вже працюємо над її усуненням. Спробуйте оновити сторінку пізніше або повернутися на головну.</p>
+                    <p>На жаль, ниточка тимчасово заплуталась і на сервері сталася непередбачена помилка.</p>
+                    <p>Ми вже працюємо над її усуненням. Спробуйте оновити сторінку за кілька хвилин або поверніться на головну.</p>
                 <% } %>
             </div>
-            <a href="/" class="btn btn-primary error-home-link">Повернутися на Головну</a>
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary error-home-link">Повернутися на Головну <i class="fa-solid fa-house"></i></a>
+                <a href="/contacts" class="btn btn-secondary">Написати нам</a>
+            </div>
         </div>
     </main>
 
     <%- include('partials/footer') %>
 
+    <script src="/dist/main.bundle.js" defer></script>
 </body>
 </html>

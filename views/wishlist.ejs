@@ -4,41 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список бажань - Вузлик до вузлика</title>
-    <meta name="robots" content="noindex, nofollow"> <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/catalog-page.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
+
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/catalog-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <%- include('partials/header') %> <main class="wishlist-page-main section-padding">
+    <%- include('partials/header') %>
+
+    <main class="wishlist-page-main section-padding">
         <div class="container">
-            <h1 class="page-title">Мій список бажань</h1>
+            <div class="text-center">
+                <span class="section-eyebrow">Збережені роботи</span>
+                <h1 class="section-title">Мій список бажань</h1>
+            </div>
 
             <% if (wishlist && wishlist.length > 0) { %>
                 <div class="product-grid">
                     <% wishlist.forEach(product => { %>
                         <article class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image-wrapper">
+                                <button class="remove-from-wishlist" data-product-id="<%= product._id %>" aria-label="Видалити зі списку бажань" title="Видалити зі списку бажань">&times;</button>
                                 <a href="/product/<%= product._id %>">
-                                    <img src="<%= product.images[0]?.medium?.url || '/images/placeholder.svg' %>" alt="<%= product.name %>">
+                                    <img src="<%= product.images?.[0]?.medium?.url || product.images?.[0]?.thumb?.url || '/images/placeholder.svg' %>" 
+                                         alt="<%= product.name %>" 
+                                         loading="lazy"
+                                         onerror="this.onerror=null; this.src='/images/placeholder.svg';">
+                                    <div class="product-overlay">
+                                        <span class="view-details-btn">Детальніше</span>
+                                    </div>
                                 </a>
                             </div>
-                            <div class="product-info" style="position: relative;">
+                            <div class="product-info">
                                 <a href="/product/<%= product._id %>"><h3><%= product.name %></h3></a>
                                 <p class="price"><%= formatPrice(product.price, selectedCurrency, exchangeRates, currencySymbols) %></p>
-                                <button class="btn btn-tertiary add-to-cart-button" data-product-id="<%= product._id %>">В кошик</button>
-                                <button class="remove-from-wishlist" data-product-id="<%= product._id %>" aria-label="Видалити зі списку бажань">&times;</button>
+                                <button class="btn btn-tertiary add-to-cart-button" data-product-id="<%= product._id %>">
+                                    <svg class="icon icon-cart-plus" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="currentColor">
+                                        <path d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM252 160c0 11 9 20 20 20l44 0 0 44c0 11 9 20 20 20s20-9 20-20l0-44 44 0c11 0 20-9 20-20s-9-20-20-20l-44 0 0-44c0-11-9-20-20-20s-20 9-20 20l0 44-44 0c-11 0-20 9-20 20z"/>
+                                    </svg>
+                                    В кошик
+                                </button>
                             </div>
                         </article>
                     <% }) %>
                 </div>
             <% } else { %>
                 <div class="wishlist-empty">
-                    <p>Ваш список бажань порожній.</p>
-                    <a href="/catalog" class="btn btn-primary">Перейти до каталогу</a>
+                    <div style="font-size: 3.2rem; color: var(--color-accent); margin-bottom: 18px; opacity: 0.75;">
+                        <i class="fa-regular fa-heart"></i>
+                    </div>
+                    <p>Ваш список бажань поки що порожній.</p>
+                    <a href="/catalog" class="btn btn-primary btn-lg">Перейти до каталогу <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             <% } %>
         </div>
     </main>
 
-    <%- include('partials/footer') %> <script src="/js/main.js"></script>
+    <%- include('partials/footer') %>
+    <script src="/dist/main.bundle.js" defer></script>
 </body>
 </html>

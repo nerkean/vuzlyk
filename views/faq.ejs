@@ -20,19 +20,15 @@
         gtag('js', new Date());
         gtag('config', 'AW-17036727455');
         gtag('config', '<%= locals.gaMeasurementId %>');
-        console.log('GA4 Initialized with ID:', '<%= gaMeasurementId %>');
       </script>
-    <% } else { %>
-      <% } %>
+    <% } %>
 
     <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 
     <link rel="stylesheet" href="/css/common.css">
-    <link rel="preload" href="/css/faq-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/faq-page.css"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+    <link rel="stylesheet" href="/css/faq-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 <script type="application/ld+json">
 <%
@@ -42,11 +38,6 @@
   const _baseUrl = typeof baseUrl === 'string' ? baseUrl : 'https://vuzlyk.com';
 
   const faqPageMainEntity = [];
-
-  function stripHtml(html) {
-    if (typeof html !== 'string') return '';
-    return html.replace(/<[^>]*>?/gm, '');
-  }
 
   const faqItems = [
     {
@@ -91,7 +82,7 @@
     },
     {
       question: "Моє питання не тут, як з вами зв'язатися?",
-      answerHtml: "<p>Якщо ви не знайшли відповідь на своє питання, будь ласка, <a href='mailto:info@vuzlyk.com'>напишіть нам листа</a>. Ми будемо раді допомогти!</p>"
+      answerHtml: "<p>Якщо ви не знайшли відповідь на своє питання, будь ласка, <a href='/contacts'>зв'яжіться з нами</a> або зателефонуйте за номером +380 63 284 03 21. Ми будемо раді допомогти!</p>"
     }
   ];
 
@@ -106,41 +97,38 @@
     });
   });
 
-  const graph = [];
-
-  const faqWebPage = {
-    "@type": "WebPage",
-    "@id": _canonicalUrl,
-    "url": _canonicalUrl,
-    "name": _pageTitle,
-    "description": _pageDescription,
-    "inLanguage": "uk",
-    "isPartOf": {
-      "@type": "WebSite",
-      "@id": _baseUrl + "/#website",
-      "url": _baseUrl + "/",
-      "name": "Вузлик до вузлика",
-      "publisher": { "@id": _baseUrl + "/#organization" }
+  const graph = [
+    {
+      "@type": "WebPage",
+      "@id": _canonicalUrl,
+      "url": _canonicalUrl,
+      "name": _pageTitle,
+      "description": _pageDescription,
+      "inLanguage": "uk",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": _baseUrl + "/#website",
+        "url": _baseUrl + "/",
+        "name": "Вузлик до вузлика",
+        "publisher": { "@id": _baseUrl + "/#organization" }
+      },
+      "breadcrumb": { "@id": _canonicalUrl + "#breadcrumb" },
+      "mainEntity": { "@id": _canonicalUrl + "#faqlist" } 
     },
-    "breadcrumb": { "@id": _canonicalUrl + "#breadcrumb" },
-    "mainEntity": { "@id": _canonicalUrl + "#faqlist" } 
-  };
-  graph.push(faqWebPage);
-
-  graph.push({
-    "@type": "BreadcrumbList",
-    "@id": _canonicalUrl + "#breadcrumb",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Головна", "item": _baseUrl + "/" },
-      { "@type": "ListItem", "position": 2, "name": "Часті питання (FAQ)", "item": _canonicalUrl }
-    ]
-  });
-
-  graph.push({
-    "@type": "FAQPage",
-    "@id": _canonicalUrl + "#faqlist", 
-    "mainEntity": faqPageMainEntity 
-  });
+    {
+      "@type": "BreadcrumbList",
+      "@id": _canonicalUrl + "#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Головна", "item": _baseUrl + "/" },
+        { "@type": "ListItem", "position": 2, "name": "Часті питання (FAQ)", "item": _canonicalUrl }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": _canonicalUrl + "#faqlist", 
+      "mainEntity": faqPageMainEntity 
+    }
+  ];
 %>
 <%- JSON.stringify({ "@context": "https://schema.org", "@graph": graph }, null, 0) %>
 </script>
@@ -150,14 +138,18 @@
 
     <main class="faq-page-main section-padding">
         <div class="container">
-            <h1 class="page-title text-center">Часті питання (FAQ)</h1>
+            <div class="text-center">
+                <span class="section-eyebrow">Допомога та інформація</span>
+                <h1 class="section-title">Часті питання (FAQ)</h1>
+            </div>
 
             <div class="faq-list">
-
                 <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
                         <span>Як зробити замовлення?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
                     <div class="faq-answer" id="faq-answer-1">
                         <div class="faq-answer-content">
@@ -166,12 +158,14 @@
                     </div>
                 </div>
 
-                 <div class="faq-item">
+                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
                         <span>Який термін виконання замовлення?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-2">
+                    <div class="faq-answer" id="faq-answer-2">
                         <div class="faq-answer-content">
                             <p>Термін виконання залежить від складності та обсягу вашого замовлення. Зазвичай це займає від 3 до 5 робочих днів. Ми обов'язково повідомимо вам точний час після отримання замовлення.</p>
                         </div>
@@ -181,83 +175,83 @@
                 <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
                         <span>Які способи оплати доступні?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-3">
+                    <div class="faq-answer" id="faq-answer-3">
                         <div class="faq-answer-content">
-                            <p>Після виконання вашого замовлення ми надішлемо реквізити для оплати на рахунок ФОП.</p>
+                            <p>Після узгодження всіх деталей вашого замовлення ми надішлемо офіційні реквізити для оплати на рахунок ФОП.</p>
                         </div>
                     </div>
                 </div>
 
-                 <div class="faq-item">
+                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
                         <span>Як я можу отримати замовлення?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-4">
+                    <div class="faq-answer" id="faq-answer-4">
                         <div class="faq-answer-content">
-                            <p>Ми відправляємо замовлення через Нову Пошту чи Укрпоштою. Ви можете вибрати зручний для вас спосіб доставки під час оформлення замовлення.</p>
+                            <p>Ми відправляємо замовлення по всій Україні та світу через Нову Пошту чи Укрпошту, а також доступний самовивіз у м. Бровари.</p>
                         </div>
                     </div>
                 </div>
 
-                 <div class="faq-item">
+                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
                         <span>Чи можна замовити вишивку за індивідуальним дизайном?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-5">
-                         <div class="faq-answer-content">
-                            <p>Так, ми приймаємо замовлення за індивідуальним дизайном. <a href="mailto:info@vuzlyk.com">Напишіть нам</a> свої побажання або надайте ескіз, і ми створимо для вас унікальну вишивку, що відповідає вашим вимогам.</p>
+                    <div class="faq-answer" id="faq-answer-5">
+                        <div class="faq-answer-content">
+                            <p>Так, ми з радістю приймаємо замовлення за індивідуальним дизайном. <a href="/contacts">Напишіть нам</a> свої побажання або надайте ескіз, і ми створимо для вас унікальну вишивку.</p>
                         </div>
                     </div>
                 </div>
 
-                 <div class="faq-item">
+                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-6">
                         <span>Чи можна змінити кольори вишивки?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-6">
-                         <div class="faq-answer-content">
-                            <p>Так, ви можете вказати бажані кольори в замовленні, і ми адаптуємо дизайн під ваші уподобання.</p>
+                    <div class="faq-answer" id="faq-answer-6">
+                        <div class="faq-answer-content">
+                            <p>Так, ви можете вказати бажані кольори в замовленні, і ми адаптуємо палітру ниток та тканину під ваші вподобання.</p>
                         </div>
                     </div>
                 </div>
 
-                 <div class="faq-item">
+                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-7">
                         <span>Чи можна замовити подарункову упаковку?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-7">
-                         <div class="faq-answer-content">
-                            <p>Так, ми можемо упакувати ваше замовлення в подарункову упаковку за додаткову плату. Виберіть цю опцію під час оформлення замовлення.</p>
+                    <div class="faq-answer" id="faq-answer-7">
+                        <div class="faq-answer-content">
+                            <p>Кожне наше замовлення ми пакуємо дуже естетично й дбайливо, щоб воно було одразу готовим до вручення у подарунок.</p>
                         </div>
                     </div>
                 </div>
 
-                 <div class="faq-item">
+                <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-8">
-                        <span>Чи є знижки на оптові замовлення?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span>Чи є знижки на оптові або корпоративні замовлення?</span>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
-                     <div class="faq-answer" id="faq-answer-8">
-                         <div class="faq-answer-content">
-                            <p>Так, ми пропонуємо знижки на оптові замовлення. <a href="mailto:info@vuzlyk.com">Зв'яжіться з нами</a> для отримання деталей та індивідуальної пропозиції.</p>
-                        </div>
-                    </div>
-                </div>
-
-                 <div class="faq-item">
-                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-9">
-                        <span>Чи можна замовити вишивку для команди або корпоративних заходів?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
-                    </button>
-                     <div class="faq-answer" id="faq-answer-9">
-                         <div class="faq-answer-content">
-                            <p>Так, ми створюємо вишивки для корпоративних клієнтів та команд. <a href="mailto:info@vuzlyk.com">Зв'яжіться з нами</a> для отримання деталей та індивідуальної пропозиції.</p>
+                    <div class="faq-answer" id="faq-answer-8">
+                        <div class="faq-answer-content">
+                            <p>Так, ми створюємо вишивки для корпоративних клієнтів та оптових замовлень на індивідуальних умовах. <a href="/contacts">Зв'яжіться з нами</a> для обговорення деталей.</p>
                         </div>
                     </div>
                 </div>
@@ -265,31 +259,37 @@
                 <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-10">
                         <span>Як доглядати за виробами ручної вишивки?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
                     <div class="faq-answer" id="faq-answer-10">
                         <div class="faq-answer-content">
-                            <p>Рекомендуємо ручне прання у прохолодній воді з м'яким миючим засобом. Уникайте сильного тертя та віджиму. Прасуйте виріб з виворітного боку через тонку тканину.</p>
-                            </div>
+                            <p>Рекомендуємо делікатне ручне прання у прохолодній воді з м'яким миючим засобом. Уникайте сильного тертя та перекручування. Прасуйте виріб з виворітного боку через тонку бавовняну тканину.</p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="faq-item">
                     <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-11">
                         <span>Моє питання не тут, як з вами зв'язатися?</span>
-                        <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        <span class="faq-icon-wrap">
+                            <svg class="faq-icon icon-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+                        </span>
                     </button>
                     <div class="faq-answer" id="faq-answer-11">
                         <div class="faq-answer-content">
-                            <p>Якщо ви не знайшли відповідь на своє питання, будь ласка, <a href="mailto:info@vuzlyk.com">напишіть нам листа</a>. Ми будемо раді допомогти!</p>
+                            <p>Зателефонуйте нам за номером <a href="tel:+380632840321">+380 63 284 03 21</a> або завітайте на сторінку <a href="/contacts">Контакти</a>. Ми з радістю допоможемо!</p>
                         </div>
                     </div>
                 </div>
-
-            </div> </div> </main>
+            </div>
+        </div>
+    </main>
 
     <%- include('partials/footer') %>
 
     <script src="/dist/main.bundle.js" defer></script>
-    <script src="/js/faq.js" defer></script> </body>
+    <script src="/js/faq.js" defer></script>
+</body>
 </html>

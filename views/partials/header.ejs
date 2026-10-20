@@ -16,9 +16,16 @@
                 <span>Каталог</span>
             </a>
             <ul class="submenu">
-                 <% (typeof categories !== 'undefined' && categories.length > 0 ? categories : [{name: 'Усі товари', slug: ''}]).forEach(category => { %>
+                <% (typeof categories !== 'undefined' && categories.length > 0 ? categories : [
+                    { name: 'Вишиті картини', slug: 'vyshyti-kartyny' },
+                    { name: 'Авторський одяг', slug: 'avtorskyi-odiah' },
+                    { name: 'Шопери та сумки', slug: 'shopery-ta-sumky' },
+                    { name: 'Вишиті прикраси', slug: 'vyshyti-prykrasy' },
+                    { name: 'Текстиль для дому', slug: 'tekstyl-dlia-domu' },
+                    { name: 'Закладки для книг', slug: 'zakladky-dlia-knyh' }
+                ]).forEach(category => { %>
                     <li><a href="/catalog?category=<%= category.slug %>"><%= category.name %></a></li>
-                 <% }) %>
+                <% }) %>
             </ul>
         </li>
         <li>
@@ -70,14 +77,19 @@
             <ul>
                 <li><a href="/">Головна</a></li>
                 <li class="has-dropdown">
-                    <a href="/catalog">Каталог <i class="fa-solid fa-chevron-down" style="font-size: 0.8em; margin-left: 4px;"></i></a>
+                    <a href="/catalog">Каталог <i class="fa-solid fa-chevron-down" style="font-size: 0.75em; margin-left: 5px;"></i></a>
                     <div class="dropdown-menu">
-                        <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
-                            <% categories.forEach(category => { %>
-                                <a href="/catalog?category=<%= category.slug %>"><%= category.name %></a>
-                            <% }) %>
-                        <% } %>
-                        <a href="/catalog"><b>Усі товари</b></a>
+                        <% (typeof categories !== 'undefined' && categories.length > 0 ? categories : [
+                            { name: 'Вишиті картини', slug: 'vyshyti-kartyny' },
+                            { name: 'Авторський одяг', slug: 'avtorskyi-odiah' },
+                            { name: 'Шопери та сумки', slug: 'shopery-ta-sumky' },
+                            { name: 'Вишиті прикраси', slug: 'vyshyti-prykrasy' },
+                            { name: 'Текстиль для дому', slug: 'tekstyl-dlia-domu' },
+                            { name: 'Закладки для книг', slug: 'zakladky-dlia-knyh' }
+                        ]).forEach(category => { %>
+                            <a href="/catalog?category=<%= category.slug %>"><%= category.name %></a>
+                        <% }) %>
+                        <a href="/catalog" class="dropdown-all-link"><b>Усі товари</b></a>
                     </div>
                 </li>
                 <li><a href="/blog">Блог</a></li>
@@ -92,7 +104,7 @@
                     <%= typeof currencySymbols !== 'undefined' && typeof selectedCurrency !== 'undefined' ? currencySymbols[selectedCurrency] : '₴' %>
                 </a>
             </div>
-            
+
             <button class="header-action-icon search-toggle" aria-label="Пошук">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
@@ -110,7 +122,7 @@
                     <i class="fa-regular fa-user"></i>
                 </a>
             <% } %>
-            
+
             <a href="/cart" class="header-action-icon header-cart" aria-label="Кошик">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <span class="cart-count"><%= typeof cartItemCount !== 'undefined' ? cartItemCount : 0 %></span>

@@ -26,7 +26,7 @@ router.get('/', async (req, res, next) => {
         const totalPages = Math.ceil(totalPublishedPosts / POSTS_PER_PAGE);
 
         res.render('blog/blog-index', { 
-            pageTitle: 'Блог майстерні "Вузлик до вузлика" - Статті про вишивку',
+            pageTitle: 'Блог - статті про вишивку',
             metaDescription: 'Читайте цікаві статті про українську вишивку, традиції, техніки та історію рукоділля в блозі майстерні "Вузлик до вузлика".',
             canonicalUrl: `${process.env.BASE_URL || 'https://vuzlyk.com'}/blog${page > 1 ? '?page=' + page : ''}`,
             posts: posts,

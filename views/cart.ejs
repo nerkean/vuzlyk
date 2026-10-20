@@ -7,8 +7,6 @@
     <meta name="description" content="Перегляд та керування товарами у вашому кошику в майстерні Вузлик до вузлика.">
     <meta name="robots" content="noindex">
 
-    <meta name="csrf-token" content="<%= csrfToken %>">
-
     <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
     <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
@@ -19,15 +17,17 @@
     <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
 
-    <link rel="stylesheet" href="/css/common.css"> <link rel="preload" href="/css/cart-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/cart-page.css"></noscript>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
-
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/cart-page.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <%- include('partials/header') %> <main class="cart-page-main">
+    <%- include('partials/header') %>
+
+    <main class="cart-page-main">
         <div class="container">
+            <span class="section-eyebrow text-center" style="display: table; margin: 0 auto 10px;">Покупки</span>
             <h1 class="page-title">Ваш кошик</h1>
 
             <% if (cartItems && cartItems.length > 0) { %>
@@ -50,7 +50,7 @@
                                              width="100"
                                              height="120"
                                              loading="lazy"
-                                             onerror="this.onerror=null; this.src='/images/placeholder.png';">
+                                             onerror="this.onerror=null; this.src='/images/placeholder.svg';">
                                     </a>
                                 </div>
                                 <div class="cart-item-details">
@@ -76,33 +76,34 @@
                                 </div>
                             </div>
                         <% }); %>
-                        </div>
+                    </div>
 
-                        <div class="cart-summary">
-                            <h2 class="summary-title">Підсумок кошика</h2>
-                            <div class="summary-row">
-                                <span>Проміжний підсумок:</span>
-                                <span class="subtotal-amount"><%= formatPrice(subtotal, selectedCurrency, exchangeRates, currencySymbols) %></span>
-                            </div>
-                            <div class="summary-row shipping-note">
-                                <span>Доставка:</span>
-                                <span>Буде розрахована на наступному кроці</span>
-                            </div>
-                            <div class="summary-row total-row">
-                                <span>До сплати:</span>
-                                <span class="total-amount"><%= formatPrice(total, selectedCurrency, exchangeRates, currencySymbols) %></span>
-                            </div>
-                            <div class="cart-actions">
-                                <a href="/checkout" class="btn btn-primary btn-lg checkout-button">Оформити замовлення</a>
-                                <a href="/catalog" class="btn btn-secondary continue-shopping-button">Продовжити покупки</a>
-                            </div>
+                    <div class="cart-summary">
+                        <h2 class="summary-title">Підсумок кошика</h2>
+                        <div class="summary-row">
+                            <span>Проміжний підсумок:</span>
+                            <span class="subtotal-amount"><%= formatPrice(subtotal, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                        </div>
+                        <div class="summary-row shipping-note">
+                            <span>Доставка:</span>
+                            <span>Розраховується при оформленні</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>До сплати:</span>
+                            <span class="total-amount"><%= formatPrice(total, selectedCurrency, exchangeRates, currencySymbols) %></span>
+                        </div>
+                        <div class="cart-actions">
+                            <a href="/checkout" class="btn btn-primary btn-lg checkout-button">Оформити замовлення <i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="/catalog" class="btn btn-secondary continue-shopping-button">Продовжити покупки</a>
                         </div>
                     </div>
+                </div>
 
             <% } else { %>
                 <div class="cart-empty">
+                    <div class="empty-cart-icon"><i class="fa-solid fa-bag-shopping"></i></div>
                     <p>Ваш кошик порожній.</p>
-                    <a href="/catalog" class="btn btn-primary">Перейти до каталогу</a>
+                    <a href="/catalog" class="btn btn-primary btn-lg">Перейти до каталогу <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             <% } %>
 
@@ -112,5 +113,5 @@
     <%- include('partials/footer') %>
 
     <script src="/dist/main.bundle.js" defer></script>
-    </body>
+</body>
 </html>

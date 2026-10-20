@@ -6,7 +6,7 @@
 
     <%
     const optimizeImg = (url, params) => {
-        if (!url) return '/images/placeholder.png';
+        if (!url) return '/images/placeholder.svg';
         if (url.includes('res.cloudinary.com')) {
             return url.replace('/upload/', `/upload/f_auto,q_auto,${params}/`);
         }
@@ -43,7 +43,7 @@
               fetchpriority="high">
     <% } %>
 
-     <% if (locals.isProduction && locals.gaMeasurementId) { %>
+    <% if (locals.isProduction && locals.gaMeasurementId) { %>
         <script async src="https://www.googletagmanager.com/gtag/js?id=<%= locals.gaMeasurementId %>"></script>
         <script>
           window.dataLayer = window.dataLayer || [];
@@ -51,40 +51,13 @@
           gtag('js', new Date());
           gtag('config', 'AW-17036727455');
           gtag('config', '<%= locals.gaMeasurementId %>');
-          console.log('GA4 Initialized for Blog Post with ID:', '<%= locals.gaMeasurementId %>');
         </script>
     <% } %>
 
-    <style>
-        .article-image-container {
-            aspect-ratio: 16/9;
-            background-color: #EAEAEA;
-            width: 100%;
-            margin: 0 0 40px 0;
-            border-radius: 24px;
-            overflow: hidden;
-            position: relative;
-        }
-        .article-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-    </style>
-
     <link rel="stylesheet" href="/css/common.css"> 
-
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
-    
-    <link rel="preload" href="/css/blog-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/blog-page.css"></noscript>
-
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
+    <link rel="stylesheet" href="/css/blog-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <meta property="og:title" content="<%= pageTitle %>">
     <meta property="og:description" content="<%= metaDescription %>">
@@ -110,7 +83,6 @@
         <%- JSON.stringify(jsonLd) %>
     </script>
 <% } %>
-
 </head>
 <body>
     <div class="reading-progress-bar" id="readingProgressBar"></div>
@@ -119,25 +91,34 @@
 
     <main class="blog-page-main section-padding">
         <div class="container article-container">
-            <article class="blog-article"> 
-            <% if (post.imageUrl) { %>
-                <figure class="article-image-container" data-aos="fade-in" data-aos-duration="800">
-                    <img src="<%= optimizeImg(post.imageUrl, 'w_800,c_limit') %>" 
-                         srcset="<%= optimizeImg(post.imageUrl, 'w_400,c_limit') %> 400w, 
-                                 <%= optimizeImg(post.imageUrl, 'w_800,c_limit') %> 800w, 
-                                 <%= optimizeImg(post.imageUrl, 'w_1200,c_limit') %> 1200w"
-                         sizes="(max-width: 768px) 100vw, 900px"
-                         alt="Головне зображення для статті <%= post.title %>" 
-                         class="article-image"
-                         width="1200"
-                         height="675"
-                         fetchpriority="high"
-                         decoding="async">
-                </figure>
-            <% } %>
+            <nav class="article-breadcrumbs" aria-label="Хлібні крихти">
+                <a href="/">Головна</a>
+                <span>/</span>
+                <a href="/blog">Блог</a>
+                <span>/</span>
+                <span class="current-crumb"><%= post.title %></span>
+            </nav>
 
-                <div class="article-content-wrapper"> 
+            <article class="blog-article"> 
+                <% if (post.imageUrl) { %>
+                    <figure class="article-image-container" data-aos="fade-in" data-aos-duration="800">
+                        <img src="<%= optimizeImg(post.imageUrl, 'w_800,c_limit') %>" 
+                             srcset="<%= optimizeImg(post.imageUrl, 'w_400,c_limit') %> 400w, 
+                                     <%= optimizeImg(post.imageUrl, 'w_800,c_limit') %> 800w, 
+                                     <%= optimizeImg(post.imageUrl, 'w_1200,c_limit') %> 1200w"
+                             sizes="(max-width: 768px) 100vw, 900px"
+                             alt="Головне зображення для статті <%= post.title %>" 
+                             class="article-image"
+                             width="1200"
+                             height="675"
+                             fetchpriority="high"
+                             decoding="async">
+                    </figure>
+                <% } %>
+
+                <div class="article-content-wrapper <%= !post.imageUrl ? 'no-hero-image' : '' %>"> 
                     <header class="article-header" data-aos="fade-up">
+                        <span class="section-eyebrow">Стаття майстерні</span>
                         <h1 class="article-title"><%= post.title %></h1>
                         <% if (post.publishedAt) { %>
                             <div class="article-meta-wrapper">
@@ -150,7 +131,7 @@
                                             <i class="far fa-user"></i> <%= post.authorDisplay %>
                                         </span>
                                     <% } %>
-                                     <% if (post.views > 0) { %>
+                                    <% if (post.views > 0) { %>
                                         <span class="article-views" title="Перегляди">
                                             <i class="far fa-eye"></i> <%= post.views %>
                                         </span>
@@ -169,7 +150,7 @@
                             <div class="article-tags">
                                 <strong><i class="fas fa-tags"></i> Теги:</strong>
                                 <% post.tags.forEach(tag => { %>
-                                    <span class="tag-link"><%= tag %></span>
+                                    <span class="tag-link">#<%= tag %></span>
                                 <% }); %>
                             </div>
                         <% } %>
@@ -191,8 +172,8 @@
                     </div>
 
                     <div class="article-navigation" data-aos="fade-up" data-aos-delay="200">
-                        <a href="/blog" class="btn btn-secondary article-back-btn">
-                            <i class="fas fa-arrow-left"></i> Повернутися до всіх статей
+                        <a href="/blog" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left" style="margin-right: 8px; margin-left: 0;"></i> Повернутися до всіх статей
                         </a>
                     </div>
                 </div> 
@@ -206,14 +187,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <script defer>
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof AOS !== 'undefined') { AOS.init({ once: true, duration: 600, offset: 50 }); }
+            if (typeof AOS !== 'undefined') { AOS.init({ once: true, duration: 650, offset: 50 }); }
 
             const progressBar = document.getElementById('readingProgressBar');
             window.addEventListener('scroll', () => {
                 const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
                 const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrolled = (winScroll / height) * 100;
-                progressBar.style.width = scrolled + '%';
+                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+                if (progressBar) progressBar.style.width = scrolled + '%';
             });
         });
 

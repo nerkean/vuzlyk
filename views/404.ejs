@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сторінку не знайдено (404) - Вузлик до вузлика</title> <meta name="description" content="На жаль, сторінку, яку ви шукали на сайті Вузлик до вузлика, не знайдено.">
+    <title>Сторінку не знайдено (404) - Вузлик до вузлика</title>
+    <meta name="description" content="На жаль, сторінку, яку ви шукали на сайті Вузлик до вузлика, не знайдено.">
     <meta name="robots" content="noindex">
 
     <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -15,30 +16,32 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/images/favicon/site.webmanifest" />
 
-    <link rel="stylesheet" href="/css/common.css">
-
-    <link rel="preload" href="/css/404.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/404.css"></noscript>
-
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/404.css">
 </head>
 <body>
-    <%- include('partials/header') %> <main class="error-404-page">
+    <%- include('partials/header') %>
+
+    <main class="error-404-page">
         <div class="container error-container">
+            <span class="error-badge">✦ Загублений вузлик ✦</span>
             <div class="error-code">404</div>
             <h1 class="error-heading">Ой! Сторінку не знайдено</h1>
             <p class="error-message">
-                Здається, ви заблукали або сторінка, яку ви шукаєте, більше не існує.
-                Спробуйте повернутися на головну сторінку.
+                Здається, ця ниточка обірвалася або сторінка, яку ви шукаєте, переїхала за новою адресою. Повернімося до нашої майстерні!
             </p>
-            <a href="/" class="btn btn-primary error-home-link">Повернутися на Головну</a>
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary error-home-link">Повернутися на Головну <i class="fa-solid fa-house"></i></a>
+                <a href="/catalog" class="btn btn-secondary">Переглянути Каталог</a>
+            </div>
         </div>
     </main>
 
     <%- include('partials/footer') %>
 
-    </body>
+    <script src="/dist/main.bundle.js" defer></script>
+</body>
 </html>

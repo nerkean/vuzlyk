@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Підтвердження Email - Вузлик</title>
+    <title>Підтвердження Email - Вузлик до вузлика</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
     <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="/images/favicon/site.webmanifest" />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <link rel="preload" href="/fonts/roboto-v47-cyrillic_latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/montserrat-v29-cyrillic_latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/auth.css">
-    <link rel="preload" href="/css/auth.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/auth.css"></noscript>
-    <link rel="preload" href="/css/verification-page.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/verification-page.css"></noscript>
-     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
+    <link rel="stylesheet" href="/css/verification-page.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <%- include('partials/header') %>
@@ -25,7 +26,10 @@
     <main>
         <section class="auth-section section-padding">
             <div class="container">
-                <h1 class="section-title text-center">Підтвердження Реєстрації</h1>
+                <div class="text-center">
+                    <span class="section-eyebrow">Захист облікового запису</span>
+                    <h1 class="section-title text-center">Підтвердження Реєстрації</h1>
+                </div>
 
                 <% if (typeof error !== 'undefined' && error) { %>
                     <div class="alert alert-danger" role="alert">
@@ -33,25 +37,32 @@
                     </div>
                 <% } %>
 
-
-                <div class="verification-info">
-                    <p>На вашу пошту <strong><%= email %></strong> було відправлено 6-значний код підтвердження.</p>
-                    <p>Будь ласка, введіть його нижче. Код дійсний протягом 15 хвилин.</p>
-
-                    <p class="spam-warning">
-                        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-                        Якщо ви не бачите листа, будь ласка, перевірте папку "Спам". Якщо лист там, позначте його як "Не спам", щоб майбутні листи надходили до основної папки.
-                </div>
-
                 <form action="/verify-code" method="POST" class="auth-form">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <div class="form-group">
-                        <label for="code">Код підтвердження:</label>
+                    <% if (typeof csrfToken !== 'undefined' && csrfToken) { %>
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+
+                    <div class="verification-info">
+                        <div class="verification-mail-icon">
+                            <i class="fa-regular fa-envelope-open"></i>
+                        </div>
+                        <p>На вашу пошту <strong><%= email %></strong> було відправлено 6-значний код підтвердження.</p>
+                        <p class="verification-subtext">Будь ласка, введіть його нижче. Код дійсний протягом 15 хвилин.</p>
+
+                        <div class="spam-warning">
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            <span>Якщо ви не бачите листа, перевірте папку <strong>«Спам»</strong> та позначте його як «Не спам».</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <label for="code">Код підтвердження</label>
                         <input
                             type="text"
                             id="code"
                             name="code"
                             class="form-control code-input"
+                            placeholder="000000"
                             required
                             maxlength="6"
                             pattern="\d{6}" 
@@ -63,16 +74,17 @@
                     </div>
 
                     <div class="form-group text-center">
-                        <button type="submit" class="btn btn-primary">Підтвердити</button>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Підтвердити <i class="fa-solid fa-check"></i></button>
                     </div>
 
-                     <p class="text-center mt-3">
-                         <a href="/resend-verification?email=<%= encodeURIComponent(email) %>">Надіслати код ще раз</a>
-                     </p>
-
-                     <p class="text-center mt-3">
-                         <a href="/register">Повернутися до реєстрації</a>
-                    </p>
+                    <div class="verification-links text-center">
+                        <p class="mt-3">
+                            <a href="/resend-verification?email=<%= encodeURIComponent(email) %>" class="register">Надіслати код ще раз</a>
+                        </p>
+                        <p class="mt-3" style="margin-bottom: 0;">
+                            <a href="/register" class="back-link"><i class="fa-solid fa-arrow-left"></i> Повернутися до реєстрації</a>
+                        </p>
+                    </div>
                 </form>
             </div>
         </section>
