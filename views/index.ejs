@@ -27,8 +27,8 @@
           imagesrcset="/images/image1-480w.webp 480w, /images/image1-800w.webp 800w, /images/image1-1200w.webp 1200w, /images/image1-1600w.webp 1600w, /images/image1-original.webp 1920w" 
           imagesizes="100vw" fetchpriority="high">
 
-    <link rel="preload" href="/css/homepage.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/css/homepage.css"></noscript>
+    <link rel="preload" href="/css/homepage.css?v=<%= appVersion %>" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/css/homepage.css?v=<%= appVersion %>"></noscript>
 
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous" referrerpolicy="no-referrer">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer"></noscript>
@@ -37,10 +37,10 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" /></noscript>
 
     <% if (isProduction) { %>
-        <link rel="preload" href="/dist/main.bundle.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <noscript><link rel="stylesheet" href="/dist/main.bundle.css"></noscript>
+        <link rel="preload" href="/dist/main.bundle.css?v=<%= appVersion %>" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/dist/main.bundle.css?v=<%= appVersion %>"></noscript>
     <% } else { %>
-        <link rel="stylesheet" href="/dist/main.bundle.css">
+        <link rel="stylesheet" href="/dist/main.bundle.css?v=<%= appVersion %>">
     <% } %>
 
     <script type="application/ld+json">
@@ -535,7 +535,7 @@
 
     <%- include('partials/footer') %>
 
-    <script src="/dist/main.bundle.js" defer></script>
+    <script src="/dist/main.bundle.js?v=<%= appVersion %>" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha512-A7AYk1fGKX6S2SsHywmPkrnzTZHrgiVT7GcQkLGDe2ev0aWb8zejytzS8wjo7PGEXKqJOrjQ4oORtnimIRZBtw==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 
     <script defer>

@@ -137,8 +137,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 if (process.env.NODE_ENV === 'production') {
     app.use('/dist', express.static(path.join(__dirname, 'public', 'dist'), {
-        immutable: true,
-        maxAge: '1y'
+        maxAge: '7d'
     }));
 
     app.use('/fonts', express.static(path.join(__dirname, 'public', 'fonts'), {
@@ -308,6 +307,8 @@ async function fetchAndUpdateRates() {
 fetchAndUpdateRates();
 setInterval(fetchAndUpdateRates, 6 * 60 * 60 * 1000);
 
+const APP_VERSION = Date.now();
+
 app.use(async (req, res, next) => {
     let currentCurrency = 'UAH';
     const queryCurrency = req.query.currency?.toUpperCase();
@@ -379,6 +380,7 @@ app.use(async (req, res, next) => {
     res.locals.isProduction = process.env.NODE_ENV === 'production';
     res.locals.formatPrice = app.locals.formatPrice;
     res.locals.baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    res.locals.appVersion = APP_VERSION;
     next();
 });
 
